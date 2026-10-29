@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAC Honduras — Gestión del Censo</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <style>
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+        .chart-card {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--glass-border);
+            padding: 24px;
+        }
+        .chart-card h3 {
+            font-family: var(--font-serif);
+            color: var(--primary-dark);
+            font-size: 1.05rem;
+            margin-bottom: 16px;
+        }
+        .chart-card .chart-wrap { position: relative; height: 260px; }
+
+        .filtros-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .filtros-grid .form-group { margin-bottom: 0; }
+
+        .nombre-censo-link {
+            background: none; border: none; padding: 0; font: inherit; cursor: pointer;
+            color: var(--primary-dark); font-weight: 700; text-decoration: none;
+        }
+        .nombre-censo-link:hover { color: var(--accent); text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<!-- ── Navbar ───────────────────────────────────────────── -->
+<nav class="navbar" id="navbar">
+    <a href="/" class="navbar-brand">
+        <div class="navbar-escudo"><img src="../img/logo.png" class="logo" alt="Logo JAC"></div>
+        <div class="navbar-titulo">
+            JAC Honduras
+            <span>Gestión del Censo</span>
+        </div>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Abrir menú">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <div class="navbar-links" id="navbarLinks">
+        <a href="/">Inicio</a>
+        <a href="/panel-jac-2024">Admin</a>
+        <a href="/gestionar-censo" class="active">Censo</a>
+        <a href="#" style="color:#ef4444;" onclick="cerrarSesion()">Cerrar Sesión</a>
+    </div>
+</nav>
+
+<!-- Header -->
+<section style="background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); padding: 36px 2rem; margin-top: 80px;">
+    <div class="contenedor-wide">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <div>
+                <div class="hero-badge" style="margin-bottom:8px;">Panel Administrativo</div>
+                <h1 style="font-family:'Playfair Display',serif; color:white; font-size:1.6rem; font-weight:700;">
+                    Gestión del Censo Comunitario
+                </h1>
+                <p style="color:rgba(255,255,255,0.8); font-size:0.875rem;" id="adminNombre">
+                    Bienvenido, Administrador
+                </p>
+            </div>
+            <a href="/panel-jac-2024" class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15);">← Volver al Panel Admin</a>
+        </div>
+    </div>
+</section>
+
+<!-- Estadísticas -->
+<section class="seccion" style="padding-bottom:0;">
+    <div class="contenedor-wide">
+        <h2 class="section-title" style="font-size:1.8rem; text-align:left;">📊 Estadísticas Generales</h2>
+        <p class="section-subtitle" style="text-align:left; margin:0 0 20px;">Resumen agregado de todos los censos registrados por la comunidad.</p>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-num" id="statCensoTotal">—</div>
+                <div class="stat-label">Total Personas Censadas</div>
+            </div>
+            <div class="stat-card" style="border-left-color:#0369a1;">
+                <div class="stat-num" id="statHogares">—</div>
+                <div class="stat-label">Hogares Registrados</div>
+            </div>
+            <div class="stat-card" style="border-left-color:#f59e0b;">
+                <div class="stat-num" id="statPromedioHogar">—</div>
+                <div class="stat-label">Promedio Personas / Hogar</div>
+            </div>
+            <div class="stat-card" style="border-left-color:#7c3aed;">
+                <div class="stat-num" id="statConDiscapacidad">—</div>
+                <div class="stat-label">Personas con Discapacidad</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>Distribución por Sexo</h3>
+                <div class="chart-wrap"><canvas id="chartSexo"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <h3>Distribución por Edades</h3>
+                <div class="chart-wrap"><canvas id="chartEdad"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <h3>Distribución por Ciudad / Municipio</h3>
+                <div class="chart-wrap"><canvas id="chartCiudad"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <h3>Distribución por Ocupación</h3>
+                <div class="chart-wrap"><canvas id="chartOcupacion"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <h3>Distribución por Nivel Educativo</h3>
+                <div class="chart-wrap"><canvas id="chartNivelEducativo"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <h3>Necesidades Prioritarias más Comunes</h3>
+                <div class="chart-wrap"><canvas id="chartNecesidad"></canvas></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filtros y tabla -->
+<section class="seccion">
+    <div class="contenedor-wide">
+        <h2 class="section-title" style="font-size:1.8rem; text-align:left;">📋 Censos Registrados</h2>
+        <p class="section-subtitle" style="text-align:left; margin:0 0 20px;">Consulta, filtra y administra los censos realizados por la comunidad.</p>
+
+        <div class="filtros-grid">
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="filtroNombre" placeholder="Buscar por nombre...">
+            </div>
+            <div class="form-group">
+                <label>Documento</label>
+                <input type="text" id="filtroDocumento" placeholder="Número de documento...">
+            </div>
+            <div class="form-group">
+                <label>Ciudad / Municipio</label>
+                <input type="text" id="filtroCiudad" placeholder="Ej: Honduras, Cauca">
+            </div>
+            <div class="form-group">
+                <label>Sexo</label>
+                <select id="filtroSexo">
+                    <option value="">Todos</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Femenino">Femenino</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Ocupación</label>
+                <input type="text" id="filtroOcupacion" placeholder="Ej: Agricultor">
+            </div>
+            <div class="form-group">
+                <label>Fecha desde</label>
+                <input type="date" id="filtroFechaDesde">
+            </div>
+            <div class="form-group">
+                <label>Fecha hasta</label>
+                <input type="date" id="filtroFechaHasta">
+            </div>
+            <div class="form-group">
+                <label>Revisión</label>
+                <select id="filtroRevision">
+                    <option value="">Todos</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Revisado">Revisado</option>
+                </select>
+            </div>
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="cargarCensos()">🔍 Filtrar</button>
+            <button class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15);" onclick="limpiarFiltros()">✕ Limpiar Filtros</button>
+        </div>
+
+        <div id="contenidoTablaCenso">
+            <div class="cargando"><div class="spinner"></div>Cargando censos...</div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Modal Detalle / Editar Censo ──────────────────────── -->
+<div class="modal-overlay" id="modalCenso">
+    <div class="modal-content" style="max-width:800px; text-align:left; padding:32px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+            <h2 style="font-family:'Playfair Display',serif; color:var(--primary); font-size:1.4rem;">Detalle del Censo</h2>
+            <button onclick="cerrarModalCenso()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-muted);">✕</button>
+        </div>
+
+        <input type="hidden" id="mcId">
+        <input type="hidden" id="mcAutorizacion">
+
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:var(--bg-light); border-radius:10px; padding:12px 16px; margin-bottom:20px;">
+            <div style="font-size:0.85rem; color:var(--text-muted);">
+                Autorización: <strong id="mcAutorizacionTexto" style="color:var(--text-main);">—</strong>
+                &nbsp;·&nbsp; Revisión: <span class="badge" id="mcEstadoRevisionBadge">—</span>
+            </div>
+            <button class="btn btn-sm" id="btnToggleRevision" style="background:var(--accent); color:#fff;" onclick="alternarRevisionCenso()">Marcar como Revisado</button>
+        </div>
+
+        <h3 style="color:var(--primary); font-size:1rem; margin:0 0 4px;">Datos personales</h3>
+        <div class="form-grid">
+            <div class="form-group"><label>Nombres <span class="req">*</span></label><input type="text" id="mcNombres"></div>
+            <div class="form-group"><label>Apellidos <span class="req">*</span></label><input type="text" id="mcApellidos"></div>
+            <div class="form-group">
+                <label>Tipo de Documento</label>
+                <select id="mcTipoDocumento">
+                    <option value="Cedula de Ciudadania">Cédula de Ciudadanía</option>
+                    <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
+                    <option value="Cedula de Extranjeria">Cédula de Extranjería</option>
+                    <option value="Registro Civil">Registro Civil</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Número de Documento <span class="req">*</span></label><input type="text" id="mcNumeroDocumento"></div>
+            <div class="form-group"><label>Fecha de Nacimiento <span class="req">*</span></label><input type="date" id="mcFechaNacimiento"></div>
+            <div class="form-group">
+                <label>Sexo <span class="req">*</span></label>
+                <select id="mcSexo">
+                    <option value="Masculino">Masculino</option>
+                    <option value="Femenino">Femenino</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Estado Civil</label>
+                <select id="mcEstadoCivil">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Soltero(a)">Soltero(a)</option>
+                    <option value="Casado(a)">Casado(a)</option>
+                    <option value="Union libre">Unión libre</option>
+                    <option value="Divorciado(a)">Divorciado(a)</option>
+                    <option value="Viudo(a)">Viudo(a)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Etnia</label>
+                <select id="mcEtnia">
+                    <option value="">— Ninguna —</option>
+                    <option value="Mestizo">Mestizo</option>
+                    <option value="Afrodescendiente">Afrodescendiente</option>
+                    <option value="Indigena">Indígena</option>
+                    <option value="Raizal">Raizal</option>
+                    <option value="Palenquero">Palenquero</option>
+                    <option value="ROM/Gitano">ROM / Gitano</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Discapacidad</label>
+                <select id="mcDiscapacidad">
+                    <option value="Ninguna">Ninguna</option>
+                    <option value="Visual">Visual</option>
+                    <option value="Auditiva">Auditiva</option>
+                    <option value="Fisica / Motriz">Física / Motriz</option>
+                    <option value="Cognitiva">Cognitiva</option>
+                    <option value="Psicosocial">Psicosocial</option>
+                    <option value="Multiple">Múltiple</option>
+                </select>
+            </div>
+        </div>
+
+        <h3 style="color:var(--primary); font-size:1rem; margin:16px 0 4px;">Ubicación y vivienda</h3>
+        <div class="form-grid">
+            <div class="form-group" style="grid-column: 1 / -1;"><label>Dirección</label><input type="text" id="mcDireccion"></div>
+            <div class="form-group"><label>Barrio / Vereda</label><input type="text" id="mcBarrioVereda"></div>
+            <div class="form-group"><label>Ciudad / Municipio <span class="req">*</span></label><input type="text" id="mcCiudadMunicipio"></div>
+            <div class="form-group">
+                <label>Ubicación de la Vivienda</label>
+                <select id="mcZonaVivienda">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Territorio comunitario">Territorio comunitario</option>
+                    <option value="Zona urbana">Zona urbana</option>
+                    <option value="Zona rural">Zona rural</option>
+                    <option value="Resguardo o territorio colectivo">Resguardo, reserva, cabildo o territorio colectivo</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Tenencia de la Vivienda</label>
+                <select id="mcTipoVivienda">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Propia">Propia</option>
+                    <option value="Alquilada">Alquilada</option>
+                    <option value="Prestada">Prestada</option>
+                    <option value="Colectiva/comunitaria">Colectiva / comunitaria</option>
+                    <option value="Otra">Otra</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Personas en el hogar</label><input type="number" id="mcPersonasHogar" min="1"></div>
+            <div class="form-group"><label>Familias en el hogar</label><input type="number" id="mcFamiliasHogar" min="1"></div>
+        </div>
+
+        <h3 style="color:var(--primary); font-size:1rem; margin:16px 0 4px;">Materiales de construcción</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Paredes</label>
+                <select id="mcMaterialParedes">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Bloque/Ladrillo">Bloque / Ladrillo</option>
+                    <option value="Concreto">Concreto</option>
+                    <option value="Madera">Madera</option>
+                    <option value="Bahareque/Adobe">Bahareque / Adobe</option>
+                    <option value="Lamina/Zinc">Lámina / Zinc</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Piso</label>
+                <select id="mcMaterialPiso">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Cemento">Cemento</option>
+                    <option value="Baldosa/Ceramica">Baldosa / Cerámica</option>
+                    <option value="Madera">Madera</option>
+                    <option value="Tierra">Tierra</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Techo</label>
+                <select id="mcMaterialTecho">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Zinc/Lamina">Zinc / Lámina</option>
+                    <option value="Teja">Teja</option>
+                    <option value="Concreto/Placa">Concreto / Placa</option>
+                    <option value="Paja/Palma">Paja / Palma</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+        </div>
+
+        <h3 style="color:var(--primary); font-size:1rem; margin:16px 0 4px;">Servicios básicos y tecnología</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Agua Potable</label>
+                <select id="mcAccesoAgua">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Si">Sí</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Fuente Principal de Agua</label>
+                <select id="mcFuenteAgua">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Acueducto">Acueducto</option>
+                    <option value="Rio">Río</option>
+                    <option value="Quebrada">Quebrada</option>
+                    <option value="Pozo">Pozo</option>
+                    <option value="Manantial">Manantial</option>
+                    <option value="Agua lluvia">Agua lluvia</option>
+                    <option value="Otra">Otra</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Electricidad</label>
+                <select id="mcAccesoElectricidad">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Si">Sí</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Gas</label>
+                <select id="mcAccesoGas">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Si">Sí</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Eliminación de Excretas</label>
+                <select id="mcSistemaExcretas">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Alcantarillado">Alcantarillado</option>
+                    <option value="Pozo septico">Pozo séptico</option>
+                    <option value="Letrina">Letrina</option>
+                    <option value="A cielo abierto">A cielo abierto</option>
+                    <option value="No tiene">No tiene</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Recolección de Residuos</label>
+                <select id="mcAccesoResiduos">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Si">Sí</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Telefonía</label>
+                <select id="mcAccesoTelefonia">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Si">Sí</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Disponibilidad de Tecnología</label>
+                <div id="mcTecnologiaGrupo" style="display:flex; gap:16px; flex-wrap:wrap; padding:12px 0;">
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Internet" style="width:auto;"> Internet</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Computador" style="width:auto;"> Computador</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Celular Inteligente" style="width:auto;"> Celular Inteligente</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Televisor" style="width:auto;"> Televisor</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Radio" style="width:auto;"> Radio</label>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="color:var(--primary); font-size:1rem; margin:16px 0 4px;">Salud, actividad económica y movilidad</h3>
+        <div class="form-grid">
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Acceso a Servicios de Salud</label>
+                <div id="mcSaludGrupo" style="display:flex; gap:16px; flex-wrap:wrap; padding:12px 0;">
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Puesto o centro de salud" style="width:auto;"> Puesto o centro de salud</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Hospital" style="width:auto;"> Hospital</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Medicina tradicional" style="width:auto;"> Medicina tradicional</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Promotor comunitario" style="width:auto;"> Promotor(a) comunitario(a)</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Ninguno" style="width:auto;"> Ninguno</label>
+                </div>
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Actividades Económicas de la Familia</label>
+                <div id="mcActividadesGrupo" style="display:flex; gap:16px; flex-wrap:wrap; padding:12px 0;">
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Agricultura" style="width:auto;"> Agricultura</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Pesca" style="width:auto;"> Pesca</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Ganaderia" style="width:auto;"> Ganadería</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Artesania" style="width:auto;"> Artesanía</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Comercio" style="width:auto;"> Comercio</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Trabajo asalariado" style="width:auto;"> Trabajo asalariado</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Trabajo comunitario" style="width:auto;"> Trabajo comunitario</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Recoleccion o aprovechamiento del territorio" style="width:auto;"> Recolección o aprovechamiento del territorio</label>
+                    <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Actividad cultural o artistica" style="width:auto;"> Actividad cultural o artística</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Personas Ausentes Temporalmente</label>
+                <input type="number" id="mcPersonasAusentes" min="0">
+            </div>
+            <div class="form-group">
+                <label>Motivo Principal de la Ausencia</label>
+                <select id="mcMotivoAusencia">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Trabajo">Trabajo</option>
+                    <option value="Estudio">Estudio</option>
+                    <option value="Salud">Salud</option>
+                    <option value="Desplazamiento">Desplazamiento</option>
+                    <option value="Visita familiar">Visita familiar</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>¿Alguien Retornó Recientemente?</label>
+                <select id="mcRetornoReciente">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Si">Sí</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+        </div>
+
+        <h3 style="color:var(--primary); font-size:1rem; margin:16px 0 4px;">Necesidades Prioritarias de la Familia</h3>
+        <div id="mcNecesidadesGrupo" style="display:flex; gap:14px 20px; flex-wrap:wrap; padding:4px 0 12px;">
+            <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Agua potable" style="width:auto;"> Agua potable</label>
+            <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Vivienda" style="width:auto;"> Vivienda</label>
+            <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Alimentacion" style="width:auto;"> Alimentación</label>
+            <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Salud" style="width:auto;"> Salud</label>
+            <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Educacion" style="width:auto;"> Educación</label>
+            <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Empleo o generacion de ingresos" style="width:auto;"> Empleo o generación de ingresos</label>
+            <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Vias y transporte" style="width:auto;"> Vías y transporte</label>
+            <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Energia electrica" style="width:auto;"> Energía eléctrica</label>
+            <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Internet y comunicacion" style="width:auto;"> Internet y comunicación</label>
+            <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Proteccion del territorio" style="width:auto;"> Protección del territorio</label>
+            <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Fortalecimiento cultural y de la lengua" style="width:auto;"> Fortalecimiento cultural y de la lengua</label>
+            <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Atencion para personas mayores" style="width:auto;"> Atención para personas mayores</label>
+            <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Atencion para ninas ninos y adolescentes" style="width:auto;"> Atención para niñas, niños y adolescentes</label>
+            <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Atencion para personas con discapacidad" style="width:auto;"> Atención para personas con discapacidad</label>
+        </div>
+
+        <h3 style="color:var(--primary); font-size:1rem; margin:16px 0 4px;">Contacto</h3>
+        <div class="form-grid">
+            <div class="form-group"><label>Teléfono</label><input type="tel" id="mcTelefono"></div>
+            <div class="form-group"><label>Correo</label><input type="email" id="mcCorreo"></div>
+        </div>
+
+        <h3 style="color:var(--primary); font-size:1rem; margin:16px 0 4px;">Información socioeconómica</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Nivel Educativo</label>
+                <select id="mcNivelEducativo">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Ninguno">Ninguno</option>
+                    <option value="Primaria">Primaria</option>
+                    <option value="Secundaria">Secundaria</option>
+                    <option value="Tecnico/Tecnologo">Técnico / Tecnólogo</option>
+                    <option value="Universitario">Universitario</option>
+                    <option value="Posgrado">Posgrado</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Ocupación</label><input type="text" id="mcOcupacion"></div>
+            <div class="form-group" style="grid-column: 1 / -1;"><label>Observaciones</label><textarea id="mcObservaciones"></textarea></div>
+        </div>
+
+        <h3 style="color:var(--primary); font-size:1rem; margin:16px 0 4px;">Miembros del Hogar</h3>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin:-4px 0 8px;">Personas registradas además del titular. Solo el afiliado puede agregarlas o editarlas; aquí puedes moderarlas.</p>
+        <div id="mcListaMiembros" style="margin-bottom:8px;"></div>
+
+        <h3 style="color:var(--primary); font-size:1rem; margin:16px 0 4px;">📷 Archivos Adjuntos</h3>
+        <div id="mcListaArchivos" style="margin-bottom:8px;"></div>
+
+        <div style="display:flex; gap:12px; margin-top:20px; justify-content:space-between; flex-wrap:wrap;">
+            <button class="btn btn-peligro" id="btnEliminarCensoModal">🗑️ Eliminar Censo</button>
+            <div style="display:flex; gap:12px;">
+                <button class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15);" onclick="cerrarModalCenso()">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarCensoModal()">💾 Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Modal Confirmación (eliminar) ─────────────────────── -->
+<div class="modal-overlay" id="modalConfirmar">
+    <div class="modal-content" style="max-width:420px; padding:32px;">
+        <h2 id="tituloConfirmar" style="font-family:'Playfair Display',serif; color:var(--primary); font-size:1.3rem; margin-bottom:12px;">⚠️ Confirmar Eliminación</h2>
+        <p id="msgConfirmar" style="color:var(--text-muted); margin-bottom:24px;"></p>
+        <div style="display:flex; gap:12px; justify-content:center;">
+            <button class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15); padding:12px 24px;" onclick="cerrarModalConfirmar()">Cancelar</button>
+            <button class="btn btn-peligro" id="btnConfirmarEliminar">🗑️ Sí, Eliminar</button>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <strong>JAC Honduras, Cauca</strong> &nbsp;·&nbsp; Gestión del Censo &nbsp;·&nbsp; 2024
+</footer>
+
+<script src="../js/censo-admin.js"></script>
+
+</body>
+</html>

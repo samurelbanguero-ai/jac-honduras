@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: jac_honduras_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-jac_honduras}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-2005}
+    ports:
+      # 5433 en el host: el 5432 local ya está ocupado por un Postgres nativo.
+      # El backend igual habla con este contenedor por la red interna (db:5432).
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./database.sql:/docker-entrypoint-initdb.d/sql/01-database.sql:ro
+      - ./database_migracion_comunidad.sql:/docker-entrypoint-initdb.d/sql/02-migracion-comunidad.sql:ro
+      - ./database_migracion_censo.sql:/docker-entrypoint-initdb.d/sql/03-migracion-censo.sql:ro
+      - ./database_migracion_censo_vivienda.sql:/docker-entrypoint-initdb.d/sql/04-migracion-censo-vivienda.sql:ro
+      - ./database_migracion_censo_hogar.sql:/docker-entrypoint-initdb.d/sql/05-migracion-censo-hogar.sql:ro
+      - ./docker/init-db/00-run-sql.sh:/docker-entrypoint-initdb.d/00-run-sql.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-jac_honduras}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    container_name: jac_honduras_backend
+    restart: unless-stopped
+    # -L (polling): en Windows, los cambios en un volumen montado no siempre
+    # disparan eventos inotify dentro del contenedor; con polling nodemon los
+    # detecta igual.
+    command: npx nodemon -L index.js
+    env_file:
+      - ./backend/.env
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-jac_honduras}
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-2005}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./frontend:/frontend
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:

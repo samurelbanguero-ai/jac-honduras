@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAC Honduras — Iniciar Sesión</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body { background: linear-gradient(135deg, var(--bg-light) 0%, #d1e7dd 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px;}
+        .login-card { max-width: 450px; width: 100%; margin: auto; padding: 40px; }
+        .login-header { text-align: center; margin-bottom: 24px; }
+    </style>
+</head>
+<body>
+
+<div class="card login-card animate-fade">
+    <div class="login-header">
+        <a href="/"><img src="../img/logo.png" class="logo" style="width:64px; height:64px; margin-bottom:12px;" alt="Logo JAC"></a>
+        <h1 style="font-family: var(--font-serif); color: var(--primary-dark); font-size:1.8rem;">Iniciar Sesión</h1>
+        <p style="color: var(--text-muted); font-size:0.95rem;">Junta de Acción Comunal Honduras</p>
+    </div>
+
+    <div class="alert alert-error" id="alertaError" style="display:none; text-align:center;"></div>
+
+    <form id="formLogin" onsubmit="iniciarSesion(event)">
+        <div class="form-group">
+            <label>Usuario</label>
+            <input type="text" id="identificador" placeholder="Cédula o usuario">
+        </div>
+        <div class="form-group">
+            <label>Contraseña</label>
+            <div class="password-wrapper">
+                <input type="password" id="contrasenaInput" placeholder="••••••••">
+                <button type="button" class="password-toggle" onclick="togglePassword('contrasenaInput', this)">👁</button>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full" style="margin-top: 24px;" id="btnLogin">
+            Ingresar
+        </button>
+        <button type="button" class="btn btn-secondary btn-full" style="margin-top: 12px; color: var(--text-main);" onclick="window.location.href='/'">
+            ⬅ Retroceder al Inicio
+        </button>
+    </form>
+</div>
+
+<script>
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const esOculta = input.type === 'password';
+        input.type = esOculta ? 'text' : 'password';
+        btn.textContent = esOculta ? '🙈' : '👁';
+    }
+
+    async function iniciarSesion(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnLogin');
+        const alerta = document.getElementById('alertaError');
+        alerta.style.display = 'none';
+
+        const identificador = document.getElementById('identificador').value.trim();
+        const contrasena = document.getElementById('contrasenaInput').value;
+        if (!identificador || !contrasena) {
+            alerta.textContent = 'Ingresa tu usuario y contraseña.';
+            alerta.style.display = 'block'; return;
+        }
+
+        try {
+            btn.textContent = 'Verificando...';
+            btn.disabled = true;
+
+            const res = await fetch(window.location.origin + '/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ identificador, contrasena })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                if (data.tipo === 'admin') {
+                    localStorage.setItem('jac_token', data.token);
+                    localStorage.setItem('jac_admin', JSON.stringify(data.admin));
+                    window.location.href = '/panel-jac-2024';
+                } else {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.afiliado));
+                    window.location.href = '/usuario';
+                }
+            } else {
+                alerta.textContent = data.error || 'Credenciales inválidas.';
+                alerta.style.display = 'block';
+            }
+        } catch (err) {
+            alerta.textContent = 'Error de conexión con el servidor.';
+            alerta.style.display = 'block';
+        } finally {
+            btn.textContent = 'Ingresar';
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>

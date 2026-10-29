@@ -1,0 +1,1983 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAC Honduras — Panel de Usuario</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .dashboard-wrap { max-width: 1150px; margin: 0 auto; padding: 110px 5% 60px; }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 32px;
+            align-items: start;
+        }
+        @media (max-width: 860px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+        .col-carnet { position: sticky; top: 110px; }
+        @media (max-width: 860px) { .col-carnet { position: static; } }
+
+        .panel-card { margin-bottom: 28px; }
+        .panel-card h2 { display: flex; align-items: center; gap: 10px; color: var(--primary); font-size: 1.25rem; margin-bottom: 6px; }
+        .panel-card .subtexto { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar scrolled" id="navbar">
+    <a href="/" class="navbar-brand">
+        <img src="../img/logo.png" class="logo" alt="Logo JAC">
+        <div class="navbar-titulo">JAC Honduras</div>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Abrir menú">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <div class="navbar-links" id="navbarLinks">
+        <a href="/">Inicio</a>
+        <button class="theme-switch" id="btnTema" onclick="alternarTema()" aria-label="Cambiar tema">
+            <span class="theme-switch-track"></span>
+        </button>
+        <a href="#" onclick="cerrarSesion()" style="color: #ef4444;">Cerrar Sesión</a>
+    </div>
+</nav>
+
+<div class="dashboard-wrap">
+    <div class="dashboard-grid">
+
+        <!-- ── Columna izquierda: navegación por pestañas ─── -->
+        <div class="col-carnet">
+            <div class="side-tabs" id="sideTabs">
+                <button class="side-tab-btn active" data-tab="carnet" onclick="cambiarTab('carnet')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16c0-1.7 1.4-2.8 3-2.8s3 1.1 3 2.8"/><path d="M14 10h5M14 13h5M14 16h3"/></svg>Mi Carnet</button>
+                <button class="side-tab-btn" data-tab="notificaciones" onclick="cambiarTab('notificaciones')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10a6 6 0 0112 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z"/><path d="M10 19a2 2 0 004 0"/></svg>Comunicados <span class="contador" id="contNotif" style="display:none;"></span></button>
+                <button class="side-tab-btn" data-tab="votaciones" onclick="cambiarTab('votaciones')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>Votaciones</button>
+                <button class="side-tab-btn" data-tab="pqrs" onclick="cambiarTab('pqrs')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3.5 7.5l8.5 6 8.5-6"/></svg>PQRS</button>
+                <button class="side-tab-btn" data-tab="aportes" onclick="cambiarTab('aportes')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M3 10.5h18"/><circle cx="16.5" cy="14.5" r="1.3"/></svg>Mis Aportes</button>
+                <button class="side-tab-btn" data-tab="eventos" onclick="cambiarTab('eventos')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="2.6"/><circle cx="16" cy="9" r="2.6"/><path d="M3 19c0-2.8 2.2-4.7 5-4.7s5 1.9 5 4.7"/><path d="M11 19c0-2.8 2.2-4.7 5-4.7s5 1.9 5 4.7"/></svg>Voluntariado</button>
+                <button class="side-tab-btn" data-tab="documentos" onclick="cambiarTab('documentos')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5h6.5l4 4V20a1 1 0 01-1 1H7a1 1 0 01-1-1V4.5a1 1 0 011-1z"/><path d="M13.5 3.5V8h4"/><path d="M9 12.5h6M9 15.5h6M9 18.5h3.5"/></svg>Documentos</button>
+                <button class="side-tab-btn" data-tab="censo" onclick="cambiarTab('censo')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3a1 1 0 011-1h4a1 1 0 011 1v1"/><path d="M8.5 10h7M8.5 13.5h7M8.5 17h4"/></svg>Mi Censo</button>
+            </div>
+        </div>
+
+        <!-- ── Columna derecha: contenido de cada pestaña ──── -->
+        <div class="col-principal">
+
+            <!-- ═══ TAB: CARNET ═══ -->
+            <div class="tab-panel active" id="panel-carnet">
+                <div class="carnet-card animate-fade">
+                    <div class="carnet-top">
+                        <img src="../img/logo.png" class="carnet-logo" alt="Logo JAC">
+                        <div class="carnet-brand">JAC HONDURAS, CAUCA<span>Carnet Digital de Afiliado</span></div>
+                    </div>
+
+                    <div class="carnet-chip-container">
+                        <div class="carnet-chip"></div>
+                    </div>
+
+                    <div class="avatar-upload-wrap">
+                        <div class="carnet-avatar" id="userAvatar">
+                            <span id="userInitials">U</span>
+                        </div>
+                        <label class="avatar-upload-overlay" for="inputFoto" title="Cambiar foto de perfil">📷</label>
+                        <input type="file" id="inputFoto" accept="image/*" onchange="subirFoto(this)">
+                    </div>
+                    <h2 class="carnet-nombre" id="userNombre">Cargando...</h2>
+                    <p class="carnet-cedula" id="userCedula">C.C. ---</p>
+
+                    <div class="carnet-campos">
+                        <div class="carnet-campo">
+                            <label>Fecha Expedición</label><span id="cExpedicion">—</span>
+                        </div>
+                        <div class="carnet-campo">
+                            <label>Fecha Afiliación</label><span id="cAfiliacion">—</span>
+                        </div>
+                        <div class="carnet-campo">
+                            <label>Teléfono</label><span id="cTelefono">—</span>
+                        </div>
+                        <div class="carnet-campo">
+                            <label>Correo</label><span id="cCorreo">—</span>
+                        </div>
+                    </div>
+
+                    <div class="carnet-qr-wrap">
+                        <img id="carnetQr" alt="Código QR de verificación" width="92" height="92">
+                    </div>
+
+                    <div class="carnet-estado">
+                        <div class="dot-verde"></div> Afiliado Verificado
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-full" style="margin-top:16px;" id="btnDescargarCarnet" onclick="descargarCarnet()">
+                    ⬇ Descargar Carnet
+                </button>
+
+                <div class="card panel-card animate-fade delay-1" style="margin-top:28px;">
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21l4.5-1.3L20 8.2a2 2 0 000-2.8l-1.4-1.4a2 2 0 00-2.8 0L4.3 15.5 3 20a1 1 0 001 1z"/><path d="M14.5 6l3.5 3.5"/></svg>Actualizar Datos de Contacto</h2>
+                    <p class="subtexto">Mantén tu teléfono y correo al día para que la Junta pueda notificarte sobre asambleas y avisos importantes.</p>
+                    <div class="alert alert-error" id="alertaPerfilError" style="display:none;"></div>
+                    <div class="alert alert-success" id="alertaPerfilOk" style="display:none;"></div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Teléfono / Celular</label>
+                            <input type="tel" id="editTelefono" placeholder="Ej: 3201234567">
+                        </div>
+                        <div class="form-group">
+                            <label>Correo Electrónico</label>
+                            <input type="email" id="editCorreo" placeholder="ejemplo@correo.com">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top:16px;" id="btnGuardarPerfil" onclick="guardarPerfil()">Guardar Cambios</button>
+                </div>
+
+                <div class="card panel-card animate-fade delay-2">
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 018 0v3.5"/></svg>Cambiar Contraseña</h2>
+                    <p class="subtexto">Si crees que se te va a olvidar, cámbiala aquí por una que recuerdes mejor.</p>
+                    <div class="alert alert-error" id="alertaPassError" style="display:none;"></div>
+                    <div class="alert alert-success" id="alertaPassOk" style="display:none;"></div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Contraseña Actual</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="passActual" placeholder="••••••••">
+                                <button type="button" class="password-toggle" onclick="togglePassword('passActual', this)">👁</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Nueva Contraseña</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="passNueva" placeholder="Mínimo 6 caracteres">
+                                <button type="button" class="password-toggle" onclick="togglePassword('passNueva', this)">👁</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirmar Nueva Contraseña</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="passConfirmar" placeholder="Repite la nueva contraseña">
+                                <button type="button" class="password-toggle" onclick="togglePassword('passConfirmar', this)">👁</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top:16px;" id="btnCambiarPass" onclick="cambiarContrasena()">Actualizar Contraseña</button>
+                </div>
+            </div>
+
+            <!-- ═══ TAB: NOTIFICACIONES / COMUNICADOS ═══ -->
+            <div class="tab-panel" id="panel-notificaciones">
+                <div class="card panel-card animate-fade">
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10a6 6 0 0112 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z"/><path d="M10 19a2 2 0 004 0"/></svg>Avisos Urgentes</h2>
+                    <p class="subtexto">Avisos enviados directamente por la Junta Directiva.</p>
+                    <div id="listaAvisos">
+                        <div class="cargando"><div class="spinner"></div>Cargando avisos...</div>
+                    </div>
+                </div>
+
+                <div class="card panel-card animate-fade delay-1">
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="13" height="15" rx="1.5"/><path d="M7 9.5h6M7 13h6M7 16.5h4"/><path d="M20.5 8.5V18a1.5 1.5 0 01-1.5 1.5h-2.5"/></svg>Comunicados de la Junta <span class="badge badge-verde" id="badgeNuevas" style="display:none;"></span></h2>
+                    <div id="listaNoticiasUsuario">
+                        <div class="cargando"><div class="spinner"></div>Cargando comunicados...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ TAB: VOTACIONES ═══ -->
+            <div class="tab-panel" id="panel-votaciones">
+                <div class="card panel-card animate-fade">
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>Votaciones de Proyectos</h2>
+                    <p class="subtexto">Tu voz cuenta: participa en las decisiones de la comunidad.</p>
+                    <div id="listaEncuestas">
+                        <div class="cargando"><div class="spinner"></div>Cargando votaciones...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ TAB: PQRS ═══ -->
+            <div class="tab-panel" id="panel-pqrs">
+                <div class="card panel-card animate-fade">
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3.5 7.5l8.5 6 8.5-6"/></svg>Nueva Petición, Queja, Reclamo o Sugerencia</h2>
+                    <p class="subtexto">Escríbele directamente a la Junta Directiva.</p>
+                    <div class="alert alert-error" id="alertaPqrsError" style="display:none;"></div>
+                    <div class="alert alert-success" id="alertaPqrsOk" style="display:none;"></div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Tipo</label>
+                            <select id="pqrsTipo">
+                                <option value="Peticion">Petición</option>
+                                <option value="Queja">Queja</option>
+                                <option value="Reclamo">Reclamo</option>
+                                <option value="Sugerencia">Sugerencia</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Asunto</label>
+                            <input type="text" id="pqrsAsunto" placeholder="Ej: Fuga de agua en la calle principal">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Mensaje</label>
+                            <textarea id="pqrsMensaje" placeholder="Describe tu solicitud con detalle..."></textarea>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top:16px;" id="btnEnviarPqrs" onclick="enviarPqrs()">Enviar a la Junta</button>
+                </div>
+
+                <div class="card panel-card animate-fade delay-1">
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Historial de Mis Solicitudes</h2>
+                    <div id="listaPqrs">
+                        <div class="cargando"><div class="spinner"></div>Cargando historial...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ TAB: APORTES ═══ -->
+            <div class="tab-panel" id="panel-aportes">
+                <div class="card panel-card animate-fade">
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M3 10.5h18"/><circle cx="16.5" cy="14.5" r="1.3"/></svg>Mis Aportes Financieros</h2>
+                    <p class="subtexto">Historial de cuotas y aportes registrados por la tesorería.</p>
+                    <div id="listaAportes">
+                        <div class="cargando"><div class="spinner"></div>Cargando aportes...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ TAB: EVENTOS / VOLUNTARIADO ═══ -->
+            <div class="tab-panel" id="panel-eventos">
+                <div class="card panel-card animate-fade">
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="2.6"/><circle cx="16" cy="9" r="2.6"/><path d="M3 19c0-2.8 2.2-4.7 5-4.7s5 1.9 5 4.7"/><path d="M11 19c0-2.8 2.2-4.7 5-4.7s5 1.9 5 4.7"/></svg>Voluntariado en Eventos y Convites</h2>
+                    <p class="subtexto">Inscríbete para colaborar en las próximas actividades comunitarias.</p>
+                    <div id="listaEventos">
+                        <div class="cargando"><div class="spinner"></div>Cargando eventos...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ TAB: DOCUMENTOS ═══ -->
+            <div class="tab-panel" id="panel-documentos">
+                <div class="card panel-card animate-fade">
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5h6.5l4 4V20a1 1 0 01-1 1H7a1 1 0 01-1-1V4.5a1 1 0 011-1z"/><path d="M13.5 3.5V8h4"/><path d="M9 12.5h6M9 15.5h6M9 18.5h3.5"/></svg>Documentos y Actas de Asambleas</h2>
+                    <p class="subtexto">Consulta y descarga las actas y reglamentos oficiales de la Junta.</p>
+                    <div id="listaDocumentos">
+                        <div class="cargando"><div class="spinner"></div>Cargando documentos...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ TAB: CENSO ═══ -->
+            <div class="tab-panel" id="panel-censo">
+                <div class="card panel-card animate-fade">
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3a1 1 0 011-1h4a1 1 0 011 1v1"/><path d="M8.5 10h7M8.5 13.5h7M8.5 17h4"/></svg>Censo Familiar</h2>
+                    <p class="subtexto">Registra o actualiza la información de tu censo. Estos datos son privados: solo tú y la Junta Directiva pueden verlos.</p>
+                    <div class="alert alert-error" id="alertaCensoError" style="display:none;"></div>
+                    <div class="alert alert-success" id="alertaCensoOk" style="display:none;"></div>
+
+                    <h3 style="color:var(--primary); font-size:1rem; margin:20px 0 4px;">Datos personales</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Nombres <span class="req">*</span></label><input type="text" id="cnNombres"></div>
+                        <div class="form-group"><label>Apellidos <span class="req">*</span></label><input type="text" id="cnApellidos"></div>
+                        <div class="form-group">
+                            <label>Tipo de Documento <span class="req">*</span></label>
+                            <select id="cnTipoDocumento">
+                                <option value="Cedula de Ciudadania">Cédula de Ciudadanía</option>
+                                <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
+                                <option value="Cedula de Extranjeria">Cédula de Extranjería</option>
+                                <option value="Registro Civil">Registro Civil</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Número de Documento <span class="req">*</span></label><input type="text" id="cnNumeroDocumento"></div>
+                        <div class="form-group"><label>Fecha de Nacimiento <span class="req">*</span></label><input type="date" id="cnFechaNacimiento"></div>
+                        <div class="form-group">
+                            <label>Sexo <span class="req">*</span></label>
+                            <select id="cnSexo">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Femenino">Femenino</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Estado Civil</label>
+                            <select id="cnEstadoCivil">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Soltero(a)">Soltero(a)</option>
+                                <option value="Casado(a)">Casado(a)</option>
+                                <option value="Union libre">Unión libre</option>
+                                <option value="Divorciado(a)">Divorciado(a)</option>
+                                <option value="Viudo(a)">Viudo(a)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Etnia</label>
+                            <select id="cnEtnia">
+                                <option value="">— Ninguna —</option>
+                                <option value="Mestizo">Mestizo</option>
+                                <option value="Afrodescendiente">Afrodescendiente</option>
+                                <option value="Indigena">Indígena</option>
+                                <option value="Raizal">Raizal</option>
+                                <option value="Palenquero">Palenquero</option>
+                                <option value="ROM/Gitano">ROM / Gitano</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Discapacidad</label>
+                            <select id="cnDiscapacidad">
+                                <option value="Ninguna">Ninguna</option>
+                                <option value="Visual">Visual</option>
+                                <option value="Auditiva">Auditiva</option>
+                                <option value="Fisica / Motriz">Física / Motriz</option>
+                                <option value="Cognitiva">Cognitiva</option>
+                                <option value="Psicosocial">Psicosocial</option>
+                                <option value="Multiple">Múltiple</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h3 style="color:var(--primary); font-size:1rem; margin:20px 0 4px;">Ubicación y vivienda</h3>
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;"><label>Dirección</label><input type="text" id="cnDireccion" placeholder="Ej: Calle 5 # 3-20"></div>
+                        <div class="form-group"><label>Barrio / Vereda</label><input type="text" id="cnBarrioVereda"></div>
+                        <div class="form-group"><label>Ciudad / Municipio <span class="req">*</span></label><input type="text" id="cnCiudadMunicipio" placeholder="Ej: Honduras, Cauca"></div>
+                        <div class="form-group">
+                            <label>Ubicación de la Vivienda</label>
+                            <select id="cnZonaVivienda">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Territorio comunitario">Territorio comunitario</option>
+                                <option value="Zona urbana">Zona urbana</option>
+                                <option value="Zona rural">Zona rural</option>
+                                <option value="Resguardo o territorio colectivo">Resguardo, reserva, cabildo o territorio colectivo</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tenencia de la Vivienda</label>
+                            <select id="cnTipoVivienda">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Propia">Propia</option>
+                                <option value="Alquilada">Alquilada</option>
+                                <option value="Prestada">Prestada</option>
+                                <option value="Colectiva/comunitaria">Colectiva / comunitaria</option>
+                                <option value="Otra">Otra</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Personas en el hogar</label><input type="number" id="cnPersonasHogar" min="1"></div>
+                        <div class="form-group"><label>Familias en el hogar</label><input type="number" id="cnFamiliasHogar" min="1"></div>
+                    </div>
+
+                    <h3 style="color:var(--primary); font-size:1rem; margin:20px 0 4px;">Materiales de construcción</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Paredes</label>
+                            <select id="cnMaterialParedes">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Bloque/Ladrillo">Bloque / Ladrillo</option>
+                                <option value="Concreto">Concreto</option>
+                                <option value="Madera">Madera</option>
+                                <option value="Bahareque/Adobe">Bahareque / Adobe</option>
+                                <option value="Lamina/Zinc">Lámina / Zinc</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Piso</label>
+                            <select id="cnMaterialPiso">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Cemento">Cemento</option>
+                                <option value="Baldosa/Ceramica">Baldosa / Cerámica</option>
+                                <option value="Madera">Madera</option>
+                                <option value="Tierra">Tierra</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Techo</label>
+                            <select id="cnMaterialTecho">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Zinc/Lamina">Zinc / Lámina</option>
+                                <option value="Teja">Teja</option>
+                                <option value="Concreto/Placa">Concreto / Placa</option>
+                                <option value="Paja/Palma">Paja / Palma</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h3 style="color:var(--primary); font-size:1rem; margin:20px 0 4px;">Servicios básicos y tecnología</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Agua Potable</label>
+                            <select id="cnAccesoAgua">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Si">Sí</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Fuente Principal de Agua</label>
+                            <select id="cnFuenteAgua">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Acueducto">Acueducto</option>
+                                <option value="Rio">Río</option>
+                                <option value="Quebrada">Quebrada</option>
+                                <option value="Pozo">Pozo</option>
+                                <option value="Manantial">Manantial</option>
+                                <option value="Agua lluvia">Agua lluvia</option>
+                                <option value="Otra">Otra</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Electricidad</label>
+                            <select id="cnAccesoElectricidad">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Si">Sí</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Gas</label>
+                            <select id="cnAccesoGas">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Si">Sí</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Eliminación de Excretas</label>
+                            <select id="cnSistemaExcretas">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Alcantarillado">Alcantarillado</option>
+                                <option value="Pozo septico">Pozo séptico</option>
+                                <option value="Letrina">Letrina</option>
+                                <option value="A cielo abierto">A cielo abierto</option>
+                                <option value="No tiene">No tiene</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Recolección de Residuos</label>
+                            <select id="cnAccesoResiduos">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Si">Sí</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Telefonía</label>
+                            <select id="cnAccesoTelefonia">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Si">Sí</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Disponibilidad de Tecnología</label>
+                            <div id="cnTecnologiaGrupo" style="display:flex; gap:16px; flex-wrap:wrap; padding:12px 0;">
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Internet" style="width:auto;"> Internet</label>
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Computador" style="width:auto;"> Computador</label>
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Celular Inteligente" style="width:auto;"> Celular Inteligente</label>
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Televisor" style="width:auto;"> Televisor</label>
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Radio" style="width:auto;"> Radio</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 style="color:var(--primary); font-size:1rem; margin:20px 0 4px;">Salud, actividad económica y movilidad</h3>
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Acceso a Servicios de Salud</label>
+                            <div id="cnSaludGrupo" style="display:flex; gap:16px; flex-wrap:wrap; padding:12px 0;">
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Puesto o centro de salud" style="width:auto;"> Puesto o centro de salud</label>
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Hospital" style="width:auto;"> Hospital</label>
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Medicina tradicional" style="width:auto;"> Medicina tradicional</label>
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Promotor comunitario" style="width:auto;"> Promotor(a) comunitario(a)</label>
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Ninguno" style="width:auto;"> Ninguno</label>
+                            </div>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Actividades Económicas de la Familia</label>
+                            <div id="cnActividadesGrupo" style="display:flex; gap:16px; flex-wrap:wrap; padding:12px 0;">
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Agricultura" style="width:auto;"> Agricultura</label>
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Pesca" style="width:auto;"> Pesca</label>
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Ganaderia" style="width:auto;"> Ganadería</label>
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Artesania" style="width:auto;"> Artesanía</label>
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Comercio" style="width:auto;"> Comercio</label>
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Trabajo asalariado" style="width:auto;"> Trabajo asalariado</label>
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Trabajo comunitario" style="width:auto;"> Trabajo comunitario</label>
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Recoleccion o aprovechamiento del territorio" style="width:auto;"> Recolección o aprovechamiento del territorio</label>
+                                <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Actividad cultural o artistica" style="width:auto;"> Actividad cultural o artística</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Personas Ausentes Temporalmente</label>
+                            <input type="number" id="cnPersonasAusentes" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Motivo Principal de la Ausencia</label>
+                            <select id="cnMotivoAusencia">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Trabajo">Trabajo</option>
+                                <option value="Estudio">Estudio</option>
+                                <option value="Salud">Salud</option>
+                                <option value="Desplazamiento">Desplazamiento</option>
+                                <option value="Visita familiar">Visita familiar</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>¿Alguien Retornó Recientemente?</label>
+                            <select id="cnRetornoReciente">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Si">Sí</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h3 style="color:var(--primary); font-size:1rem; margin:20px 0 4px;">Necesidades Prioritarias de la Familia</h3>
+                    <p class="subtexto" style="margin-bottom:8px;">Esta información ayuda a la Junta a priorizar sus gestiones.</p>
+                    <div id="cnNecesidadesGrupo" style="display:flex; gap:14px 20px; flex-wrap:wrap; padding:4px 0 8px;">
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Agua potable" style="width:auto;"> Agua potable</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Vivienda" style="width:auto;"> Vivienda</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Alimentacion" style="width:auto;"> Alimentación</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Salud" style="width:auto;"> Salud</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Educacion" style="width:auto;"> Educación</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Empleo o generacion de ingresos" style="width:auto;"> Empleo o generación de ingresos</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Vias y transporte" style="width:auto;"> Vías y transporte</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Energia electrica" style="width:auto;"> Energía eléctrica</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Internet y comunicacion" style="width:auto;"> Internet y comunicación</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Proteccion del territorio" style="width:auto;"> Protección del territorio</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Fortalecimiento cultural y de la lengua" style="width:auto;"> Fortalecimiento cultural y de la lengua</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Atencion para personas mayores" style="width:auto;"> Atención para personas mayores</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Atencion para ninas ninos y adolescentes" style="width:auto;"> Atención para niñas, niños y adolescentes</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Atencion para personas con discapacidad" style="width:auto;"> Atención para personas con discapacidad</label>
+                    </div>
+
+                    <h3 style="color:var(--primary); font-size:1rem; margin:20px 0 4px;">Contacto</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Teléfono</label><input type="tel" id="cnTelefono"></div>
+                        <div class="form-group"><label>Correo</label><input type="email" id="cnCorreo"></div>
+                    </div>
+
+                    <h3 style="color:var(--primary); font-size:1rem; margin:20px 0 4px;">Información socioeconómica</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nivel Educativo</label>
+                            <select id="cnNivelEducativo">
+                                <option value="">— Seleccionar —</option>
+                                <option value="Ninguno">Ninguno</option>
+                                <option value="Primaria">Primaria</option>
+                                <option value="Secundaria">Secundaria</option>
+                                <option value="Tecnico/Tecnologo">Técnico / Tecnólogo</option>
+                                <option value="Universitario">Universitario</option>
+                                <option value="Posgrado">Posgrado</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Ocupación</label><input type="text" id="cnOcupacion" placeholder="Ej: Agricultor"></div>
+                        <div class="form-group" style="grid-column: 1 / -1;"><label>Observaciones</label><textarea id="cnObservaciones" placeholder="Información adicional relevante..."></textarea></div>
+                    </div>
+                </div>
+
+                <div class="card panel-card animate-fade delay-1">
+                    <h3 style="color:var(--primary); font-size:1rem; margin:0 0 4px; display:flex; align-items:center; gap:8px;"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="2.6"/><circle cx="16" cy="9" r="2.6"/><path d="M3 19c0-2.8 2.2-4.7 5-4.7s5 1.9 5 4.7"/><path d="M11 19c0-2.8 2.2-4.7 5-4.7s5 1.9 5 4.7"/></svg>Miembros del Hogar</h3>
+                    <p class="subtexto" id="miembrosSubtexto">Guarda tu censo primero para poder registrar a las personas que viven en tu hogar.</p>
+                    <div class="alert alert-error" id="alertaMiembroError" style="display:none;"></div>
+
+                    <div id="miembrosFormWrap" style="display:none;">
+                        <input type="hidden" id="cmEditId">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Nombre Completo <span class="req">*</span></label><input type="text" id="cmNombreCompleto"></div>
+                            <div class="form-group">
+                                <label>Parentesco <span class="req">*</span></label>
+                                <select id="cmParentesco">
+                                    <option value="">— Seleccionar —</option>
+                                    <option value="Jefe(a) de hogar">Jefe(a) de hogar</option>
+                                    <option value="Conyuge o pareja">Cónyuge o pareja</option>
+                                    <option value="Hijo(a)">Hijo(a)</option>
+                                    <option value="Padre o madre">Padre o madre</option>
+                                    <option value="Nieto(a)">Nieto(a)</option>
+                                    <option value="Hermano(a)">Hermano(a)</option>
+                                    <option value="Otro familiar">Otro familiar</option>
+                                    <option value="Miembro de la comunidad">Miembro de la comunidad</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Sexo / Género <span class="req">*</span></label>
+                                <select id="cmSexo">
+                                    <option value="">— Seleccionar —</option>
+                                    <option value="Mujer">Mujer</option>
+                                    <option value="Hombre">Hombre</option>
+                                    <option value="Otro">Otro</option>
+                                    <option value="Prefiere no responder">Prefiere no responder</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Fecha de Nacimiento</label><input type="date" id="cmFechaNacimiento"></div>
+                            <div class="form-group">
+                                <label>Estado Civil</label>
+                                <select id="cmEstadoCivil">
+                                    <option value="">— Seleccionar —</option>
+                                    <option value="Soltero(a)">Soltero(a)</option>
+                                    <option value="Casado(a)">Casado(a)</option>
+                                    <option value="Union libre">Unión libre</option>
+                                    <option value="Divorciado(a)">Divorciado(a)</option>
+                                    <option value="Viudo(a)">Viudo(a)</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="justify-content:center;">
+                                <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="cmViveAqui" checked style="width:auto;"> Vive actualmente en el hogar</label>
+                            </div>
+                            <div class="form-group">
+                                <label>¿Sabe Leer y Escribir?</label>
+                                <select id="cmSabeLeer">
+                                    <option value="">— Seleccionar —</option>
+                                    <option value="Si">Sí</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Nivel Educativo</label>
+                                <select id="cmNivelEducativo">
+                                    <option value="">— Seleccionar —</option>
+                                    <option value="Ninguno">Ninguno</option>
+                                    <option value="Educacion inicial">Educación inicial</option>
+                                    <option value="Primaria">Primaria</option>
+                                    <option value="Secundaria">Secundaria</option>
+                                    <option value="Tecnico/Tecnologo">Técnico / Tecnólogo</option>
+                                    <option value="Universitario">Universitario</option>
+                                    <option value="Educacion propia o comunitaria">Educación propia o comunitaria</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>¿Estudia Actualmente?</label>
+                                <select id="cmEstudia">
+                                    <option value="">— Seleccionar —</option>
+                                    <option value="Si">Sí</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Institución Educativa</label><input type="text" id="cmInstitucion"></div>
+                            <div class="form-group">
+                                <label>¿Tiene Discapacidad?</label>
+                                <select id="cmTieneDiscapacidad">
+                                    <option value="">— Seleccionar —</option>
+                                    <option value="Si">Sí</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo de Discapacidad</label>
+                                <select id="cmTipoDiscapacidad">
+                                    <option value="">— No aplica —</option>
+                                    <option value="Fisica o motora">Física o motora</option>
+                                    <option value="Visual">Visual</option>
+                                    <option value="Auditiva">Auditiva</option>
+                                    <option value="Intelectual">Intelectual</option>
+                                    <option value="Psicosocial">Psicosocial</option>
+                                    <option value="Habla o comunicacion">Del habla o comunicación</option>
+                                    <option value="Multiple">Múltiple</option>
+                                    <option value="Otra">Otra</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>¿Habla la Lengua Propia?</label>
+                                <select id="cmHablaLengua">
+                                    <option value="">— Seleccionar —</option>
+                                    <option value="Si, como lengua principal">Sí, como lengua principal</option>
+                                    <option value="Si, ademas del español">Sí, además del español u otra lengua</option>
+                                    <option value="La entiende pero no la habla">La entiende, pero no la habla</option>
+                                    <option value="No">No</option>
+                                    <option value="Prefiere no responder">Prefiere no responder</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Participa en Actividades Culturales</label>
+                                <select id="cmParticipaCultural">
+                                    <option value="">— Seleccionar —</option>
+                                    <option value="Si">Sí</option>
+                                    <option value="No">No</option>
+                                    <option value="Algunas veces">Algunas veces</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>¿Trabaja Actualmente?</label>
+                                <select id="cmTrabaja">
+                                    <option value="">— Seleccionar —</option>
+                                    <option value="Si">Sí</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Actividad Económica</label><input type="text" id="cmActividadEconomica" placeholder="Ej: Jornalero"></div>
+                            <div class="form-group"><label>Lugar de Trabajo</label><input type="text" id="cmLugarTrabajo"></div>
+                        </div>
+                        <div style="display:flex; gap:12px; margin-top:12px;">
+                            <button class="btn btn-primary btn-sm" id="btnGuardarMiembro" onclick="guardarMiembroHogar()">➕ Agregar Miembro</button>
+                            <button class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15); display:none;" id="btnCancelarEdicionMiembro" onclick="limpiarFormularioMiembro()">Cancelar</button>
+                        </div>
+                    </div>
+
+                    <div id="listaMiembrosHogar" style="margin-top:16px;"></div>
+                </div>
+
+                <div class="card panel-card animate-fade delay-1">
+                    <h3 style="color:var(--primary); font-size:1rem; margin:0 0 4px; display:flex; align-items:center; gap:8px;"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/></svg>Fotos y Archivos del Censo</h3>
+                    <p class="subtexto" id="censoArchivosSubtexto">Guarda tu censo primero para poder adjuntar fotos de la vivienda u otros documentos.</p>
+                    <div class="alert alert-error" id="alertaCensoArchivoError" style="display:none;"></div>
+
+                    <div id="censoArchivosUploadWrap" style="display:none; margin-bottom:20px;">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Tipo de Archivo</label>
+                                <select id="cnArchivoTipo">
+                                    <option value="Vivienda">Foto de la vivienda</option>
+                                    <option value="Documento">Documento</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Archivo (imagen o PDF, máx. 8 MB)</label>
+                                <input type="file" id="cnArchivoInput" accept="image/*,application/pdf">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-sm" id="btnSubirArchivoCenso" onclick="subirArchivoCenso()">⬆ Adjuntar Archivo</button>
+                    </div>
+
+                    <div id="listaArchivosCenso"></div>
+
+                    <div class="alert alert-info" style="margin-top:20px; align-items:flex-start;">
+                        <label style="display:flex; align-items:flex-start; gap:10px; font-weight:400; margin:0;">
+                            <input type="checkbox" id="cnAutorizacion" style="width:auto; margin-top:3px;">
+                            <span>Autorizo que esta información se use únicamente para fines de planificación y gestión comunitaria de la Junta de Acción Comunal. <span class="req">*</span></span>
+                        </label>
+                    </div>
+
+                    <button class="btn btn-primary" style="margin-top:16px;" id="btnGuardarCenso" onclick="guardarCenso()">💾 Guardar Censo</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const API = window.location.origin + '/api';
+    let usuarioActual = null;
+    const tabsCargados = new Set();
+
+    // Mobile menu toggle
+    document.addEventListener('DOMContentLoaded', () => {
+        const navToggle = document.getElementById('navToggle');
+        const navbarLinks = document.getElementById('navbarLinks');
+        if (navToggle && navbarLinks) {
+            navToggle.addEventListener('click', () => {
+                navToggle.classList.toggle('active');
+                navbarLinks.classList.toggle('active');
+            });
+        }
+    });
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str ?? '';
+        return div.innerHTML;
+    }
+
+    // ── Modo oscuro ──────────────────────────────────────────
+    function aplicarTema(tema) {
+        document.documentElement.setAttribute('data-theme', tema);
+    }
+    function alternarTema() {
+        const actual = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        const nuevo = actual === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('jac_theme', nuevo);
+        aplicarTema(nuevo);
+    }
+    aplicarTema(localStorage.getItem('jac_theme') || 'light');
+
+    function verificarAuth() {
+        const token = localStorage.getItem('token');
+        const userStr = localStorage.getItem('user');
+
+        if (!token || !userStr) {
+            window.location.href = '/login';
+            return null;
+        }
+        return JSON.parse(userStr);
+    }
+
+    // ── Navegación por pestañas ──────────────────────────────
+    function cambiarTab(tab) {
+        document.querySelectorAll('.side-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === `panel-${tab}`));
+
+        if (tabsCargados.has(tab)) return;
+        tabsCargados.add(tab);
+
+        if (tab === 'notificaciones') { cargarAvisos(); cargarNoticias(); }
+        else if (tab === 'votaciones') cargarEncuestas();
+        else if (tab === 'pqrs') cargarPqrs();
+        else if (tab === 'aportes') cargarAportes();
+        else if (tab === 'eventos') cargarEventos();
+        else if (tab === 'documentos') cargarDocumentos();
+        else if (tab === 'censo') cargarMiCenso();
+    }
+
+    function urlVerificacion() {
+        return `${window.location.origin}/verificar/${encodeURIComponent(usuarioActual.cedula)}`;
+    }
+
+    function renderizarCarnetQr() {
+        document.getElementById('carnetQr').src =
+            `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=4&data=${encodeURIComponent(urlVerificacion())}`;
+    }
+
+    function renderizarAvatar() {
+        const avatar = document.getElementById('userAvatar');
+        if (usuarioActual.foto_url) {
+            avatar.innerHTML = `<img src="${escapeHtml(usuarioActual.foto_url)}" alt="Foto de perfil">`;
+        } else {
+            avatar.innerHTML = `<span>${escapeHtml(usuarioActual.nombres.charAt(0) + usuarioActual.apellidos.charAt(0))}</span>`;
+        }
+    }
+
+    function cargarDatos() {
+        usuarioActual = verificarAuth();
+        if (!usuarioActual) return;
+
+        const user = usuarioActual;
+        document.getElementById('userNombre').textContent = `${user.nombres} ${user.apellidos}`;
+        document.getElementById('userCedula').textContent = `C.C. ${user.cedula}`;
+        renderizarAvatar();
+        renderizarCarnetQr();
+
+        const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString('es-CO');
+
+        document.getElementById('cExpedicion').textContent = formatDate(user.fecha_expedicion);
+        document.getElementById('cAfiliacion').textContent = formatDate(user.fecha_afiliacion);
+        document.getElementById('cCorreo').textContent = user.correo || 'No registrado';
+        document.getElementById('cTelefono').textContent = user.telefono || 'No registrado';
+
+        document.getElementById('editTelefono').value = user.telefono || '';
+        document.getElementById('editCorreo').value = user.correo || '';
+    }
+
+    // ── Subir foto de perfil ─────────────────────────────────
+    async function subirFoto(input) {
+        const archivo = input.files && input.files[0];
+        if (!archivo) return;
+        const token = localStorage.getItem('token');
+
+        const formData = new FormData();
+        formData.append('foto', archivo);
+
+        try {
+            const res = await fetch(`${API}/comunidad/perfil/foto`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            const data = await res.json();
+            if (res.ok) {
+                usuarioActual = { ...usuarioActual, foto_url: data.foto_url };
+                localStorage.setItem('user', JSON.stringify(usuarioActual));
+                renderizarAvatar();
+            } else {
+                alert(data.error || 'No se pudo actualizar la foto.');
+            }
+        } catch (err) {
+            alert('Error de conexión con el servidor.');
+        } finally {
+            input.value = '';
+        }
+    }
+
+    async function guardarPerfil() {
+        const token = localStorage.getItem('token');
+        const telefono = document.getElementById('editTelefono').value.trim();
+        const correo = document.getElementById('editCorreo').value.trim();
+
+        const alertaError = document.getElementById('alertaPerfilError');
+        const alertaOk = document.getElementById('alertaPerfilOk');
+        alertaError.style.display = 'none';
+        alertaOk.style.display = 'none';
+
+        const btn = document.getElementById('btnGuardarPerfil');
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
+
+        try {
+            const res = await fetch(`${API}/afiliados/perfil`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ telefono, correo })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                usuarioActual = { ...usuarioActual, ...data.afiliado };
+                localStorage.setItem('user', JSON.stringify(usuarioActual));
+                document.getElementById('cCorreo').textContent = usuarioActual.correo || 'No registrado';
+                document.getElementById('cTelefono').textContent = usuarioActual.telefono || 'No registrado';
+                alertaOk.textContent = '✅ Datos actualizados correctamente.';
+                alertaOk.style.display = 'block';
+            } else {
+                alertaError.textContent = data.error || 'Error al actualizar los datos.';
+                alertaError.style.display = 'block';
+            }
+        } catch (err) {
+            alertaError.textContent = 'Error de conexión con el servidor.';
+            alertaError.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Guardar Cambios';
+        }
+    }
+
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const esOculta = input.type === 'password';
+        input.type = esOculta ? 'text' : 'password';
+        btn.textContent = esOculta ? '🙈' : '👁';
+    }
+
+    async function cambiarContrasena() {
+        const token = localStorage.getItem('token');
+        const actual = document.getElementById('passActual').value;
+        const nueva = document.getElementById('passNueva').value;
+        const confirmar = document.getElementById('passConfirmar').value;
+
+        const alertaError = document.getElementById('alertaPassError');
+        const alertaOk = document.getElementById('alertaPassOk');
+        alertaError.style.display = 'none';
+        alertaOk.style.display = 'none';
+
+        if (!actual || !nueva || !confirmar) {
+            alertaError.textContent = 'Completa los tres campos.';
+            alertaError.style.display = 'block';
+            return;
+        }
+        if (nueva.length < 6) {
+            alertaError.textContent = 'La nueva contraseña debe tener al menos 6 caracteres.';
+            alertaError.style.display = 'block';
+            return;
+        }
+        if (nueva !== confirmar) {
+            alertaError.textContent = 'La nueva contraseña y su confirmación no coinciden.';
+            alertaError.style.display = 'block';
+            return;
+        }
+
+        const btn = document.getElementById('btnCambiarPass');
+        btn.disabled = true;
+        btn.textContent = 'Actualizando...';
+
+        try {
+            const res = await fetch(`${API}/afiliados/perfil/contrasena`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ contrasena_actual: actual, contrasena_nueva: nueva })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                alertaOk.textContent = '✅ Contraseña actualizada correctamente.';
+                alertaOk.style.display = 'block';
+                document.getElementById('passActual').value = '';
+                document.getElementById('passNueva').value = '';
+                document.getElementById('passConfirmar').value = '';
+            } else {
+                alertaError.textContent = data.error || 'Error al cambiar la contraseña.';
+                alertaError.style.display = 'block';
+            }
+        } catch (err) {
+            alertaError.textContent = 'Error de conexión con el servidor.';
+            alertaError.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Actualizar Contraseña';
+        }
+    }
+
+    const CLAVE_ULTIMA_VISITA = 'jac_ultima_visita_noticias';
+
+    async function cargarNoticias() {
+        const token = localStorage.getItem('token');
+        const contenedor = document.getElementById('listaNoticiasUsuario');
+        const badge = document.getElementById('badgeNuevas');
+
+        try {
+            const res = await fetch(`${API}/noticias`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const noticias = await res.json();
+
+            if (!Array.isArray(noticias) || noticias.length === 0) {
+                contenedor.innerHTML = '<p style="color:var(--text-muted);">No hay comunicados publicados por ahora.</p>';
+                badge.style.display = 'none';
+                return;
+            }
+
+            const ultimaVisita = localStorage.getItem(CLAVE_ULTIMA_VISITA);
+            const esNueva = (n) => !ultimaVisita || new Date(n.created_at) > new Date(ultimaVisita);
+            const cantidadNuevas = noticias.filter(esNueva).length;
+
+            if (cantidadNuevas > 0) {
+                badge.textContent = `🔔 ${cantidadNuevas} nueva${cantidadNuevas !== 1 ? 's' : ''}`;
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
+
+            contenedor.innerHTML = noticias.map(n => `
+                <div class="noticia-item" ${esNueva(n) ? 'style="border-color:var(--accent); border-width:2px;"' : ''}>
+                    <h3>
+                        ${escapeHtml(n.titulo)}
+                        ${esNueva(n) ? '<span class="badge badge-verde" style="font-size:0.7rem; margin-left:6px;">🆕 Nuevo</span>' : ''}
+                        ${n.solo_afiliados ? '<span class="badge badge-verde" style="font-size:0.7rem; margin-left:6px;">Solo afiliados</span>' : ''}
+                    </h3>
+                    <div class="meta">${escapeHtml(new Date(n.fecha_publicacion).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' }))}</div>
+                    <p>${escapeHtml(n.contenido)}</p>
+                </div>
+            `).join('');
+
+            localStorage.setItem(CLAVE_ULTIMA_VISITA, new Date().toISOString());
+        } catch (err) {
+            contenedor.innerHTML = '<p style="color:red;">Error al cargar los comunicados.</p>';
+        }
+    }
+
+    // ── Avisos urgentes (notificaciones) ─────────────────────
+    async function cargarAvisos() {
+        const token = localStorage.getItem('token');
+        const contenedor = document.getElementById('listaAvisos');
+        const contador = document.getElementById('contNotif');
+
+        try {
+            const res = await fetch(`${API}/comunidad/notificaciones`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const avisos = await res.json();
+
+            if (!Array.isArray(avisos) || avisos.length === 0) {
+                contenedor.innerHTML = '<p style="color:var(--text-muted);">No hay avisos por ahora.</p>';
+                contador.style.display = 'none';
+                return;
+            }
+
+            const sinLeer = avisos.filter(a => !a.leida).length;
+            if (sinLeer > 0) {
+                contador.textContent = sinLeer;
+                contador.style.display = 'inline-block';
+            } else {
+                contador.style.display = 'none';
+            }
+
+            contenedor.innerHTML = avisos.map(a => `
+                <div class="comunidad-item ${a.leida ? '' : 'sin-leer'}" data-id="${a.id}">
+                    <h3>${escapeHtml(a.titulo)}</h3>
+                    <div class="meta">${escapeHtml(new Date(a.fecha).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' }))}</div>
+                    <p>${escapeHtml(a.mensaje)}</p>
+                </div>
+            `).join('');
+
+            // Marcar como leídas las que estaban sin leer
+            avisos.filter(a => !a.leida).forEach(a => {
+                fetch(`${API}/comunidad/notificaciones/${a.id}/leer`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }).catch(() => {});
+            });
+        } catch (err) {
+            contenedor.innerHTML = '<p style="color:red;">Error al cargar los avisos.</p>';
+        }
+    }
+
+    // ── Votaciones ────────────────────────────────────────────
+    async function cargarEncuestas() {
+        const token = localStorage.getItem('token');
+        const contenedor = document.getElementById('listaEncuestas');
+
+        try {
+            const res = await fetch(`${API}/comunidad/encuestas`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const encuestas = await res.json();
+
+            if (!Array.isArray(encuestas) || encuestas.length === 0) {
+                contenedor.innerHTML = '<p style="color:var(--text-muted);">No hay votaciones activas por ahora.</p>';
+                return;
+            }
+
+            contenedor.innerHTML = encuestas.map(e => {
+                const totalVotos = e.total_votos || 0;
+                const pctA = totalVotos ? Math.round((e.votos_a / totalVotos) * 100) : 0;
+                const pctB = totalVotos ? Math.round((e.votos_b / totalVotos) * 100) : 0;
+                const mostrarResultado = e.mi_voto || !e.activa;
+
+                const cuerpo = mostrarResultado ? `
+                    <div class="encuesta-resultado">
+                        <div class="encuesta-resultado-fila"><span>${escapeHtml(e.opcion_a)}</span><span>${pctA}% (${e.votos_a})</span></div>
+                        <div class="encuesta-barra-fondo"><div class="encuesta-barra" style="width:${pctA}%;"></div></div>
+                        <div class="encuesta-resultado-fila"><span>${escapeHtml(e.opcion_b)}</span><span>${pctB}% (${e.votos_b})</span></div>
+                        <div class="encuesta-barra-fondo"><div class="encuesta-barra" style="width:${pctB}%;"></div></div>
+                    </div>
+                ` : `
+                    <div class="encuesta-opciones">
+                        <button class="encuesta-opcion-btn" data-id="${e.id}" data-opcion="A">${escapeHtml(e.opcion_a)}</button>
+                        <button class="encuesta-opcion-btn" data-id="${e.id}" data-opcion="B">${escapeHtml(e.opcion_b)}</button>
+                    </div>
+                `;
+
+                return `
+                    <div class="encuesta-card ${e.activa ? '' : 'encuesta-cerrada'}">
+                        <div class="encuesta-pregunta">${escapeHtml(e.pregunta)}</div>
+                        ${cuerpo}
+                        <div class="encuesta-meta">
+                            ${e.activa ? '🟢 Votación abierta' : '🔴 Votación cerrada'}
+                            ${e.mi_voto ? ' · Ya votaste' : ''}
+                            · ${totalVotos} voto${totalVotos !== 1 ? 's' : ''} en total
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } catch (err) {
+            contenedor.innerHTML = '<p style="color:red;">Error al cargar las votaciones.</p>';
+        }
+    }
+
+    document.getElementById('listaEncuestas')?.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.encuesta-opcion-btn');
+        if (!btn) return;
+        const token = localStorage.getItem('token');
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(`${API}/comunidad/encuestas/${btn.dataset.id}/votar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ opcion: btn.dataset.opcion })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                cargarEncuestas();
+            } else {
+                alert(data.error || 'No se pudo registrar tu voto.');
+                btn.disabled = false;
+            }
+        } catch (err) {
+            alert('Error de conexión con el servidor.');
+            btn.disabled = false;
+        }
+    });
+
+    // ── PQRS ──────────────────────────────────────────────────
+    async function enviarPqrs() {
+        const token = localStorage.getItem('token');
+        const tipo = document.getElementById('pqrsTipo').value;
+        const asunto = document.getElementById('pqrsAsunto').value.trim();
+        const mensaje = document.getElementById('pqrsMensaje').value.trim();
+
+        const alertaError = document.getElementById('alertaPqrsError');
+        const alertaOk = document.getElementById('alertaPqrsOk');
+        alertaError.style.display = 'none';
+        alertaOk.style.display = 'none';
+
+        if (!asunto || !mensaje) {
+            alertaError.textContent = 'El asunto y el mensaje son obligatorios.';
+            alertaError.style.display = 'block';
+            return;
+        }
+
+        const btn = document.getElementById('btnEnviarPqrs');
+        btn.disabled = true;
+        btn.textContent = 'Enviando...';
+
+        try {
+            const res = await fetch(`${API}/comunidad/pqrs`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ tipo, asunto, mensaje })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                alertaOk.textContent = '✅ Tu solicitud fue enviada a la Junta.';
+                alertaOk.style.display = 'block';
+                document.getElementById('pqrsAsunto').value = '';
+                document.getElementById('pqrsMensaje').value = '';
+                cargarPqrs();
+            } else {
+                alertaError.textContent = data.error || 'Error al enviar tu solicitud.';
+                alertaError.style.display = 'block';
+            }
+        } catch (err) {
+            alertaError.textContent = 'Error de conexión con el servidor.';
+            alertaError.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Enviar a la Junta';
+        }
+    }
+
+    async function cargarPqrs() {
+        const token = localStorage.getItem('token');
+        const contenedor = document.getElementById('listaPqrs');
+
+        try {
+            const res = await fetch(`${API}/comunidad/pqrs`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const lista = await res.json();
+
+            if (!Array.isArray(lista) || lista.length === 0) {
+                contenedor.innerHTML = '<p style="color:var(--text-muted);">Aún no has enviado ninguna solicitud.</p>';
+                return;
+            }
+
+            contenedor.innerHTML = lista.map(p => `
+                <div class="pqrs-item">
+                    <div class="meta">${escapeHtml(p.tipo)} · ${escapeHtml(new Date(p.fecha).toLocaleDateString('es-CO'))}
+                        <span class="estado-badge estado-${p.estado}">${escapeHtml(p.estado)}</span>
+                    </div>
+                    <div class="asunto">${escapeHtml(p.asunto)}</div>
+                    <div class="mensaje">${escapeHtml(p.mensaje)}</div>
+                    ${p.respuesta ? `<div class="pqrs-respuesta"><strong>Respuesta de la Junta:</strong><br>${escapeHtml(p.respuesta)}</div>` : ''}
+                </div>
+            `).join('');
+        } catch (err) {
+            contenedor.innerHTML = '<p style="color:red;">Error al cargar tu historial.</p>';
+        }
+    }
+
+    // ── Aportes ───────────────────────────────────────────────
+    async function cargarAportes() {
+        const token = localStorage.getItem('token');
+        const contenedor = document.getElementById('listaAportes');
+
+        try {
+            const res = await fetch(`${API}/comunidad/aportes`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const lista = await res.json();
+
+            if (!Array.isArray(lista) || lista.length === 0) {
+                contenedor.innerHTML = '<p style="color:var(--text-muted);">Aún no tienes aportes registrados.</p>';
+                return;
+            }
+
+            const total = lista.filter(a => a.estado === 'Pagado').reduce((sum, a) => sum + Number(a.valor), 0);
+            const formatoCOP = (v) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(v);
+
+            const filas = lista.map(a => `
+                <div class="aporte-fila">
+                    <div>
+                        <strong>${escapeHtml(a.concepto)}</strong><br>
+                        <span style="font-size:0.8rem; color:var(--text-light);">${escapeHtml(new Date(a.fecha).toLocaleDateString('es-CO'))}</span>
+                    </div>
+                    <span class="estado-badge estado-${a.estado}">${escapeHtml(a.estado)}</span>
+                    <span class="aporte-valor">${formatoCOP(a.valor)}</span>
+                </div>
+            `).join('');
+
+            contenedor.innerHTML = `
+                <div class="aporte-total-card">
+                    <div style="opacity:0.85; font-size:0.9rem;">Total aportado (pagado)</div>
+                    <div class="num">${formatoCOP(total)}</div>
+                </div>
+                ${filas}
+            `;
+        } catch (err) {
+            contenedor.innerHTML = '<p style="color:red;">Error al cargar tus aportes.</p>';
+        }
+    }
+
+    // ── Eventos / Voluntariado ────────────────────────────────
+    async function cargarEventos() {
+        const token = localStorage.getItem('token');
+        const contenedor = document.getElementById('listaEventos');
+
+        try {
+            const res = await fetch(`${API}/comunidad/eventos`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const lista = await res.json();
+
+            if (!Array.isArray(lista) || lista.length === 0) {
+                contenedor.innerHTML = '<p style="color:var(--text-muted);">No hay eventos programados por ahora.</p>';
+                return;
+            }
+
+            contenedor.innerHTML = lista.map(e => `
+                <div class="evento-item">
+                    <h3>${escapeHtml(e.titulo)}</h3>
+                    <div class="meta">📅 ${escapeHtml(new Date(e.fecha).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}
+                        ${e.lugar ? ' · 📍 ' + escapeHtml(e.lugar) : ''}
+                        · ${e.total_inscritos} inscrito${e.total_inscritos !== 1 ? 's' : ''}
+                    </div>
+                    ${e.descripcion ? `<p>${escapeHtml(e.descripcion)}</p>` : ''}
+                    ${e.inscrito
+                        ? `<button class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15);" data-accion="cancelar" data-id="${e.id}">✔ Inscrito — Cancelar</button>`
+                        : `<button class="btn btn-primary btn-sm" data-accion="inscribir" data-id="${e.id}">🙋 Inscribirme como voluntario</button>`}
+                </div>
+            `).join('');
+        } catch (err) {
+            contenedor.innerHTML = '<p style="color:red;">Error al cargar los eventos.</p>';
+        }
+    }
+
+    document.getElementById('listaEventos')?.addEventListener('click', async (e) => {
+        const btn = e.target.closest('button[data-accion]');
+        if (!btn) return;
+        const token = localStorage.getItem('token');
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(`${API}/comunidad/eventos/${btn.dataset.id}/inscribir`, {
+                method: btn.dataset.accion === 'inscribir' ? 'POST' : 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                cargarEventos();
+            } else {
+                const data = await res.json();
+                alert(data.error || 'No se pudo procesar la solicitud.');
+                btn.disabled = false;
+            }
+        } catch (err) {
+            alert('Error de conexión con el servidor.');
+            btn.disabled = false;
+        }
+    });
+
+    // ── Documentos ────────────────────────────────────────────
+    async function cargarDocumentos() {
+        const token = localStorage.getItem('token');
+        const contenedor = document.getElementById('listaDocumentos');
+
+        try {
+            const res = await fetch(`${API}/comunidad/documentos`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const lista = await res.json();
+
+            if (!Array.isArray(lista) || lista.length === 0) {
+                contenedor.innerHTML = '<p style="color:var(--text-muted);">No hay documentos publicados por ahora.</p>';
+                return;
+            }
+
+            contenedor.innerHTML = lista.map(d => `
+                <div class="documento-item">
+                    <div>
+                        <div class="nombre">📄 ${escapeHtml(d.nombre)}</div>
+                        <div class="meta">${escapeHtml(d.tipo)} · ${escapeHtml(new Date(d.fecha).toLocaleDateString('es-CO'))}</div>
+                    </div>
+                    <a class="btn btn-sm btn-primary" href="${escapeHtml(d.archivo_url)}" target="_blank" rel="noopener">⬇ Descargar</a>
+                </div>
+            `).join('');
+        } catch (err) {
+            contenedor.innerHTML = '<p style="color:red;">Error al cargar los documentos.</p>';
+        }
+    }
+
+    // ── Carnet digital (descarga PNG) ─────────────────────────
+    function dibujarRectRedondeado(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+    }
+
+    function cargarImagen(src) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => resolve(null); // Si falla, se dibuja el carnet sin esa imagen
+            img.src = src;
+        });
+    }
+
+    // Para imágenes de otro origen (QR): se descargan como blob y se cargan
+    // desde una blob: URL, así el canvas nunca queda "tainted" por CORS.
+    async function cargarImagenExterna(src) {
+        try {
+            const res = await fetch(src);
+            if (!res.ok) return null;
+            const blob = await res.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const img = await cargarImagen(blobUrl);
+            URL.revokeObjectURL(blobUrl);
+            return img;
+        } catch (err) {
+            return null;
+        }
+    }
+
+    async function descargarCarnet() {
+        if (!usuarioActual) return;
+        const btn = document.getElementById('btnDescargarCarnet');
+        btn.disabled = true;
+        btn.textContent = 'Generando...';
+
+        try {
+            const ANCHO = 1013, ALTO = 638; // Proporción de un carnet físico estándar (ID-1)
+            const canvas = document.createElement('canvas');
+            canvas.width = ANCHO;
+            canvas.height = ALTO;
+            const ctx = canvas.getContext('2d');
+
+            dibujarRectRedondeado(ctx, 0, 0, ANCHO, ALTO, 32);
+            ctx.clip();
+
+            const gradiente = ctx.createLinearGradient(0, 0, ANCHO, ALTO);
+            gradiente.addColorStop(0, '#0a4325');
+            gradiente.addColorStop(1, '#052313');
+            ctx.fillStyle = gradiente;
+            ctx.fillRect(0, 0, ANCHO, ALTO);
+
+            ctx.fillStyle = '#10b981';
+            ctx.fillRect(0, ALTO - 18, ANCHO, 18);
+
+            const logo = await cargarImagen('../img/logo.png');
+            const logoX = 56, logoY = 56, logoR = 44;
+            if (logo) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(logoX + logoR, logoY + logoR, logoR, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.clip();
+                ctx.drawImage(logo, logoX, logoY, logoR * 2, logoR * 2);
+                ctx.restore();
+            }
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.textBaseline = 'alphabetic';
+            ctx.font = '700 30px Arial, sans-serif';
+            ctx.fillText('JAC HONDURAS, CAUCA', logoX + logoR * 2 + 20, logoY + 34);
+            ctx.font = '400 20px Arial, sans-serif';
+            ctx.fillStyle = 'rgba(255,255,255,0.75)';
+            ctx.fillText('Carnet Digital de Afiliado', logoX + logoR * 2 + 20, logoY + 64);
+
+            // Foto de perfil (o iniciales si no tiene)
+            const fotoX = ANCHO - 56 - 96, fotoY = logoY, fotoR = 48;
+            const foto = usuarioActual.foto_url ? await cargarImagen(usuarioActual.foto_url) : null;
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(fotoX + fotoR, fotoY + fotoR, fotoR, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.clip();
+            if (foto) {
+                ctx.drawImage(foto, fotoX, fotoY, fotoR * 2, fotoR * 2);
+            } else {
+                ctx.fillStyle = '#10b981';
+                ctx.fillRect(fotoX, fotoY, fotoR * 2, fotoR * 2);
+                ctx.fillStyle = '#052313';
+                ctx.font = '700 34px Arial, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(
+                    (usuarioActual.nombres.charAt(0) + usuarioActual.apellidos.charAt(0)).toUpperCase(),
+                    fotoX + fotoR, fotoY + fotoR + 12
+                );
+                ctx.textAlign = 'left';
+            }
+            ctx.restore();
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(56, 170);
+            ctx.lineTo(ANCHO - 56, 170);
+            ctx.stroke();
+
+            const nombreCompleto = `${usuarioActual.nombres} ${usuarioActual.apellidos}`.toUpperCase();
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '700 44px Arial, sans-serif';
+            ctx.fillText(nombreCompleto, 56, 240, ANCHO - 112);
+
+            const formatFecha = (f) => f ? new Date(f).toLocaleDateString('es-CO') : '—';
+
+            const campos = [
+                ['CÉDULA', usuarioActual.cedula],
+                ['FECHA DE EXPEDICIÓN', formatFecha(usuarioActual.fecha_expedicion)],
+                ['FECHA DE AFILIACIÓN', formatFecha(usuarioActual.fecha_afiliacion)],
+                ['TELÉFONO', usuarioActual.telefono || 'No registrado'],
+            ];
+
+            let colX = 56;
+            const colWidth = (ANCHO - 112 - 170) / 2;
+            campos.forEach((campo, i) => {
+                const x = colX + (i % 2) * colWidth;
+                const y = 300 + Math.floor(i / 2) * 78;
+                ctx.font = '700 15px Arial, sans-serif';
+                ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                ctx.fillText(campo[0], x, y);
+                ctx.font = '400 24px Arial, sans-serif';
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillText(campo[1], x, y + 30, colWidth - 24);
+            });
+
+            // Código QR de verificación (lleva a la página pública /verificar/:cedula)
+            const qrImg = await cargarImagenExterna(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=2&data=${encodeURIComponent(urlVerificacion())}`);
+            const qrSize = 150, qrX = ANCHO - 56 - qrSize, qrY = 300;
+            ctx.fillStyle = '#ffffff';
+            dibujarRectRedondeado(ctx, qrX - 8, qrY - 8, qrSize + 16, qrSize + 16, 10);
+            ctx.fill();
+            if (qrImg) {
+                ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+            }
+
+            ctx.beginPath();
+            ctx.fillStyle = '#10b981';
+            ctx.arc(66, ALTO - 46, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.font = '600 18px Arial, sans-serif';
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillText('Afiliado Verificado en JAC Honduras, Cauca', 86, ALTO - 40);
+
+            const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `carnet-jac-honduras-${usuarioActual.cedula}.png`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            alert('No se pudo generar el carnet. Intenta de nuevo.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '⬇ Descargar Carnet';
+        }
+    }
+
+    // ── Censo ─────────────────────────────────────────────────
+    const CAMPOS_FORM_CENSO = {
+        cnNombres: 'nombres', cnApellidos: 'apellidos', cnTipoDocumento: 'tipo_documento',
+        cnNumeroDocumento: 'numero_documento', cnFechaNacimiento: 'fecha_nacimiento', cnSexo: 'sexo',
+        cnEstadoCivil: 'estado_civil', cnEtnia: 'etnia', cnDiscapacidad: 'discapacidad',
+        cnDireccion: 'direccion', cnBarrioVereda: 'barrio_vereda', cnCiudadMunicipio: 'ciudad_municipio',
+        cnZonaVivienda: 'zona_vivienda', cnTipoVivienda: 'tipo_vivienda',
+        cnPersonasHogar: 'personas_hogar', cnFamiliasHogar: 'familias_hogar',
+        cnMaterialParedes: 'material_paredes', cnMaterialPiso: 'material_piso', cnMaterialTecho: 'material_techo',
+        cnAccesoAgua: 'acceso_agua_potable', cnFuenteAgua: 'fuente_agua',
+        cnAccesoElectricidad: 'acceso_electricidad', cnAccesoGas: 'acceso_gas',
+        cnSistemaExcretas: 'sistema_excretas', cnAccesoResiduos: 'acceso_recoleccion_residuos',
+        cnAccesoTelefonia: 'acceso_telefonia',
+        cnPersonasAusentes: 'personas_ausentes', cnMotivoAusencia: 'motivo_ausencia',
+        cnRetornoReciente: 'retorno_reciente',
+        cnTelefono: 'telefono', cnCorreo: 'correo', cnNivelEducativo: 'nivel_educativo', cnOcupacion: 'ocupacion',
+        cnObservaciones: 'observaciones'
+    };
+    let miCensoId = null;
+
+    // ── Utilidades para grupos de checkboxes (listas separadas por comas) ──
+    function marcarGrupoCheckbox(grupoId, valorGuardado) {
+        const seleccionadas = new Set((valorGuardado || '').split(',').map(v => v.trim()).filter(Boolean));
+        document.querySelectorAll(`#${grupoId} input[type="checkbox"]`).forEach(chk => {
+            chk.checked = seleccionadas.has(chk.value);
+        });
+    }
+
+    function leerGrupoCheckbox(grupoId) {
+        return Array.from(document.querySelectorAll(`#${grupoId} input[type="checkbox"]:checked`))
+            .map(chk => chk.value)
+            .join(', ') || null;
+    }
+
+    async function cargarMiCenso() {
+        const token = localStorage.getItem('token');
+        const alertaError = document.getElementById('alertaCensoError');
+        alertaError.style.display = 'none';
+
+        try {
+            const res = await fetch(`${API}/censo/mio`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+            const censo = data.censo;
+
+            if (censo) {
+                Object.entries(CAMPOS_FORM_CENSO).forEach(([elId, campo]) => {
+                    const el = document.getElementById(elId);
+                    let valor = censo[campo];
+                    if (campo === 'fecha_nacimiento' && valor) valor = valor.split('T')[0];
+                    el.value = valor ?? '';
+                });
+                marcarGrupoCheckbox('cnTecnologiaGrupo', censo.tecnologia_disponible);
+                marcarGrupoCheckbox('cnSaludGrupo', censo.acceso_servicios_salud);
+                marcarGrupoCheckbox('cnActividadesGrupo', censo.actividades_economicas_familia);
+                marcarGrupoCheckbox('cnNecesidadesGrupo', censo.necesidades_prioritarias);
+                document.getElementById('cnAutorizacion').checked = !!censo.autorizacion;
+                miCensoId = censo.id;
+            } else {
+                // Formulario nuevo: precargar con los datos ya conocidos del afiliado
+                document.getElementById('cnNombres').value = usuarioActual.nombres || '';
+                document.getElementById('cnApellidos').value = usuarioActual.apellidos || '';
+                document.getElementById('cnNumeroDocumento').value = usuarioActual.cedula || '';
+                document.getElementById('cnTelefono').value = usuarioActual.telefono || '';
+                document.getElementById('cnCorreo').value = usuarioActual.correo || '';
+                miCensoId = null;
+            }
+            actualizarSeccionArchivosCenso();
+            actualizarSeccionMiembrosHogar();
+            if (miCensoId) {
+                cargarArchivosCenso();
+                cargarMiembrosHogar();
+            }
+        } catch (err) {
+            alertaError.textContent = 'Error al cargar tu censo.';
+            alertaError.style.display = 'block';
+        }
+    }
+
+    async function guardarCenso() {
+        const token = localStorage.getItem('token');
+        const alertaError = document.getElementById('alertaCensoError');
+        const alertaOk = document.getElementById('alertaCensoOk');
+        alertaError.style.display = 'none';
+        alertaOk.style.display = 'none';
+
+        const datos = {};
+        Object.entries(CAMPOS_FORM_CENSO).forEach(([elId, campo]) => {
+            datos[campo] = document.getElementById(elId).value.trim() || null;
+        });
+        datos.tecnologia_disponible = leerGrupoCheckbox('cnTecnologiaGrupo');
+        datos.acceso_servicios_salud = leerGrupoCheckbox('cnSaludGrupo');
+        datos.actividades_economicas_familia = leerGrupoCheckbox('cnActividadesGrupo');
+        datos.necesidades_prioritarias = leerGrupoCheckbox('cnNecesidadesGrupo');
+        datos.autorizacion = document.getElementById('cnAutorizacion').checked;
+
+        if (!datos.nombres || !datos.apellidos || !datos.numero_documento || !datos.fecha_nacimiento || !datos.sexo || !datos.ciudad_municipio) {
+            alertaError.textContent = 'Completa los campos obligatorios: nombres, apellidos, documento, fecha de nacimiento, sexo y ciudad/municipio.';
+            alertaError.style.display = 'block';
+            return;
+        }
+        if (!datos.autorizacion) {
+            alertaError.textContent = 'Debes autorizar el uso de esta información para guardar el censo.';
+            alertaError.style.display = 'block';
+            return;
+        }
+
+        const btn = document.getElementById('btnGuardarCenso');
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
+
+        try {
+            const res = await fetch(`${API}/censo/mio`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(datos)
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                alertaOk.textContent = '✅ Tu censo fue guardado correctamente.';
+                alertaOk.style.display = 'block';
+                miCensoId = data.censo.id;
+                actualizarSeccionArchivosCenso();
+                actualizarSeccionMiembrosHogar();
+                cargarArchivosCenso();
+                cargarMiembrosHogar();
+            } else {
+                alertaError.textContent = data.error || 'Error al guardar tu censo.';
+                alertaError.style.display = 'block';
+            }
+        } catch (err) {
+            alertaError.textContent = 'Error de conexión con el servidor.';
+            alertaError.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '💾 Guardar Censo';
+        }
+    }
+
+    // ── Censo: miembros del hogar ──────────────────────────────
+    const CAMPOS_FORM_MIEMBRO = {
+        cmNombreCompleto: 'nombre_completo', cmParentesco: 'parentesco', cmSexo: 'sexo',
+        cmFechaNacimiento: 'fecha_nacimiento', cmEstadoCivil: 'estado_civil',
+        cmSabeLeer: 'sabe_leer_escribir', cmNivelEducativo: 'nivel_educativo',
+        cmEstudia: 'estudia_actualmente', cmInstitucion: 'institucion_educativa',
+        cmTieneDiscapacidad: 'tiene_discapacidad', cmTipoDiscapacidad: 'tipo_discapacidad',
+        cmHablaLengua: 'habla_lengua_propia', cmParticipaCultural: 'participa_actividades_culturales',
+        cmTrabaja: 'trabaja_actualmente', cmActividadEconomica: 'actividad_economica', cmLugarTrabajo: 'lugar_trabajo'
+    };
+    let miembrosCache = [];
+
+    function actualizarSeccionMiembrosHogar() {
+        const subtexto = document.getElementById('miembrosSubtexto');
+        const formWrap = document.getElementById('miembrosFormWrap');
+        if (miCensoId) {
+            subtexto.textContent = 'Registra a todas las personas que viven habitualmente en tu hogar.';
+            formWrap.style.display = '';
+        } else {
+            subtexto.textContent = 'Guarda tu censo primero para poder registrar a las personas que viven en tu hogar.';
+            formWrap.style.display = 'none';
+            document.getElementById('listaMiembrosHogar').innerHTML = '';
+        }
+    }
+
+    async function cargarMiembrosHogar() {
+        const token = localStorage.getItem('token');
+        const contenedor = document.getElementById('listaMiembrosHogar');
+        contenedor.innerHTML = `<div class="cargando"><div class="spinner"></div>Cargando miembros del hogar...</div>`;
+
+        try {
+            const res = await fetch(`${API}/censo/mio/miembros`, { headers: { 'Authorization': `Bearer ${token}` } });
+            miembrosCache = await res.json();
+            renderizarMiembrosHogar(miembrosCache);
+        } catch (err) {
+            contenedor.innerHTML = '<p style="color:red;">Error al cargar los miembros de tu hogar.</p>';
+        }
+    }
+
+    function calcularEdad(fechaNacimiento) {
+        if (!fechaNacimiento) return '—';
+        const hoy = new Date();
+        const nacimiento = new Date(fechaNacimiento);
+        let edad = hoy.getFullYear() - nacimiento.getFullYear();
+        const m = hoy.getMonth() - nacimiento.getMonth();
+        if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) edad--;
+        return edad;
+    }
+
+    function renderizarMiembrosHogar(lista) {
+        const contenedor = document.getElementById('listaMiembrosHogar');
+        if (!Array.isArray(lista) || lista.length === 0) {
+            contenedor.innerHTML = '<p style="color:var(--text-muted);">Aún no has registrado a nadie más en tu hogar.</p>';
+            return;
+        }
+
+        contenedor.innerHTML = lista.map(m => `
+            <div class="comunidad-item" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+                <div>
+                    <strong>${escapeHtml(m.nombre_completo)}</strong>
+                    <div class="meta">${escapeHtml(m.parentesco)} · ${escapeHtml(m.sexo)} · ${calcularEdad(m.fecha_nacimiento)} años${m.vive_aqui === false ? ' · No vive aquí actualmente' : ''}</div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn btn-editar btn-sm" onclick="prepararEdicionMiembro(${m.id})">✏️ Editar</button>
+                    <button class="btn btn-peligro btn-sm" onclick="eliminarMiembroHogar(${m.id})">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function prepararEdicionMiembro(id) {
+        const miembro = miembrosCache.find(m => m.id === id);
+        if (!miembro) return;
+
+        document.getElementById('cmEditId').value = miembro.id;
+        Object.entries(CAMPOS_FORM_MIEMBRO).forEach(([elId, campo]) => {
+            const el = document.getElementById(elId);
+            let valor = miembro[campo];
+            if (campo === 'fecha_nacimiento' && valor) valor = valor.split('T')[0];
+            el.value = valor ?? '';
+        });
+        document.getElementById('cmViveAqui').checked = miembro.vive_aqui !== false;
+
+        document.getElementById('btnGuardarMiembro').textContent = '💾 Guardar Cambios';
+        document.getElementById('btnCancelarEdicionMiembro').style.display = '';
+        document.getElementById('miembrosFormWrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function limpiarFormularioMiembro() {
+        document.getElementById('cmEditId').value = '';
+        Object.keys(CAMPOS_FORM_MIEMBRO).forEach(elId => { document.getElementById(elId).value = ''; });
+        document.getElementById('cmViveAqui').checked = true;
+        document.getElementById('btnGuardarMiembro').textContent = '➕ Agregar Miembro';
+        document.getElementById('btnCancelarEdicionMiembro').style.display = 'none';
+        document.getElementById('alertaMiembroError').style.display = 'none';
+    }
+
+    async function guardarMiembroHogar() {
+        const token = localStorage.getItem('token');
+        const alertaError = document.getElementById('alertaMiembroError');
+        alertaError.style.display = 'none';
+
+        const datos = {};
+        Object.entries(CAMPOS_FORM_MIEMBRO).forEach(([elId, campo]) => {
+            datos[campo] = document.getElementById(elId).value.trim() || null;
+        });
+        datos.vive_aqui = document.getElementById('cmViveAqui').checked;
+
+        if (!datos.nombre_completo || !datos.parentesco || !datos.sexo) {
+            alertaError.textContent = 'Nombre completo, parentesco y sexo son obligatorios.';
+            alertaError.style.display = 'block';
+            return;
+        }
+
+        const editId = document.getElementById('cmEditId').value;
+        const btn = document.getElementById('btnGuardarMiembro');
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(`${API}/censo/mio/miembros${editId ? '/' + editId : ''}`, {
+                method: editId ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(datos)
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                limpiarFormularioMiembro();
+                cargarMiembrosHogar();
+            } else {
+                alertaError.textContent = data.error || 'No se pudo guardar el miembro del hogar.';
+                alertaError.style.display = 'block';
+            }
+        } catch (err) {
+            alertaError.textContent = 'Error de conexión con el servidor.';
+            alertaError.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    async function eliminarMiembroHogar(id) {
+        if (!confirm('¿Eliminar a esta persona de tu hogar? Esta acción no se puede deshacer.')) return;
+        const token = localStorage.getItem('token');
+
+        try {
+            const res = await fetch(`${API}/censo/mio/miembros/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                cargarMiembrosHogar();
+            } else {
+                const data = await res.json();
+                alert(data.error || 'No se pudo eliminar el miembro del hogar.');
+            }
+        } catch (err) {
+            alert('Error de conexión con el servidor.');
+        }
+    }
+
+    // ── Censo: archivos adjuntos (fotos, documentos) ──────────
+    function actualizarSeccionArchivosCenso() {
+        const subtexto = document.getElementById('censoArchivosSubtexto');
+        const uploadWrap = document.getElementById('censoArchivosUploadWrap');
+        if (miCensoId) {
+            subtexto.textContent = 'Adjunta fotos de la vivienda u otros documentos relacionados con tu censo.';
+            uploadWrap.style.display = '';
+        } else {
+            subtexto.textContent = 'Guarda tu censo primero para poder adjuntar fotos de la vivienda u otros documentos.';
+            uploadWrap.style.display = 'none';
+            document.getElementById('listaArchivosCenso').innerHTML = '';
+        }
+    }
+
+    async function cargarArchivosCenso() {
+        const token = localStorage.getItem('token');
+        const contenedor = document.getElementById('listaArchivosCenso');
+        contenedor.innerHTML = `<div class="cargando"><div class="spinner"></div>Cargando archivos...</div>`;
+
+        try {
+            const res = await fetch(`${API}/censo/mio/archivos`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const lista = await res.json();
+            renderizarArchivosCenso(lista);
+        } catch (err) {
+            contenedor.innerHTML = '<p style="color:red;">Error al cargar tus archivos.</p>';
+        }
+    }
+
+    function renderizarArchivosCenso(lista) {
+        const contenedor = document.getElementById('listaArchivosCenso');
+        if (!Array.isArray(lista) || lista.length === 0) {
+            contenedor.innerHTML = '<p style="color:var(--text-muted);">Aún no has adjuntado archivos.</p>';
+            return;
+        }
+
+        contenedor.innerHTML = `
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:14px;">
+                ${lista.map(a => {
+                    const esImagen = /\.(jpg|jpeg|png|gif|webp)$/i.test(a.archivo_url);
+                    const previsualizacion = esImagen
+                        ? `<img src="${escapeHtml(a.archivo_url)}" alt="${escapeHtml(a.nombre_original)}" style="width:100%; height:110px; object-fit:cover; border-radius:8px 8px 0 0;">`
+                        : `<div style="width:100%; height:110px; display:flex; align-items:center; justify-content:center; font-size:2.2rem; background:var(--bg-light); border-radius:8px 8px 0 0;">📄</div>`;
+                    return `
+                        <div style="border:1px solid rgba(0,0,0,0.08); border-radius:8px; overflow:hidden; background:#fff;">
+                            <a href="${escapeHtml(a.archivo_url)}" target="_blank" rel="noopener">${previsualizacion}</a>
+                            <div style="padding:8px 10px;">
+                                <div style="font-size:0.78rem; color:var(--text-muted);">${escapeHtml(a.tipo)}</div>
+                                <button class="btn btn-peligro btn-sm" style="margin-top:6px; width:100%;" data-id="${a.id}" onclick="eliminarArchivoCenso(${a.id})">🗑️ Eliminar</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+
+    async function subirArchivoCenso() {
+        const input = document.getElementById('cnArchivoInput');
+        const tipo = document.getElementById('cnArchivoTipo').value;
+        const alertaError = document.getElementById('alertaCensoArchivoError');
+        alertaError.style.display = 'none';
+
+        const archivo = input.files && input.files[0];
+        if (!archivo) {
+            alertaError.textContent = 'Selecciona un archivo primero.';
+            alertaError.style.display = 'block';
+            return;
+        }
+
+        const token = localStorage.getItem('token');
+        const formData = new FormData();
+        formData.append('archivo', archivo);
+        formData.append('tipo', tipo);
+
+        const btn = document.getElementById('btnSubirArchivoCenso');
+        btn.disabled = true;
+        btn.textContent = 'Subiendo...';
+
+        try {
+            const res = await fetch(`${API}/censo/mio/archivos`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                input.value = '';
+                cargarArchivosCenso();
+            } else {
+                alertaError.textContent = data.error || 'No se pudo subir el archivo.';
+                alertaError.style.display = 'block';
+            }
+        } catch (err) {
+            alertaError.textContent = 'Error de conexión con el servidor.';
+            alertaError.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '⬆ Adjuntar Archivo';
+        }
+    }
+
+    async function eliminarArchivoCenso(id) {
+        if (!confirm('¿Eliminar este archivo? Esta acción no se puede deshacer.')) return;
+        const token = localStorage.getItem('token');
+
+        try {
+            const res = await fetch(`${API}/censo/mio/archivos/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                cargarArchivosCenso();
+            } else {
+                const data = await res.json();
+                alert(data.error || 'No se pudo eliminar el archivo.');
+            }
+        } catch (err) {
+            alert('Error de conexión con el servidor.');
+        }
+    }
+
+    function cerrarSesion() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+    }
+
+    cargarDatos();
+</script>
+</body>
+</html>

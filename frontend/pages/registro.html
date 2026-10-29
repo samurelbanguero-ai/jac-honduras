@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAC Honduras — Registro de Afiliados</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body { background: linear-gradient(135deg, var(--bg-light) 0%, #d1e7dd 100%); display: flex; align-items: center; justify-content: center; padding: 40px 5%; min-height: 100vh; }
+        .auth-container { max-width: 800px; width: 100%; margin: 40px auto; }
+        .auth-header { text-align: center; margin-bottom: 32px; }
+    </style>
+</head>
+<body>
+
+<div class="auth-container animate-fade">
+    <div class="auth-header card" style="background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); padding: 40px 20px; margin-bottom: 0; border-radius: 20px 20px 0 0; border-bottom: none;">
+        <a href="/"><img src="../img/logo.png" class="logo" style="width:64px; height:64px; margin-bottom:16px; border-radius:50%; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" alt="Logo JAC"></a>
+        <h1 style="font-family: var(--font-serif); color: white;">Registro de Afiliación</h1>
+        <p style="color: rgba(255,255,255,0.8); margin-top:8px;">Únete a nuestra comunidad. Los campos con <strong style="color: #fca5a5;">*</strong> son obligatorios.</p>
+    </div>
+
+    <div class="card" style="border-radius: 0 0 20px 20px; padding-top: 40px; border-top: none;">
+        <!-- Alertas -->
+        <div class="alert alert-error" id="alertaError" style="display:none;"></div>
+        
+        <form id="formRegistro" onsubmit="registrar(event)" novalidate>
+            <div class="form-grid">
+                <!-- Nombres -->
+                <div class="form-group">
+                    <label>Nombres <span class="req">*</span></label>
+                    <input type="text" id="nombres" placeholder="Ej: Carlos Andrés" required>
+                </div>
+                <!-- Apellidos -->
+                <div class="form-group">
+                    <label>Apellidos <span class="req">*</span></label>
+                    <input type="text" id="apellidos" placeholder="Ej: Muñoz López" required>
+                </div>
+                <!-- Cédula -->
+                <div class="form-group">
+                    <label>Número de Cédula <span class="req">*</span></label>
+                    <input type="text" id="cedula" placeholder="Ej: 1234567890" required>
+                </div>
+                <!-- Contraseña -->
+                <div class="form-group">
+                    <label>Contraseña <span class="req">*</span></label>
+                    <div class="password-wrapper">
+                        <input type="password" id="contrasena" placeholder="Mínimo 6 caracteres" minlength="6" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('contrasena', this)">👁</button>
+                    </div>
+                </div>
+                <!-- Confirmar Contraseña -->
+                <div class="form-group">
+                    <label>Confirmar Contraseña <span class="req">*</span></label>
+                    <div class="password-wrapper">
+                        <input type="password" id="contrasenaConfirmar" placeholder="Repite tu contraseña" minlength="6" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('contrasenaConfirmar', this)">👁</button>
+                    </div>
+                </div>
+                <!-- Fecha expedición -->
+                <div class="form-group">
+                    <label>Fecha de Expedición C.C <span class="req">*</span></label>
+                    <input type="date" id="fecha_expedicion" required>
+                </div>
+                <!-- Género -->
+                <div class="form-group">
+                    <label>Género <span class="req">*</span></label>
+                    <select id="genero" required>
+                        <option value="">— Seleccionar —</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Femenino">Femenino</option>
+                        <option value="No binario">No binario</option>
+                        <option value="Prefiero no decir">Prefiero no decir</option>
+                    </select>
+                </div>
+                <!-- Etnia -->
+                <div class="form-group">
+                    <label>Etnia / Grupo Étnico</label>
+                    <select id="etnia">
+                        <option value="">— Ninguna / No aplica —</option>
+                        <option value="Mestizo">Mestizo</option>
+                        <option value="Afrodescendiente">Afrodescendiente</option>
+                        <option value="Indígena">Indígena</option>
+                        <option value="Raizal">Raizal</option>
+                    </select>
+                </div>
+                <!-- Discapacidad -->
+                <div class="form-group">
+                    <label>Condición de Discapacidad</label>
+                    <select id="discapacidad">
+                        <option value="Ninguna">Ninguna</option>
+                        <option value="Visual">Visual</option>
+                        <option value="Auditiva">Auditiva</option>
+                        <option value="Física / Motriz">Física / Motriz</option>
+                        <option value="Cognitiva">Cognitiva</option>
+                    </select>
+                </div>
+                <!-- Fecha de Afiliación -->
+                <div class="form-group">
+                    <label>Fecha de Afiliación <span class="req">*</span></label>
+                    <input type="date" id="fecha_afiliacion" required>
+                </div>
+                <!-- Teléfono -->
+                <div class="form-group">
+                    <label>Teléfono / Celular</label>
+                    <input type="tel" id="telefono" placeholder="Ej: 3201234567">
+                </div>
+                <!-- Correo -->
+                <div class="form-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" id="correo" placeholder="ejemplo@correo.com">
+                </div>
+            </div>
+
+            <div style="margin-top: 32px; display:flex; flex-direction:column; gap:12px;">
+                <button type="submit" class="btn btn-primary btn-full" id="btnRegistrar">
+                     Crear Mi Cuenta
+                </button>
+                <button type="button" class="btn btn-secondary btn-full" style="color: var(--text-main);" onclick="window.location.href='/'">
+                    ⬅ Retroceder al Inicio
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Éxito -->
+<div class="modal-overlay" id="modalExito">
+    <div class="modal-content">
+        <h2 style="color: var(--primary); font-family: var(--font-serif); margin-bottom:12px;">¡Registro Exitoso!</h2>
+        <p>Ya eres parte de la Junta de Acción Comunal.</p>
+        <div style="margin-top:24px; display:flex; gap:12px; justify-content:center;">
+            <button class="btn btn-secondary" onclick="window.location.href='/'">Volver al Inicio</button>
+            <button class="btn btn-primary" onclick="window.location.href='/usuario'">Ver Mi Carnet</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const esOculta = input.type === 'password';
+    input.type = esOculta ? 'text' : 'password';
+    btn.textContent = esOculta ? '🙈' : '👁';
+}
+
+async function registrar(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnRegistrar');
+    const alerta = document.getElementById('alertaError');
+    alerta.style.display = 'none';
+
+    const cedulaInput = document.getElementById('cedula').value.trim();
+    const contrasenaInput = document.getElementById('contrasena').value;
+    const contrasenaConfirmar = document.getElementById('contrasenaConfirmar').value;
+
+    const data = {
+        nombres: document.getElementById('nombres').value.trim(),
+        apellidos: document.getElementById('apellidos').value.trim(),
+        cedula: cedulaInput,
+        contrasena: contrasenaInput,
+        fecha_expedicion: document.getElementById('fecha_expedicion').value,
+        genero: document.getElementById('genero').value,
+        etnia: document.getElementById('etnia').value,
+        discapacidad: document.getElementById('discapacidad').value,
+        fecha_afiliacion: document.getElementById('fecha_afiliacion').value,
+        telefono: document.getElementById('telefono').value.trim(),
+        correo: document.getElementById('correo').value.trim()
+    };
+
+    if(!data.nombres || !data.apellidos || !data.cedula || !data.fecha_expedicion || !data.genero || !data.fecha_afiliacion) {
+        alerta.textContent = 'Llena todos los campos obligatorios (*)';
+        alerta.style.display = 'block';
+        return;
+    }
+
+    if (contrasenaInput.length < 6) {
+        alerta.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+        alerta.style.display = 'block';
+        return;
+    }
+
+    if (contrasenaInput !== contrasenaConfirmar) {
+        alerta.textContent = 'Las contraseñas no coinciden.';
+        alerta.style.display = 'block';
+        return;
+    }
+
+    try {
+        btn.textContent = 'Registrando...';
+        btn.disabled = true;
+
+        const res = await fetch(window.location.origin + '/api/afiliados', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        const result = await res.json();
+
+        if (res.ok) {
+            localStorage.setItem('token', result.token);
+            localStorage.setItem('user', JSON.stringify(result.afiliado));
+            document.getElementById('modalExito').style.display = 'flex';
+        } else {
+            alerta.textContent = result.error || 'Error al registrar.';
+            alerta.style.display = 'block';
+        }
+    } catch (err) {
+        alerta.textContent = 'Error de conexión.';
+        alerta.style.display = 'block';
+    } finally {
+        btn.textContent = 'Crear Mi Cuenta';
+        btn.disabled = false;
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAC Honduras — Junta de Acción Comunal</title>
+    <!-- Google Fonts incrustados en CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ── Navbar ───────────────────────────────────────────── -->
+<nav class="navbar" id="navbar">
+    <a href="/" class="navbar-brand">
+        <img src="img/logo.png" class="logo" alt="Logo JAC Honduras">
+        <div class="navbar-titulo">
+            JAC Honduras
+            <span>Junta de Acción Comunal · Cauca</span>
+        </div>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Abrir menú">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <div class="navbar-links" id="navbarLinks">
+        <a href="/" class="active">Inicio</a>
+        <a href="/registro">Afiliarse</a>
+        <a href="/login">Iniciar Sesión</a>
+    </div>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────── -->
+<section class="hero animate-fade">
+    <div class="hero-content">
+        <div class="hero-badge delay-1 animate-fade">Corregimiento de Honduras · Cauca</div>
+        <h1 class="delay-2 animate-fade">Unidos por el <span>Progreso</span> de nuestra Comunidad.</h1>
+        <p class="delay-3 animate-fade">Mantente informado sobre las últimas noticias, proyectos y eventos de la Junta de Acción Comunal. Únete a nosotros y participa activamente.</p>
+        <div class="hero-actions delay-3 animate-fade">
+            <a href="#noticias" class="btn btn-primary">Ver Noticias</a>
+            <a href="/registro" class="btn btn-secondary">Quiero Afiliarme</a>
+        </div>
+    </div>
+</section>
+
+<!-- ── Noticias (News Feed) ──────────────────────────────── -->
+<section class="section" id="noticias">
+    <div class="section-header animate-fade">
+        <h2 class="section-title">Actualidad de la Comunidad</h2>
+        <p class="section-subtitle">Conoce los últimos avances, anuncios y proyectos que se desarrollan en el Corregimiento de Honduras.</p>
+    </div>
+
+    <!-- Contenedor dinámico de noticias -->
+    <div class="news-grid" id="contenedorNoticias">
+        <!-- Skeleton Screen Loaders -->
+        <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-text title"></div>
+            <div class="skeleton-text"></div>
+            <div class="skeleton-text half"></div>
+        </div>
+        <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-text title"></div>
+            <div class="skeleton-text"></div>
+            <div class="skeleton-text half"></div>
+        </div>
+        <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-text title"></div>
+            <div class="skeleton-text"></div>
+            <div class="skeleton-text half"></div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <strong>JAC Honduras, Cauca</strong> &nbsp;·&nbsp; <a class="plataforma" href="/login">Plataforma Comunitaria</a> &nbsp;·&nbsp; 2026
+</footer>
+
+<script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+        const nav = document.getElementById('navbar');
+        if (window.scrollY > 50) nav.classList.add('scrolled');
+        else nav.classList.remove('scrolled');
+    });
+
+    // Mobile menu toggle
+    const navToggle = document.getElementById('navToggle');
+    const navbarLinks = document.getElementById('navbarLinks');
+    if (navToggle && navbarLinks) {
+        navToggle.addEventListener('click', () => {
+            navToggle.classList.toggle('active');
+            navbarLinks.classList.toggle('active');
+        });
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str ?? '';
+        return div.innerHTML;
+    }
+
+    // Fetch Noticias
+    async function cargarNoticias() {
+        try {
+            const res = await fetch(window.location.origin + '/api/noticias');
+            const noticias = await res.json();
+            const contenedor = document.getElementById('contenedorNoticias');
+            
+            contenedor.innerHTML = ''; // Limpiar loader
+
+            if (noticias.length === 0) {
+                contenedor.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">Aún no hay noticias publicadas.</p>';
+                return;
+            }
+
+            noticias.forEach(n => {
+                let img = 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&q=80';
+                if (n.imagen_url) {
+                    img = n.imagen_url.startsWith('/') ? window.location.origin + n.imagen_url : n.imagen_url;
+                }
+                const fecha = new Date(n.fecha_publicacion).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+                
+                const card = document.createElement('div');
+                card.className = 'news-card animate-fade';
+                card.innerHTML = `
+                    <div class="news-img-container">
+                        <img src="${escapeHtml(img)}" class="news-img" alt="${escapeHtml(n.titulo)}">
+                    </div>
+                    <div class="news-content">
+                        <div class="news-meta">${escapeHtml(fecha)}</div>
+                        <h3 class="news-title">${escapeHtml(n.titulo)}</h3>
+                        <p class="news-text">${escapeHtml(n.contenido.substring(0, 150))}...</p>
+                    </div>
+                `;
+                contenedor.appendChild(card);
+            });
+        } catch (error) {
+            document.getElementById('contenedorNoticias').innerHTML = '<p style="text-align:center; grid-column: 1/-1; color:red;">Error al cargar las noticias.</p>';
+            console.error(error);
+        }
+    }
+
+    // Inicializar
+    cargarNoticias();
+</script>
+</body>
+</html>

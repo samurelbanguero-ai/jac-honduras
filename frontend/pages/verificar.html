@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAC Honduras — Verificación de Afiliado</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body { background: linear-gradient(135deg, var(--bg-light) 0%, #d1e7dd 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .verif-card { max-width: 440px; width: 100%; margin: auto; padding: 40px; text-align: center; }
+        .verif-avatar {
+            width: 96px; height: 96px; border-radius: 50%; margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary-light) 100%);
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; font-weight: 800; overflow: hidden;
+            box-shadow: 0 0 0 4px rgba(16,185,129,0.15);
+        }
+        .verif-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .verif-estado-ok { color: var(--primary-light); font-weight: 700; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; }
+        .verif-estado-ok .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+        .verif-nombre { font-family: var(--font-serif); font-size: 1.6rem; color: var(--primary-dark); margin-bottom: 6px; }
+        .verif-cedula { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; }
+        .verif-detalle { display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid var(--glass-border); font-size: 0.9rem; }
+        .verif-detalle label { color: var(--text-muted); font-weight: 500; }
+        .verif-detalle span { font-weight: 700; color: var(--primary-dark); }
+        .verif-error { font-size: 3rem; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="card verif-card animate-fade" id="tarjetaVerificacion">
+    <div class="cargando"><div class="spinner"></div>Verificando...</div>
+</div>
+
+<script>
+    const API = window.location.origin + '/api';
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str ?? '';
+        return div.innerHTML;
+    }
+
+    async function verificar() {
+        const contenedor = document.getElementById('tarjetaVerificacion');
+        const cedula = decodeURIComponent(window.location.pathname.split('/').filter(Boolean).pop() || '');
+
+        if (!cedula) {
+            contenedor.innerHTML = `
+                <div class="verif-error">❓</div>
+                <h1 class="verif-nombre">Cédula no especificada</h1>
+                <p class="verif-cedula">Escanea el código QR de un carnet válido.</p>
+            `;
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API}/afiliados/verificar/${encodeURIComponent(cedula)}`);
+            const data = await res.json();
+
+            if (!res.ok) {
+                contenedor.innerHTML = `
+                    <div class="verif-error">❌</div>
+                    <h1 class="verif-nombre">No verificado</h1>
+                    <p class="verif-cedula">${escapeHtml(data.error || 'No se encontró ningún afiliado con esa cédula.')}</p>
+                `;
+                return;
+            }
+
+            const a = data.afiliado;
+            const iniciales = (a.nombres.charAt(0) + a.apellidos.charAt(0)).toUpperCase();
+            const avatarHtml = a.foto_url
+                ? `<img src="${escapeHtml(a.foto_url)}" alt="Foto de perfil">`
+                : iniciales;
+            const formatFecha = (f) => f ? new Date(f).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' }) : '—';
+
+            contenedor.innerHTML = `
+                <img src="../img/logo.png" alt="Logo JAC" style="width:56px; height:56px; border-radius:50%; margin-bottom:16px;">
+                <div class="verif-estado-ok"><span class="dot"></span> Afiliado Verificado</div>
+                <div class="verif-avatar">${avatarHtml}</div>
+                <h1 class="verif-nombre">${escapeHtml(a.nombres)} ${escapeHtml(a.apellidos)}</h1>
+                <p class="verif-cedula">C.C. ${escapeHtml(a.cedula)}</p>
+                <div class="verif-detalle">
+                    <label>Junta de Acción Comunal</label>
+                    <span>Honduras, Cauca</span>
+                </div>
+                <div class="verif-detalle">
+                    <label>Afiliado desde</label>
+                    <span>${formatFecha(a.fecha_afiliacion)}</span>
+                </div>
+            `;
+        } catch (err) {
+            contenedor.innerHTML = `
+                <div class="verif-error">⚠️</div>
+                <h1 class="verif-nombre">Error de conexión</h1>
+                <p class="verif-cedula">No se pudo contactar al servidor. Intenta de nuevo.</p>
+            `;
+        }
+    }
+
+    verificar();
+</script>
+</body>
+</html>
