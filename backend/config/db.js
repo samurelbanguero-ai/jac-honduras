@@ -8,6 +8,9 @@ const pool = new Pool({
     database: process.env.DB_NAME,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
+    // Render (y la mayoría de Postgres administrados) exigen SSL con certificado
+    // autofirmado; en local (DB_SSL sin definir) se conecta sin SSL como siempre.
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });
 
 // Verificar conexión al iniciar

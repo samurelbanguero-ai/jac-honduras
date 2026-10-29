@@ -1,0 +1,51 @@
+databases:
+  - name: jac-honduras-db
+    databaseName: jac_honduras
+    user: jac_honduras
+
+services:
+  - type: web
+    name: jac-honduras
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: jac-honduras-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: jac-honduras-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: jac-honduras-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: jac-honduras-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: jac-honduras-db
+          property: password
+      - key: DB_SSL
+        value: "true"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES
+        value: "1h"
+      - key: SITE_URL
+        value: https://jac-honduras.onrender.com
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
