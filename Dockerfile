@@ -7,6 +7,7 @@ RUN npm install --omit=dev
 
 COPY backend/ ./
 COPY frontend/ /app/frontend/
+COPY *.sql /app/
 
 EXPOSE 3000
 
