@@ -9,7 +9,6 @@
 require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const { Pool } = require('pg');
 
 const archivos = [
     'database.sql',
@@ -19,16 +18,7 @@ const archivos = [
     'database_migracion_censo_hogar.sql',
 ];
 
-const pool = new Pool({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-});
-
-async function main() {
+async function aplicarEsquema(pool) {
     const raiz = path.join(__dirname, '../../');
     for (const archivo of archivos) {
         const ruta = path.join(raiz, archivo);
@@ -37,10 +27,24 @@ async function main() {
         await pool.query(sql);
     }
     console.log('Esquema aplicado correctamente.');
-    await pool.end();
 }
 
-main().catch(err => {
-    console.error('Error aplicando el esquema:', err.message);
-    process.exit(1);
-});
+module.exports = { aplicarEsquema };
+
+if (require.main === module) {
+    const { Pool } = require('pg');
+    const pool = new Pool({
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT,
+        database: process.env.DB_NAME,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    });
+    aplicarEsquema(pool)
+        .then(() => pool.end())
+        .catch(err => {
+            console.error('Error aplicando el esquema:', err.message);
+            process.exit(1);
+        });
+}

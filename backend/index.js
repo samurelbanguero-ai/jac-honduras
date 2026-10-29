@@ -69,6 +69,25 @@ app.get('/gestionar-censo', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/pages/censo-admin.html'));
 });
 
+// ─── Migración temporal de esquema (solo activa si MIGRATE_TOKEN está
+// definida; pensada para usarse una vez al desplegar por primera vez y
+// luego quitar esta ruta y la variable de entorno) ───────────────────
+if (process.env.MIGRATE_TOKEN) {
+    app.post('/api/_migrate', async (req, res) => {
+        if (req.headers['x-migrate-token'] !== process.env.MIGRATE_TOKEN) {
+            return res.status(403).json({ error: 'forbidden' });
+        }
+        try {
+            const pool = require('./config/db');
+            const { aplicarEsquema } = require('./scripts/migrate');
+            await aplicarEsquema(pool);
+            res.json({ ok: true });
+        } catch (err) {
+            res.status(500).json({ ok: false, error: err.message });
+        }
+    });
+}
+
 // ─── 404 para rutas de API no encontradas ───────────────────
 app.use('/api', (req, res) => {
     res.status(404).json({ error: 'Ruta no encontrada.' });
