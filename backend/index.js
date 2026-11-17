@@ -7,6 +7,7 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const pool = require('./config/db');
 
 // ─── Middlewares ───────────────────────────────────────────
 // El frontend se sirve desde este mismo servidor (mismo origen), así que
@@ -67,6 +68,30 @@ app.get('/panel-jac-2024', (req, res) => {
 
 app.get('/gestionar-censo', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/pages/censo-admin.html'));
+});
+
+app.get('/api/health', async (req, res) => {
+    try {
+        await pool.query('SELECT 1');
+        const tablas = await pool.query(
+            `SELECT to_regclass('public.admin') AS admin,
+                    to_regclass('public.afiliados') AS afiliados`
+        );
+        res.json({
+            estado: 'ok',
+            database: 'conectada',
+            tablas: {
+                admin: tablas.rows[0].admin !== null,
+                afiliados: tablas.rows[0].afiliados !== null,
+            },
+        });
+    } catch (err) {
+        console.error('Error de salud de PostgreSQL:', err);
+        res.status(503).json({
+            estado: 'error',
+            database: 'no disponible',
+        });
+    }
 });
 
 // ─── 404 para rutas de API no encontradas ───────────────────

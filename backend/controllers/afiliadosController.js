@@ -3,6 +3,9 @@ const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const esHashBcryptValido = (hash) =>
+    typeof hash === 'string' && /^\$2[aby]\$/.test(hash);
+
 const COLUMNAS_PUBLICAS = `id, nombres, apellidos, cedula, fecha_expedicion, genero, etnia,
     discapacidad, fecha_afiliacion, telefono, correo, foto_url, created_at`;
 
@@ -192,7 +195,9 @@ const cambiarContrasenaPropia = async (req, res) => {
             return res.status(404).json({ error: 'Afiliado no encontrado.' });
         }
 
-        const valido = await bcrypt.compare(contrasena_actual, result.rows[0].contrasena);
+        const valido = esHashBcryptValido(result.rows[0].contrasena)
+            ? await bcrypt.compare(contrasena_actual, result.rows[0].contrasena)
+            : false;
         if (!valido) {
             return res.status(401).json({ error: 'La contraseña actual no es correcta.' });
         }
@@ -268,7 +273,9 @@ const loginAfiliado = async (req, res) => {
         }
 
         const afiliado = result.rows[0];
-        const isMatch = await bcrypt.compare(contrasena, afiliado.contrasena);
+        const isMatch = esHashBcryptValido(afiliado.contrasena)
+            ? await bcrypt.compare(contrasena, afiliado.contrasena)
+            : false;
 
         if (!isMatch) {
             return res.status(401).json({ error: 'Credenciales incorrectas.' });

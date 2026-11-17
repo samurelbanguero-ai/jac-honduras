@@ -4,6 +4,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+const esHashBcryptValido = (hash) =>
+    typeof hash === 'string' && /^\$2[aby]\$/.test(hash);
+
 // POST /admin/login
 const login = async (req, res) => {
     const { usuario, contrasena } = req.body;
@@ -19,7 +22,9 @@ const login = async (req, res) => {
         }
 
         const admin = result.rows[0];
-        const valido = await bcrypt.compare(contrasena, admin.contrasena);
+        const valido = esHashBcryptValido(admin.contrasena)
+            ? await bcrypt.compare(contrasena, admin.contrasena)
+            : false;
 
         if (!valido) {
             return res.status(401).json({ error: 'Credenciales incorrectas.' });

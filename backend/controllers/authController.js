@@ -6,6 +6,9 @@ const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const esHashBcryptValido = (hash) =>
+    typeof hash === 'string' && /^\$2[aby]\$/.test(hash);
+
 const login = async (req, res) => {
     const { identificador, contrasena } = req.body;
 
@@ -17,7 +20,9 @@ const login = async (req, res) => {
         const resultAdmin = await pool.query('SELECT * FROM admin WHERE usuario = $1', [identificador]);
         if (resultAdmin.rows.length > 0) {
             const admin = resultAdmin.rows[0];
-            const valido = await bcrypt.compare(contrasena, admin.contrasena);
+            const valido = esHashBcryptValido(admin.contrasena)
+                ? await bcrypt.compare(contrasena, admin.contrasena)
+                : false;
             if (valido) {
                 const token = jwt.sign(
                     { id: admin.id, usuario: admin.usuario, rol: 'admin' },
@@ -36,7 +41,9 @@ const login = async (req, res) => {
         const resultAfiliado = await pool.query('SELECT * FROM afiliados WHERE cedula = $1', [identificador]);
         if (resultAfiliado.rows.length > 0) {
             const afiliado = resultAfiliado.rows[0];
-            const valido = await bcrypt.compare(contrasena, afiliado.contrasena);
+            const valido = esHashBcryptValido(afiliado.contrasena)
+                ? await bcrypt.compare(contrasena, afiliado.contrasena)
+                : false;
             if (valido) {
                 const token = jwt.sign(
                     { id: afiliado.id, rol: 'afiliado', cedula: afiliado.cedula },
