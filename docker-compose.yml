@@ -6,11 +6,12 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-jac_honduras}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-2005}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD en el archivo .env de la raiz}
     ports:
       # 5433 en el host: el 5432 local ya está ocupado por un Postgres nativo.
       # El backend igual habla con este contenedor por la red interna (db:5432).
-      - "5433:5432"
+      # Solo accesible desde este equipo (no desde la red local).
+      - "127.0.0.1:5433:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./database.sql:/docker-entrypoint-initdb.d/sql/01-database.sql:ro
@@ -18,6 +19,9 @@ services:
       - ./database_migracion_censo.sql:/docker-entrypoint-initdb.d/sql/03-migracion-censo.sql:ro
       - ./database_migracion_censo_vivienda.sql:/docker-entrypoint-initdb.d/sql/04-migracion-censo-vivienda.sql:ro
       - ./database_migracion_censo_hogar.sql:/docker-entrypoint-initdb.d/sql/05-migracion-censo-hogar.sql:ro
+      - ./database_migracion_recuperacion.sql:/docker-entrypoint-initdb.d/sql/06-migracion-recuperacion.sql:ro
+      # Datos de demostración (admin/admin123 y afiliados de prueba): SOLO en local.
+      - ./database_datos_demo.sql:/docker-entrypoint-initdb.d/sql/07-datos-demo.sql:ro
       - ./docker/init-db/00-run-sql.sh:/docker-entrypoint-initdb.d/00-run-sql.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-jac_honduras}"]
@@ -37,11 +41,14 @@ services:
     env_file:
       - ./backend/.env
     environment:
+      NODE_ENV: development
+      # Dentro del contenedor siempre 3000 (aunque backend/.env diga otro puerto)
+      PORT: 3000
       DB_HOST: db
       DB_PORT: 5432
       DB_NAME: ${POSTGRES_DB:-jac_honduras}
       DB_USER: ${POSTGRES_USER:-postgres}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-2005}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD en el archivo .env de la raiz}
     ports:
       - "3000:3000"
     volumes:

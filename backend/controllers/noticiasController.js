@@ -1,6 +1,7 @@
 // controllers/noticiasController.js
 const pool = require('../config/db');
 const { notificarNuevaNoticia } = require('../config/mailer');
+const { borrarArchivo } = require('../utils/archivos');
 
 // GET /noticias - Listar noticias.
 // Visitante anónimo: solo noticias públicas.
@@ -47,17 +48,25 @@ const obtenerNoticia = async (req, res) => {
 const crearNoticia = async (req, res) => {
     const { titulo, contenido } = req.body;
     const solo_afiliados = req.body.solo_afiliados === 'true' || req.body.solo_afiliados === true;
-    let imagen_url = req.body.imagen_url || null; // Soporte legacy para URL en texto
+    // Soporte legacy para URL en texto: solo enlaces https:// externos
+    let imagen_url = typeof req.body.imagen_url === 'string' && /^https:\/\/[^\s"'<>]+$/.test(req.body.imagen_url)
+        ? req.body.imagen_url.slice(0, 500)
+        : null;
 
     // Si viene un archivo desde multer, usar su ruta estática
     if (req.file) {
-        imagen_url = '/uploads/' + req.file.filename;
+        imagen_url = req.file.url;
     }
 
     const autor_admin_id = req.admin.id; // Viene del token JWT de admin
 
     if (!titulo || !contenido) {
+        if (req.file) borrarArchivo(imagen_url);
         return res.status(400).json({ error: 'Título y contenido son obligatorios.' });
+    }
+    if (titulo.length > 255) {
+        if (req.file) borrarArchivo(imagen_url);
+        return res.status(400).json({ error: 'El título no puede superar los 255 caracteres.' });
     }
 
     try {
@@ -89,6 +98,7 @@ const eliminarNoticia = async (req, res) => {
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Noticia no encontrada.' });
         }
+        borrarArchivo(result.rows[0].imagen_url);
         res.json({ mensaje: 'Noticia eliminada correctamente.' });
     } catch (err) {
         console.error('Error al eliminar noticia:', err);

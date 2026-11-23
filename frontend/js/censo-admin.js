@@ -5,10 +5,13 @@ let censosCache = [];
 const graficas = {};
 
 function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str ?? '';
-    return div.innerHTML;
-}
+        return String(str ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
 
 function authHeaders() {
     return { 'Authorization': `Bearer ${localStorage.getItem('jac_token')}` };
@@ -53,7 +56,12 @@ window.addEventListener('load', () => {
 });
 
 // ── Estadísticas y gráficas ──────────────────────────────
-const PALETA = ['#0a4325', '#10b981', '#f59e0b', '#ec4899', '#7c3aed', '#0369a1', '#ef4444', '#64748b', '#84cc16', '#06b6d4'];
+// Paleta de la Junta: verdes, dorado y neutros (sin colores ajenos a la identidad)
+const PALETA = ['#0a4325', '#10b981', '#d4af37', '#2f6f8f', '#106e3d', '#a3c9b1', '#8a6d12', '#4a5a50', '#e9dca8', '#78867d'];
+if (window.Chart) {
+    Chart.defaults.font.family = "'Public Sans', system-ui, sans-serif";
+    Chart.defaults.color = '#4a5a50';
+}
 const ORDEN_EDAD = ['0-17', '18-29', '30-44', '45-59', '60+'];
 
 async function cargarEstadisticas() {
@@ -95,7 +103,8 @@ function renderizarGrafica(canvasId, tipo, etiquetas, datos) {
             datasets: [{
                 data: datos,
                 backgroundColor: etiquetas.map((_, i) => PALETA[i % PALETA.length]),
-                borderRadius: tipo === 'bar' ? 8 : 0,
+                borderRadius: tipo === 'bar' ? 4 : 0,
+                maxBarThickness: 44,
                 borderWidth: tipo === 'doughnut' ? 2 : 0,
                 borderColor: '#ffffff'
             }]
@@ -106,7 +115,11 @@ function renderizarGrafica(canvasId, tipo, etiquetas, datos) {
             plugins: {
                 legend: { display: tipo === 'doughnut', position: 'bottom' }
             },
-            scales: tipo === 'bar' ? { y: { beginAtZero: true, ticks: { precision: 0 } } } : undefined
+            cutout: tipo === 'doughnut' ? '62%' : undefined,
+            scales: tipo === 'bar' ? {
+                y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#e6ebe6' }, border: { display: false } },
+                x: { grid: { display: false } }
+            } : undefined
         }
     });
 }
@@ -146,7 +159,7 @@ async function cargarCensos() {
         censosCache = data;
         renderizarTablaCenso(data);
     } catch (err) {
-        contenedor.innerHTML = `<div class="cargando">❌ Error al conectar con el servidor.</div>`;
+        contenedor.innerHTML = `<div class="cargando">Error al conectar con el servidor.</div>`;
     }
 }
 
@@ -154,7 +167,7 @@ function renderizarTablaCenso(lista) {
     const contenedor = document.getElementById('contenidoTablaCenso');
 
     if (lista.length === 0) {
-        contenedor.innerHTML = `<div class="cargando">📋 No se encontraron censos con esos filtros.</div>`;
+        contenedor.innerHTML = `<div class="cargando">No se encontraron censos con esos filtros.</div>`;
         return;
     }
 
@@ -168,7 +181,7 @@ function renderizarTablaCenso(lista) {
             <td>${(c.total_miembros || 0) + 1}</td>
             <td><span class="badge ${c.estado_revision === 'Revisado' ? 'badge-verde' : ''}">${escapeHtml(c.estado_revision)}</span></td>
             <td>${formatFecha(c.created_at)}</td>
-            <td><button class="btn btn-peligro btn-sm" data-accion="eliminar" data-id="${c.id}" data-nombre="${escapeHtml(`${c.nombres} ${c.apellidos}`)}">🗑️</button></td>
+            <td><button class="btn btn-peligro btn-sm" data-accion="eliminar" data-id="${c.id}" data-nombre="${escapeHtml(`${c.nombres} ${c.apellidos}`)}">Eliminar</button></td>
         </tr>
     `).join('');
 
@@ -177,8 +190,8 @@ function renderizarTablaCenso(lista) {
             <table>
                 <thead>
                     <tr>
-                        <th>Nombre</th><th>Documento</th><th>Ciudad / Municipio</th>
-                        <th>Sexo</th><th>Ocupación</th><th>Personas</th><th>Revisión</th><th>Fecha Registro</th><th>Acciones</th>
+                        <th>Nombre</th><th>Documento</th><th>Ciudad / municipio</th>
+                        <th>Sexo</th><th>Ocupación</th><th>Personas</th><th>Revisión</th><th>Fecha registro</th><th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>${filas}</tbody>
@@ -347,7 +360,7 @@ function renderizarMiembrosHogarModal(lista) {
                 <strong>${escapeHtml(m.nombre_completo)}</strong>
                 <div style="font-size:0.78rem; color:var(--text-muted);">${escapeHtml(m.parentesco)} · ${escapeHtml(m.sexo)} · ${calcularEdadModal(m.fecha_nacimiento)} años${m.vive_aqui === false ? ' · No vive aquí actualmente' : ''}</div>
             </div>
-            <button class="btn btn-peligro btn-sm" data-id="${m.id}">🗑️ Eliminar</button>
+            <button class="btn btn-peligro btn-sm" data-id="${m.id}">Eliminar</button>
         </div>
     `).join('');
 }
@@ -402,16 +415,16 @@ function renderizarArchivosCensoModal(lista) {
     contenedor.innerHTML = `
         <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px;">
             ${lista.map(a => {
-                const esImagen = /\.(jpg|jpeg|png|gif|webp)$/i.test(a.archivo_url);
+                const esImagen = Boolean(a.es_imagen);
                 const previsualizacion = esImagen
                     ? `<img src="${escapeHtml(a.archivo_url)}" alt="${escapeHtml(a.nombre_original || '')}" style="width:100%; height:90px; object-fit:cover; border-radius:8px 8px 0 0;">`
-                    : `<div style="width:100%; height:90px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; background:var(--bg-light); border-radius:8px 8px 0 0;">📄</div>`;
+                    : `<div style="width:100%; height:90px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; background:var(--bg-light); border-radius:8px 8px 0 0;"><span style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">PDF</span></div>`;
                 return `
                     <div style="border:1px solid rgba(0,0,0,0.08); border-radius:8px; overflow:hidden; background:#fff;">
                         <a href="${escapeHtml(a.archivo_url)}" target="_blank" rel="noopener">${previsualizacion}</a>
                         <div style="padding:6px 8px;">
                             <div style="font-size:0.72rem; color:var(--text-muted);">${escapeHtml(a.tipo)}</div>
-                            <button class="btn btn-peligro btn-sm" style="margin-top:4px; width:100%; padding:5px 8px; font-size:0.72rem;" data-id="${a.id}">🗑️ Eliminar</button>
+                            <button class="btn btn-peligro btn-sm" style="margin-top:4px; width:100%; padding:5px 8px; font-size:0.72rem;" data-id="${a.id}">Eliminar</button>
                         </div>
                     </div>
                 `;

@@ -5,24 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JAC Honduras — Panel de Usuario</title>
     <link rel="stylesheet" href="../css/style.css">
+    <meta name="theme-color" content="#0a4325">
+    <meta name="robots" content="noindex">
+    <link rel="icon" href="../img/logo.png">
     <style>
-        .dashboard-wrap { max-width: 1150px; margin: 0 auto; padding: 110px 5% 60px; }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 32px;
-            align-items: start;
-        }
-        @media (max-width: 860px) {
-            .dashboard-grid { grid-template-columns: 1fr; }
-        }
-        .col-carnet { position: sticky; top: 110px; }
-        @media (max-width: 860px) { .col-carnet { position: static; } }
-
-        .panel-card { margin-bottom: 28px; }
-        .panel-card h2 { display: flex; align-items: center; gap: 10px; color: var(--primary); font-size: 1.25rem; margin-bottom: 6px; }
-        .panel-card .subtexto { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; }
+        .col-carnet { position: sticky; top: calc(var(--nav-h) + 20px); }
+        @media (max-width: 900px) { .col-carnet { position: static; } }
     </style>
 </head>
 <body>
@@ -42,7 +30,7 @@
         <button class="theme-switch" id="btnTema" onclick="alternarTema()" aria-label="Cambiar tema">
             <span class="theme-switch-track"></span>
         </button>
-        <a href="#" onclick="cerrarSesion()" style="color: #ef4444;">Cerrar Sesión</a>
+        <a href="#" onclick="cerrarSesion()" style="color: #ef4444;">Cerrar sesión</a>
     </div>
 </nav>
 
@@ -52,14 +40,14 @@
         <!-- ── Columna izquierda: navegación por pestañas ─── -->
         <div class="col-carnet">
             <div class="side-tabs" id="sideTabs">
-                <button class="side-tab-btn active" data-tab="carnet" onclick="cambiarTab('carnet')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16c0-1.7 1.4-2.8 3-2.8s3 1.1 3 2.8"/><path d="M14 10h5M14 13h5M14 16h3"/></svg>Mi Carnet</button>
+                <button class="side-tab-btn active" data-tab="carnet" onclick="cambiarTab('carnet')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16c0-1.7 1.4-2.8 3-2.8s3 1.1 3 2.8"/><path d="M14 10h5M14 13h5M14 16h3"/></svg>Mi carnet</button>
                 <button class="side-tab-btn" data-tab="notificaciones" onclick="cambiarTab('notificaciones')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10a6 6 0 0112 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z"/><path d="M10 19a2 2 0 004 0"/></svg>Comunicados <span class="contador" id="contNotif" style="display:none;"></span></button>
                 <button class="side-tab-btn" data-tab="votaciones" onclick="cambiarTab('votaciones')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>Votaciones</button>
                 <button class="side-tab-btn" data-tab="pqrs" onclick="cambiarTab('pqrs')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3.5 7.5l8.5 6 8.5-6"/></svg>PQRS</button>
-                <button class="side-tab-btn" data-tab="aportes" onclick="cambiarTab('aportes')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M3 10.5h18"/><circle cx="16.5" cy="14.5" r="1.3"/></svg>Mis Aportes</button>
+                <button class="side-tab-btn" data-tab="aportes" onclick="cambiarTab('aportes')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M3 10.5h18"/><circle cx="16.5" cy="14.5" r="1.3"/></svg>Mis aportes</button>
                 <button class="side-tab-btn" data-tab="eventos" onclick="cambiarTab('eventos')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="2.6"/><circle cx="16" cy="9" r="2.6"/><path d="M3 19c0-2.8 2.2-4.7 5-4.7s5 1.9 5 4.7"/><path d="M11 19c0-2.8 2.2-4.7 5-4.7s5 1.9 5 4.7"/></svg>Voluntariado</button>
                 <button class="side-tab-btn" data-tab="documentos" onclick="cambiarTab('documentos')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5h6.5l4 4V20a1 1 0 01-1 1H7a1 1 0 01-1-1V4.5a1 1 0 011-1z"/><path d="M13.5 3.5V8h4"/><path d="M9 12.5h6M9 15.5h6M9 18.5h3.5"/></svg>Documentos</button>
-                <button class="side-tab-btn" data-tab="censo" onclick="cambiarTab('censo')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3a1 1 0 011-1h4a1 1 0 011 1v1"/><path d="M8.5 10h7M8.5 13.5h7M8.5 17h4"/></svg>Mi Censo</button>
+                <button class="side-tab-btn" data-tab="censo" onclick="cambiarTab('censo')"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3a1 1 0 011-1h4a1 1 0 011 1v1"/><path d="M8.5 10h7M8.5 13.5h7M8.5 17h4"/></svg>Mi censo</button>
             </div>
         </div>
 
@@ -71,7 +59,7 @@
                 <div class="carnet-card animate-fade">
                     <div class="carnet-top">
                         <img src="../img/logo.png" class="carnet-logo" alt="Logo JAC">
-                        <div class="carnet-brand">JAC HONDURAS, CAUCA<span>Carnet Digital de Afiliado</span></div>
+                        <div class="carnet-brand">JAC HONDURAS, CAUCA<span>Carnet digital de afiliado</span></div>
                     </div>
 
                     <div class="carnet-chip-container">
@@ -82,7 +70,7 @@
                         <div class="carnet-avatar" id="userAvatar">
                             <span id="userInitials">U</span>
                         </div>
-                        <label class="avatar-upload-overlay" for="inputFoto" title="Cambiar foto de perfil">📷</label>
+                        <label class="avatar-upload-overlay" for="inputFoto" title="Cambiar foto de perfil"></label>
                         <input type="file" id="inputFoto" accept="image/*" onchange="subirFoto(this)">
                     </div>
                     <h2 class="carnet-nombre" id="userNombre">Cargando...</h2>
@@ -90,10 +78,10 @@
 
                     <div class="carnet-campos">
                         <div class="carnet-campo">
-                            <label>Fecha Expedición</label><span id="cExpedicion">—</span>
+                            <label>Fecha expedición</label><span id="cExpedicion">—</span>
                         </div>
                         <div class="carnet-campo">
-                            <label>Fecha Afiliación</label><span id="cAfiliacion">—</span>
+                            <label>Fecha afiliación</label><span id="cAfiliacion">—</span>
                         </div>
                         <div class="carnet-campo">
                             <label>Teléfono</label><span id="cTelefono">—</span>
@@ -108,68 +96,68 @@
                     </div>
 
                     <div class="carnet-estado">
-                        <div class="dot-verde"></div> Afiliado Verificado
+                        <div class="dot-verde"></div> Afiliado verificado
                     </div>
                 </div>
 
                 <button class="btn btn-primary btn-full" style="margin-top:16px;" id="btnDescargarCarnet" onclick="descargarCarnet()">
-                    ⬇ Descargar Carnet
+                    Descargar carnet
                 </button>
 
                 <div class="card panel-card animate-fade delay-1" style="margin-top:28px;">
-                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21l4.5-1.3L20 8.2a2 2 0 000-2.8l-1.4-1.4a2 2 0 00-2.8 0L4.3 15.5 3 20a1 1 0 001 1z"/><path d="M14.5 6l3.5 3.5"/></svg>Actualizar Datos de Contacto</h2>
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21l4.5-1.3L20 8.2a2 2 0 000-2.8l-1.4-1.4a2 2 0 00-2.8 0L4.3 15.5 3 20a1 1 0 001 1z"/><path d="M14.5 6l3.5 3.5"/></svg>Actualizar datos de contacto</h2>
                     <p class="subtexto">Mantén tu teléfono y correo al día para que la Junta pueda notificarte sobre asambleas y avisos importantes.</p>
                     <div class="alert alert-error" id="alertaPerfilError" style="display:none;"></div>
                     <div class="alert alert-success" id="alertaPerfilOk" style="display:none;"></div>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Teléfono / Celular</label>
+                            <label>Teléfono / celular</label>
                             <input type="tel" id="editTelefono" placeholder="Ej: 3201234567">
                         </div>
                         <div class="form-group">
-                            <label>Correo Electrónico</label>
+                            <label>Correo electrónico</label>
                             <input type="email" id="editCorreo" placeholder="ejemplo@correo.com">
                         </div>
                     </div>
-                    <button class="btn btn-primary" style="margin-top:16px;" id="btnGuardarPerfil" onclick="guardarPerfil()">Guardar Cambios</button>
+                    <button class="btn btn-primary" style="margin-top:16px;" id="btnGuardarPerfil" onclick="guardarPerfil()">Guardar cambios</button>
                 </div>
 
                 <div class="card panel-card animate-fade delay-2">
-                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 018 0v3.5"/></svg>Cambiar Contraseña</h2>
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 018 0v3.5"/></svg>Cambiar contraseña</h2>
                     <p class="subtexto">Si crees que se te va a olvidar, cámbiala aquí por una que recuerdes mejor.</p>
                     <div class="alert alert-error" id="alertaPassError" style="display:none;"></div>
                     <div class="alert alert-success" id="alertaPassOk" style="display:none;"></div>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Contraseña Actual</label>
+                            <label>Contraseña actual</label>
                             <div class="password-wrapper">
                                 <input type="password" id="passActual" placeholder="••••••••">
-                                <button type="button" class="password-toggle" onclick="togglePassword('passActual', this)">👁</button>
+                                <button type="button" class="password-toggle" onclick="togglePassword('passActual', this)">Mostrar</button>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Nueva Contraseña</label>
+                            <label>Nueva contraseña</label>
                             <div class="password-wrapper">
-                                <input type="password" id="passNueva" placeholder="Mínimo 6 caracteres">
-                                <button type="button" class="password-toggle" onclick="togglePassword('passNueva', this)">👁</button>
+                                <input type="password" id="passNueva" placeholder="Mínimo 8 caracteres, letras y números">
+                                <button type="button" class="password-toggle" onclick="togglePassword('passNueva', this)">Mostrar</button>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Confirmar Nueva Contraseña</label>
+                            <label>Confirmar nueva contraseña</label>
                             <div class="password-wrapper">
                                 <input type="password" id="passConfirmar" placeholder="Repite la nueva contraseña">
-                                <button type="button" class="password-toggle" onclick="togglePassword('passConfirmar', this)">👁</button>
+                                <button type="button" class="password-toggle" onclick="togglePassword('passConfirmar', this)">Mostrar</button>
                             </div>
                         </div>
                     </div>
-                    <button class="btn btn-primary" style="margin-top:16px;" id="btnCambiarPass" onclick="cambiarContrasena()">Actualizar Contraseña</button>
+                    <button class="btn btn-primary" style="margin-top:16px;" id="btnCambiarPass" onclick="cambiarContrasena()">Actualizar contraseña</button>
                 </div>
             </div>
 
             <!-- ═══ TAB: NOTIFICACIONES / COMUNICADOS ═══ -->
             <div class="tab-panel" id="panel-notificaciones">
                 <div class="card panel-card animate-fade">
-                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10a6 6 0 0112 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z"/><path d="M10 19a2 2 0 004 0"/></svg>Avisos Urgentes</h2>
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10a6 6 0 0112 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z"/><path d="M10 19a2 2 0 004 0"/></svg>Avisos urgentes</h2>
                     <p class="subtexto">Avisos enviados directamente por la Junta Directiva.</p>
                     <div id="listaAvisos">
                         <div class="cargando"><div class="spinner"></div>Cargando avisos...</div>
@@ -187,7 +175,7 @@
             <!-- ═══ TAB: VOTACIONES ═══ -->
             <div class="tab-panel" id="panel-votaciones">
                 <div class="card panel-card animate-fade">
-                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>Votaciones de Proyectos</h2>
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>Votaciones de proyectos</h2>
                     <p class="subtexto">Tu voz cuenta: participa en las decisiones de la comunidad.</p>
                     <div id="listaEncuestas">
                         <div class="cargando"><div class="spinner"></div>Cargando votaciones...</div>
@@ -198,7 +186,7 @@
             <!-- ═══ TAB: PQRS ═══ -->
             <div class="tab-panel" id="panel-pqrs">
                 <div class="card panel-card animate-fade">
-                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3.5 7.5l8.5 6 8.5-6"/></svg>Nueva Petición, Queja, Reclamo o Sugerencia</h2>
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3.5 7.5l8.5 6 8.5-6"/></svg>Nueva petición, queja, reclamo o sugerencia</h2>
                     <p class="subtexto">Escríbele directamente a la Junta Directiva.</p>
                     <div class="alert alert-error" id="alertaPqrsError" style="display:none;"></div>
                     <div class="alert alert-success" id="alertaPqrsOk" style="display:none;"></div>
@@ -225,7 +213,7 @@
                 </div>
 
                 <div class="card panel-card animate-fade delay-1">
-                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Historial de Mis Solicitudes</h2>
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Historial de mis solicitudes</h2>
                     <div id="listaPqrs">
                         <div class="cargando"><div class="spinner"></div>Cargando historial...</div>
                     </div>
@@ -235,7 +223,7 @@
             <!-- ═══ TAB: APORTES ═══ -->
             <div class="tab-panel" id="panel-aportes">
                 <div class="card panel-card animate-fade">
-                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M3 10.5h18"/><circle cx="16.5" cy="14.5" r="1.3"/></svg>Mis Aportes Financieros</h2>
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M3 10.5h18"/><circle cx="16.5" cy="14.5" r="1.3"/></svg>Mis aportes financieros</h2>
                     <p class="subtexto">Historial de cuotas y aportes registrados por la tesorería.</p>
                     <div id="listaAportes">
                         <div class="cargando"><div class="spinner"></div>Cargando aportes...</div>
@@ -246,7 +234,7 @@
             <!-- ═══ TAB: EVENTOS / VOLUNTARIADO ═══ -->
             <div class="tab-panel" id="panel-eventos">
                 <div class="card panel-card animate-fade">
-                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="2.6"/><circle cx="16" cy="9" r="2.6"/><path d="M3 19c0-2.8 2.2-4.7 5-4.7s5 1.9 5 4.7"/><path d="M11 19c0-2.8 2.2-4.7 5-4.7s5 1.9 5 4.7"/></svg>Voluntariado en Eventos y Convites</h2>
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="2.6"/><circle cx="16" cy="9" r="2.6"/><path d="M3 19c0-2.8 2.2-4.7 5-4.7s5 1.9 5 4.7"/><path d="M11 19c0-2.8 2.2-4.7 5-4.7s5 1.9 5 4.7"/></svg>Voluntariado en eventos y convites</h2>
                     <p class="subtexto">Inscríbete para colaborar en las próximas actividades comunitarias.</p>
                     <div id="listaEventos">
                         <div class="cargando"><div class="spinner"></div>Cargando eventos...</div>
@@ -257,7 +245,7 @@
             <!-- ═══ TAB: DOCUMENTOS ═══ -->
             <div class="tab-panel" id="panel-documentos">
                 <div class="card panel-card animate-fade">
-                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5h6.5l4 4V20a1 1 0 01-1 1H7a1 1 0 01-1-1V4.5a1 1 0 011-1z"/><path d="M13.5 3.5V8h4"/><path d="M9 12.5h6M9 15.5h6M9 18.5h3.5"/></svg>Documentos y Actas de Asambleas</h2>
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5h6.5l4 4V20a1 1 0 01-1 1H7a1 1 0 01-1-1V4.5a1 1 0 011-1z"/><path d="M13.5 3.5V8h4"/><path d="M9 12.5h6M9 15.5h6M9 18.5h3.5"/></svg>Documentos y actas de asambleas</h2>
                     <p class="subtexto">Consulta y descarga las actas y reglamentos oficiales de la Junta.</p>
                     <div id="listaDocumentos">
                         <div class="cargando"><div class="spinner"></div>Cargando documentos...</div>
@@ -268,7 +256,7 @@
             <!-- ═══ TAB: CENSO ═══ -->
             <div class="tab-panel" id="panel-censo">
                 <div class="card panel-card animate-fade">
-                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3a1 1 0 011-1h4a1 1 0 011 1v1"/><path d="M8.5 10h7M8.5 13.5h7M8.5 17h4"/></svg>Censo Familiar</h2>
+                    <h2><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3a1 1 0 011-1h4a1 1 0 011 1v1"/><path d="M8.5 10h7M8.5 13.5h7M8.5 17h4"/></svg>Censo familiar</h2>
                     <p class="subtexto">Registra o actualiza la información de tu censo. Estos datos son privados: solo tú y la Junta Directiva pueden verlos.</p>
                     <div class="alert alert-error" id="alertaCensoError" style="display:none;"></div>
                     <div class="alert alert-success" id="alertaCensoOk" style="display:none;"></div>
@@ -278,17 +266,17 @@
                         <div class="form-group"><label>Nombres <span class="req">*</span></label><input type="text" id="cnNombres"></div>
                         <div class="form-group"><label>Apellidos <span class="req">*</span></label><input type="text" id="cnApellidos"></div>
                         <div class="form-group">
-                            <label>Tipo de Documento <span class="req">*</span></label>
+                            <label>Tipo de documento <span class="req">*</span></label>
                             <select id="cnTipoDocumento">
-                                <option value="Cedula de Ciudadania">Cédula de Ciudadanía</option>
-                                <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
-                                <option value="Cedula de Extranjeria">Cédula de Extranjería</option>
-                                <option value="Registro Civil">Registro Civil</option>
+                                <option value="Cedula de Ciudadania">Cédula de ciudadanía</option>
+                                <option value="Tarjeta de Identidad">Tarjeta de identidad</option>
+                                <option value="Cedula de Extranjeria">Cédula de extranjería</option>
+                                <option value="Registro Civil">Registro civil</option>
                                 <option value="Otro">Otro</option>
                             </select>
                         </div>
-                        <div class="form-group"><label>Número de Documento <span class="req">*</span></label><input type="text" id="cnNumeroDocumento"></div>
-                        <div class="form-group"><label>Fecha de Nacimiento <span class="req">*</span></label><input type="date" id="cnFechaNacimiento"></div>
+                        <div class="form-group"><label>Número de documento <span class="req">*</span></label><input type="text" id="cnNumeroDocumento"></div>
+                        <div class="form-group"><label>Fecha de nacimiento <span class="req">*</span></label><input type="date" id="cnFechaNacimiento"></div>
                         <div class="form-group">
                             <label>Sexo <span class="req">*</span></label>
                             <select id="cnSexo">
@@ -299,7 +287,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Estado Civil</label>
+                            <label>Estado civil</label>
                             <select id="cnEstadoCivil">
                                 <option value="">— Seleccionar —</option>
                                 <option value="Soltero(a)">Soltero(a)</option>
@@ -318,7 +306,7 @@
                                 <option value="Indigena">Indígena</option>
                                 <option value="Raizal">Raizal</option>
                                 <option value="Palenquero">Palenquero</option>
-                                <option value="ROM/Gitano">ROM / Gitano</option>
+                                <option value="ROM/Gitano">ROM / gitano</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -327,7 +315,7 @@
                                 <option value="Ninguna">Ninguna</option>
                                 <option value="Visual">Visual</option>
                                 <option value="Auditiva">Auditiva</option>
-                                <option value="Fisica / Motriz">Física / Motriz</option>
+                                <option value="Fisica / Motriz">Física / motriz</option>
                                 <option value="Cognitiva">Cognitiva</option>
                                 <option value="Psicosocial">Psicosocial</option>
                                 <option value="Multiple">Múltiple</option>
@@ -338,10 +326,10 @@
                     <h3 style="color:var(--primary); font-size:1rem; margin:20px 0 4px;">Ubicación y vivienda</h3>
                     <div class="form-grid">
                         <div class="form-group" style="grid-column: 1 / -1;"><label>Dirección</label><input type="text" id="cnDireccion" placeholder="Ej: Calle 5 # 3-20"></div>
-                        <div class="form-group"><label>Barrio / Vereda</label><input type="text" id="cnBarrioVereda"></div>
-                        <div class="form-group"><label>Ciudad / Municipio <span class="req">*</span></label><input type="text" id="cnCiudadMunicipio" placeholder="Ej: Honduras, Cauca"></div>
+                        <div class="form-group"><label>Barrio / vereda</label><input type="text" id="cnBarrioVereda"></div>
+                        <div class="form-group"><label>Ciudad / municipio <span class="req">*</span></label><input type="text" id="cnCiudadMunicipio" placeholder="Ej: Honduras, Cauca"></div>
                         <div class="form-group">
-                            <label>Ubicación de la Vivienda</label>
+                            <label>Ubicación de la vivienda</label>
                             <select id="cnZonaVivienda">
                                 <option value="">— Seleccionar —</option>
                                 <option value="Territorio comunitario">Territorio comunitario</option>
@@ -352,7 +340,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Tenencia de la Vivienda</label>
+                            <label>Tenencia de la vivienda</label>
                             <select id="cnTipoVivienda">
                                 <option value="">— Seleccionar —</option>
                                 <option value="Propia">Propia</option>
@@ -372,11 +360,11 @@
                             <label>Paredes</label>
                             <select id="cnMaterialParedes">
                                 <option value="">— Seleccionar —</option>
-                                <option value="Bloque/Ladrillo">Bloque / Ladrillo</option>
+                                <option value="Bloque/Ladrillo">Bloque / ladrillo</option>
                                 <option value="Concreto">Concreto</option>
                                 <option value="Madera">Madera</option>
-                                <option value="Bahareque/Adobe">Bahareque / Adobe</option>
-                                <option value="Lamina/Zinc">Lámina / Zinc</option>
+                                <option value="Bahareque/Adobe">Bahareque / adobe</option>
+                                <option value="Lamina/Zinc">Lámina / zinc</option>
                                 <option value="Otro">Otro</option>
                             </select>
                         </div>
@@ -385,7 +373,7 @@
                             <select id="cnMaterialPiso">
                                 <option value="">— Seleccionar —</option>
                                 <option value="Cemento">Cemento</option>
-                                <option value="Baldosa/Ceramica">Baldosa / Cerámica</option>
+                                <option value="Baldosa/Ceramica">Baldosa / cerámica</option>
                                 <option value="Madera">Madera</option>
                                 <option value="Tierra">Tierra</option>
                                 <option value="Otro">Otro</option>
@@ -395,10 +383,10 @@
                             <label>Techo</label>
                             <select id="cnMaterialTecho">
                                 <option value="">— Seleccionar —</option>
-                                <option value="Zinc/Lamina">Zinc / Lámina</option>
+                                <option value="Zinc/Lamina">Zinc / lámina</option>
                                 <option value="Teja">Teja</option>
-                                <option value="Concreto/Placa">Concreto / Placa</option>
-                                <option value="Paja/Palma">Paja / Palma</option>
+                                <option value="Concreto/Placa">Concreto / placa</option>
+                                <option value="Paja/Palma">Paja / palma</option>
                                 <option value="Otro">Otro</option>
                             </select>
                         </div>
@@ -407,7 +395,7 @@
                     <h3 style="color:var(--primary); font-size:1rem; margin:20px 0 4px;">Servicios básicos y tecnología</h3>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Agua Potable</label>
+                            <label>Agua potable</label>
                             <select id="cnAccesoAgua">
                                 <option value="">— Seleccionar —</option>
                                 <option value="Si">Sí</option>
@@ -415,7 +403,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Fuente Principal de Agua</label>
+                            <label>Fuente principal de agua</label>
                             <select id="cnFuenteAgua">
                                 <option value="">— Seleccionar —</option>
                                 <option value="Acueducto">Acueducto</option>
@@ -444,7 +432,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Eliminación de Excretas</label>
+                            <label>Eliminación de excretas</label>
                             <select id="cnSistemaExcretas">
                                 <option value="">— Seleccionar —</option>
                                 <option value="Alcantarillado">Alcantarillado</option>
@@ -455,7 +443,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Recolección de Residuos</label>
+                            <label>Recolección de residuos</label>
                             <select id="cnAccesoResiduos">
                                 <option value="">— Seleccionar —</option>
                                 <option value="Si">Sí</option>
@@ -471,7 +459,7 @@
                             </select>
                         </div>
                         <div class="form-group" style="grid-column: 1 / -1;">
-                            <label>Disponibilidad de Tecnología</label>
+                            <label>Disponibilidad de tecnología</label>
                             <div id="cnTecnologiaGrupo" style="display:flex; gap:16px; flex-wrap:wrap; padding:12px 0;">
                                 <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Internet" style="width:auto;"> Internet</label>
                                 <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Computador" style="width:auto;"> Computador</label>
@@ -485,7 +473,7 @@
                     <h3 style="color:var(--primary); font-size:1rem; margin:20px 0 4px;">Salud, actividad económica y movilidad</h3>
                     <div class="form-grid">
                         <div class="form-group" style="grid-column: 1 / -1;">
-                            <label>Acceso a Servicios de Salud</label>
+                            <label>Acceso a servicios de salud</label>
                             <div id="cnSaludGrupo" style="display:flex; gap:16px; flex-wrap:wrap; padding:12px 0;">
                                 <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Puesto o centro de salud" style="width:auto;"> Puesto o centro de salud</label>
                                 <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Hospital" style="width:auto;"> Hospital</label>
@@ -495,7 +483,7 @@
                             </div>
                         </div>
                         <div class="form-group" style="grid-column: 1 / -1;">
-                            <label>Actividades Económicas de la Familia</label>
+                            <label>Actividades económicas de la familia</label>
                             <div id="cnActividadesGrupo" style="display:flex; gap:16px; flex-wrap:wrap; padding:12px 0;">
                                 <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Agricultura" style="width:auto;"> Agricultura</label>
                                 <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Pesca" style="width:auto;"> Pesca</label>
@@ -509,11 +497,11 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Personas Ausentes Temporalmente</label>
+                            <label>Personas ausentes temporalmente</label>
                             <input type="number" id="cnPersonasAusentes" min="0">
                         </div>
                         <div class="form-group">
-                            <label>Motivo Principal de la Ausencia</label>
+                            <label>Motivo principal de la ausencia</label>
                             <select id="cnMotivoAusencia">
                                 <option value="">— Seleccionar —</option>
                                 <option value="Trabajo">Trabajo</option>
@@ -525,7 +513,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>¿Alguien Retornó Recientemente?</label>
+                            <label>¿Alguien retornó recientemente?</label>
                             <select id="cnRetornoReciente">
                                 <option value="">— Seleccionar —</option>
                                 <option value="Si">Sí</option>
@@ -534,7 +522,7 @@
                         </div>
                     </div>
 
-                    <h3 style="color:var(--primary); font-size:1rem; margin:20px 0 4px;">Necesidades Prioritarias de la Familia</h3>
+                    <h3 style="color:var(--primary); font-size:1rem; margin:20px 0 4px;">Necesidades prioritarias de la familia</h3>
                     <p class="subtexto" style="margin-bottom:8px;">Esta información ayuda a la Junta a priorizar sus gestiones.</p>
                     <div id="cnNecesidadesGrupo" style="display:flex; gap:14px 20px; flex-wrap:wrap; padding:4px 0 8px;">
                         <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="checkbox" value="Agua potable" style="width:auto;"> Agua potable</label>
@@ -562,13 +550,13 @@
                     <h3 style="color:var(--primary); font-size:1rem; margin:20px 0 4px;">Información socioeconómica</h3>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Nivel Educativo</label>
+                            <label>Nivel educativo</label>
                             <select id="cnNivelEducativo">
                                 <option value="">— Seleccionar —</option>
                                 <option value="Ninguno">Ninguno</option>
                                 <option value="Primaria">Primaria</option>
                                 <option value="Secundaria">Secundaria</option>
-                                <option value="Tecnico/Tecnologo">Técnico / Tecnólogo</option>
+                                <option value="Tecnico/Tecnologo">Técnico / tecnólogo</option>
                                 <option value="Universitario">Universitario</option>
                                 <option value="Posgrado">Posgrado</option>
                             </select>
@@ -579,14 +567,14 @@
                 </div>
 
                 <div class="card panel-card animate-fade delay-1">
-                    <h3 style="color:var(--primary); font-size:1rem; margin:0 0 4px; display:flex; align-items:center; gap:8px;"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="2.6"/><circle cx="16" cy="9" r="2.6"/><path d="M3 19c0-2.8 2.2-4.7 5-4.7s5 1.9 5 4.7"/><path d="M11 19c0-2.8 2.2-4.7 5-4.7s5 1.9 5 4.7"/></svg>Miembros del Hogar</h3>
+                    <h3 style="color:var(--primary); font-size:1rem; margin:0 0 4px; display:flex; align-items:center; gap:8px;"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="2.6"/><circle cx="16" cy="9" r="2.6"/><path d="M3 19c0-2.8 2.2-4.7 5-4.7s5 1.9 5 4.7"/><path d="M11 19c0-2.8 2.2-4.7 5-4.7s5 1.9 5 4.7"/></svg>Miembros del hogar</h3>
                     <p class="subtexto" id="miembrosSubtexto">Guarda tu censo primero para poder registrar a las personas que viven en tu hogar.</p>
                     <div class="alert alert-error" id="alertaMiembroError" style="display:none;"></div>
 
                     <div id="miembrosFormWrap" style="display:none;">
                         <input type="hidden" id="cmEditId">
                         <div class="form-grid">
-                            <div class="form-group"><label>Nombre Completo <span class="req">*</span></label><input type="text" id="cmNombreCompleto"></div>
+                            <div class="form-group"><label>Nombre completo <span class="req">*</span></label><input type="text" id="cmNombreCompleto"></div>
                             <div class="form-group">
                                 <label>Parentesco <span class="req">*</span></label>
                                 <select id="cmParentesco">
@@ -603,7 +591,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Sexo / Género <span class="req">*</span></label>
+                                <label>Sexo / género <span class="req">*</span></label>
                                 <select id="cmSexo">
                                     <option value="">— Seleccionar —</option>
                                     <option value="Mujer">Mujer</option>
@@ -612,9 +600,9 @@
                                     <option value="Prefiere no responder">Prefiere no responder</option>
                                 </select>
                             </div>
-                            <div class="form-group"><label>Fecha de Nacimiento</label><input type="date" id="cmFechaNacimiento"></div>
+                            <div class="form-group"><label>Fecha de nacimiento</label><input type="date" id="cmFechaNacimiento"></div>
                             <div class="form-group">
-                                <label>Estado Civil</label>
+                                <label>Estado civil</label>
                                 <select id="cmEstadoCivil">
                                     <option value="">— Seleccionar —</option>
                                     <option value="Soltero(a)">Soltero(a)</option>
@@ -628,7 +616,7 @@
                                 <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="cmViveAqui" checked style="width:auto;"> Vive actualmente en el hogar</label>
                             </div>
                             <div class="form-group">
-                                <label>¿Sabe Leer y Escribir?</label>
+                                <label>¿Sabe leer y escribir?</label>
                                 <select id="cmSabeLeer">
                                     <option value="">— Seleccionar —</option>
                                     <option value="Si">Sí</option>
@@ -636,14 +624,14 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Nivel Educativo</label>
+                                <label>Nivel educativo</label>
                                 <select id="cmNivelEducativo">
                                     <option value="">— Seleccionar —</option>
                                     <option value="Ninguno">Ninguno</option>
                                     <option value="Educacion inicial">Educación inicial</option>
                                     <option value="Primaria">Primaria</option>
                                     <option value="Secundaria">Secundaria</option>
-                                    <option value="Tecnico/Tecnologo">Técnico / Tecnólogo</option>
+                                    <option value="Tecnico/Tecnologo">Técnico / tecnólogo</option>
                                     <option value="Universitario">Universitario</option>
                                     <option value="Educacion propia o comunitaria">Educación propia o comunitaria</option>
                                     <option value="Otro">Otro</option>
@@ -657,7 +645,7 @@
                                     <option value="No">No</option>
                                 </select>
                             </div>
-                            <div class="form-group"><label>Institución Educativa</label><input type="text" id="cmInstitucion"></div>
+                            <div class="form-group"><label>Institución educativa</label><input type="text" id="cmInstitucion"></div>
                             <div class="form-group">
                                 <label>¿Tiene Discapacidad?</label>
                                 <select id="cmTieneDiscapacidad">
@@ -667,7 +655,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Tipo de Discapacidad</label>
+                                <label>Tipo de discapacidad</label>
                                 <select id="cmTipoDiscapacidad">
                                     <option value="">— No aplica —</option>
                                     <option value="Fisica o motora">Física o motora</option>
@@ -681,7 +669,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>¿Habla la Lengua Propia?</label>
+                                <label>¿Habla la lengua propia?</label>
                                 <select id="cmHablaLengua">
                                     <option value="">— Seleccionar —</option>
                                     <option value="Si, como lengua principal">Sí, como lengua principal</option>
@@ -692,7 +680,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Participa en Actividades Culturales</label>
+                                <label>Participa en actividades culturales</label>
                                 <select id="cmParticipaCultural">
                                     <option value="">— Seleccionar —</option>
                                     <option value="Si">Sí</option>
@@ -708,11 +696,11 @@
                                     <option value="No">No</option>
                                 </select>
                             </div>
-                            <div class="form-group"><label>Actividad Económica</label><input type="text" id="cmActividadEconomica" placeholder="Ej: Jornalero"></div>
-                            <div class="form-group"><label>Lugar de Trabajo</label><input type="text" id="cmLugarTrabajo"></div>
+                            <div class="form-group"><label>Actividad económica</label><input type="text" id="cmActividadEconomica" placeholder="Ej: Jornalero"></div>
+                            <div class="form-group"><label>Lugar de trabajo</label><input type="text" id="cmLugarTrabajo"></div>
                         </div>
                         <div style="display:flex; gap:12px; margin-top:12px;">
-                            <button class="btn btn-primary btn-sm" id="btnGuardarMiembro" onclick="guardarMiembroHogar()">➕ Agregar Miembro</button>
+                            <button class="btn btn-primary btn-sm" id="btnGuardarMiembro" onclick="guardarMiembroHogar()">Agregar miembro</button>
                             <button class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15); display:none;" id="btnCancelarEdicionMiembro" onclick="limpiarFormularioMiembro()">Cancelar</button>
                         </div>
                     </div>
@@ -721,14 +709,14 @@
                 </div>
 
                 <div class="card panel-card animate-fade delay-1">
-                    <h3 style="color:var(--primary); font-size:1rem; margin:0 0 4px; display:flex; align-items:center; gap:8px;"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/></svg>Fotos y Archivos del Censo</h3>
+                    <h3 style="color:var(--primary); font-size:1rem; margin:0 0 4px; display:flex; align-items:center; gap:8px;"><svg class="icono-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/></svg>Fotos y archivos del censo</h3>
                     <p class="subtexto" id="censoArchivosSubtexto">Guarda tu censo primero para poder adjuntar fotos de la vivienda u otros documentos.</p>
                     <div class="alert alert-error" id="alertaCensoArchivoError" style="display:none;"></div>
 
                     <div id="censoArchivosUploadWrap" style="display:none; margin-bottom:20px;">
                         <div class="form-grid">
                             <div class="form-group">
-                                <label>Tipo de Archivo</label>
+                                <label>Tipo de archivo</label>
                                 <select id="cnArchivoTipo">
                                     <option value="Vivienda">Foto de la vivienda</option>
                                     <option value="Documento">Documento</option>
@@ -740,7 +728,7 @@
                                 <input type="file" id="cnArchivoInput" accept="image/*,application/pdf">
                             </div>
                         </div>
-                        <button class="btn btn-primary btn-sm" id="btnSubirArchivoCenso" onclick="subirArchivoCenso()">⬆ Adjuntar Archivo</button>
+                        <button class="btn btn-primary btn-sm" id="btnSubirArchivoCenso" onclick="subirArchivoCenso()">Adjuntar archivo</button>
                     </div>
 
                     <div id="listaArchivosCenso"></div>
@@ -752,7 +740,7 @@
                         </label>
                     </div>
 
-                    <button class="btn btn-primary" style="margin-top:16px;" id="btnGuardarCenso" onclick="guardarCenso()">💾 Guardar Censo</button>
+                    <button class="btn btn-primary" style="margin-top:16px;" id="btnGuardarCenso" onclick="guardarCenso()">Guardar censo</button>
                 </div>
             </div>
 
@@ -779,9 +767,12 @@
     });
 
     function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str ?? '';
-        return div.innerHTML;
+        return String(str ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     // ── Modo oscuro ──────────────────────────────────────────
@@ -828,9 +819,25 @@
         return `${window.location.origin}/verificar/${encodeURIComponent(usuarioActual.cedula)}`;
     }
 
-    function renderizarCarnetQr() {
-        document.getElementById('carnetQr').src =
-            `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=4&data=${encodeURIComponent(urlVerificacion())}`;
+    // El QR se genera en nuestro propio servidor: la cédula nunca sale hacia terceros.
+    let qrCarnetDataUrl = null;
+    async function obtenerQrCarnet() {
+        if (qrCarnetDataUrl) return qrCarnetDataUrl;
+        try {
+            const res = await fetch(`${window.location.origin}/api/afiliados/perfil/qr`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            if (!res.ok) return null;
+            qrCarnetDataUrl = (await res.json()).imagen;
+            return qrCarnetDataUrl;
+        } catch (err) {
+            return null;
+        }
+    }
+
+    async function renderizarCarnetQr() {
+        const src = await obtenerQrCarnet();
+        if (src) document.getElementById('carnetQr').src = src;
     }
 
     function renderizarAvatar() {
@@ -923,7 +930,7 @@
                 localStorage.setItem('user', JSON.stringify(usuarioActual));
                 document.getElementById('cCorreo').textContent = usuarioActual.correo || 'No registrado';
                 document.getElementById('cTelefono').textContent = usuarioActual.telefono || 'No registrado';
-                alertaOk.textContent = '✅ Datos actualizados correctamente.';
+                alertaOk.textContent = 'Datos actualizados correctamente.';
                 alertaOk.style.display = 'block';
             } else {
                 alertaError.textContent = data.error || 'Error al actualizar los datos.';
@@ -942,7 +949,7 @@
         const input = document.getElementById(inputId);
         const esOculta = input.type === 'password';
         input.type = esOculta ? 'text' : 'password';
-        btn.textContent = esOculta ? '🙈' : '👁';
+        btn.textContent = esOculta ? 'Ocultar' : 'Mostrar';
     }
 
     async function cambiarContrasena() {
@@ -961,8 +968,8 @@
             alertaError.style.display = 'block';
             return;
         }
-        if (nueva.length < 6) {
-            alertaError.textContent = 'La nueva contraseña debe tener al menos 6 caracteres.';
+        if (nueva.length < 8) {
+            alertaError.textContent = 'La nueva contraseña debe tener al menos 8 caracteres, con letras y números.';
             alertaError.style.display = 'block';
             return;
         }
@@ -988,7 +995,7 @@
             const data = await res.json();
 
             if (res.ok) {
-                alertaOk.textContent = '✅ Contraseña actualizada correctamente.';
+                alertaOk.textContent = 'Contraseña actualizada correctamente.';
                 alertaOk.style.display = 'block';
                 document.getElementById('passActual').value = '';
                 document.getElementById('passNueva').value = '';
@@ -1030,7 +1037,7 @@
             const cantidadNuevas = noticias.filter(esNueva).length;
 
             if (cantidadNuevas > 0) {
-                badge.textContent = `🔔 ${cantidadNuevas} nueva${cantidadNuevas !== 1 ? 's' : ''}`;
+                badge.textContent = `${cantidadNuevas} nueva${cantidadNuevas !== 1 ? 's' : ''}`;
                 badge.style.display = 'inline';
             } else {
                 badge.style.display = 'none';
@@ -1040,7 +1047,7 @@
                 <div class="noticia-item" ${esNueva(n) ? 'style="border-color:var(--accent); border-width:2px;"' : ''}>
                     <h3>
                         ${escapeHtml(n.titulo)}
-                        ${esNueva(n) ? '<span class="badge badge-verde" style="font-size:0.7rem; margin-left:6px;">🆕 Nuevo</span>' : ''}
+                        ${esNueva(n) ? '<span class="badge badge-verde" style="font-size:0.7rem; margin-left:6px;">Nuevo</span>' : ''}
                         ${n.solo_afiliados ? '<span class="badge badge-verde" style="font-size:0.7rem; margin-left:6px;">Solo afiliados</span>' : ''}
                     </h3>
                     <div class="meta">${escapeHtml(new Date(n.fecha_publicacion).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' }))}</div>
@@ -1137,7 +1144,7 @@
                         <div class="encuesta-pregunta">${escapeHtml(e.pregunta)}</div>
                         ${cuerpo}
                         <div class="encuesta-meta">
-                            ${e.activa ? '🟢 Votación abierta' : '🔴 Votación cerrada'}
+                            ${e.activa ? 'Votación abierta' : 'Votación cerrada'}
                             ${e.mi_voto ? ' · Ya votaste' : ''}
                             · ${totalVotos} voto${totalVotos !== 1 ? 's' : ''} en total
                         </div>
@@ -1205,7 +1212,7 @@
             const data = await res.json();
 
             if (res.ok) {
-                alertaOk.textContent = '✅ Tu solicitud fue enviada a la Junta.';
+                alertaOk.textContent = 'Tu solicitud fue enviada a la Junta.';
                 alertaOk.style.display = 'block';
                 document.getElementById('pqrsAsunto').value = '';
                 document.getElementById('pqrsMensaje').value = '';
@@ -1308,14 +1315,14 @@
             contenedor.innerHTML = lista.map(e => `
                 <div class="evento-item">
                     <h3>${escapeHtml(e.titulo)}</h3>
-                    <div class="meta">📅 ${escapeHtml(new Date(e.fecha).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}
-                        ${e.lugar ? ' · 📍 ' + escapeHtml(e.lugar) : ''}
+                    <div class="meta">${escapeHtml(new Date(e.fecha).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}
+                        ${e.lugar ? ' · ' + escapeHtml(e.lugar) : ''}
                         · ${e.total_inscritos} inscrito${e.total_inscritos !== 1 ? 's' : ''}
                     </div>
                     ${e.descripcion ? `<p>${escapeHtml(e.descripcion)}</p>` : ''}
                     ${e.inscrito
-                        ? `<button class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15);" data-accion="cancelar" data-id="${e.id}">✔ Inscrito — Cancelar</button>`
-                        : `<button class="btn btn-primary btn-sm" data-accion="inscribir" data-id="${e.id}">🙋 Inscribirme como voluntario</button>`}
+                        ? `<button class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15);" data-accion="cancelar" data-id="${e.id}">✔ Inscrito — cancelar</button>`
+                        : `<button class="btn btn-primary btn-sm" data-accion="inscribir" data-id="${e.id}">Inscribirme como voluntario</button>`}
                 </div>
             `).join('');
         } catch (err) {
@@ -1364,10 +1371,10 @@
             contenedor.innerHTML = lista.map(d => `
                 <div class="documento-item">
                     <div>
-                        <div class="nombre">📄 ${escapeHtml(d.nombre)}</div>
+                        <div class="nombre">${escapeHtml(d.nombre)}</div>
                         <div class="meta">${escapeHtml(d.tipo)} · ${escapeHtml(new Date(d.fecha).toLocaleDateString('es-CO'))}</div>
                     </div>
-                    <a class="btn btn-sm btn-primary" href="${escapeHtml(d.archivo_url)}" target="_blank" rel="noopener">⬇ Descargar</a>
+                    <a class="btn btn-sm btn-primary" href="${escapeHtml(d.archivo_url)}" target="_blank" rel="noopener">Descargar</a>
                 </div>
             `).join('');
         } catch (err) {
@@ -1454,7 +1461,7 @@
             ctx.fillText('JAC HONDURAS, CAUCA', logoX + logoR * 2 + 20, logoY + 34);
             ctx.font = '400 20px Arial, sans-serif';
             ctx.fillStyle = 'rgba(255,255,255,0.75)';
-            ctx.fillText('Carnet Digital de Afiliado', logoX + logoR * 2 + 20, logoY + 64);
+            ctx.fillText('Carnet digital de afiliado', logoX + logoR * 2 + 20, logoY + 64);
 
             // Foto de perfil (o iniciales si no tiene)
             const fotoX = ANCHO - 56 - 96, fotoY = logoY, fotoR = 48;
@@ -1515,7 +1522,8 @@
             });
 
             // Código QR de verificación (lleva a la página pública /verificar/:cedula)
-            const qrImg = await cargarImagenExterna(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=2&data=${encodeURIComponent(urlVerificacion())}`);
+            const qrSrc = await obtenerQrCarnet();
+            const qrImg = qrSrc ? await cargarImagen(qrSrc).catch(() => null) : null;
             const qrSize = 150, qrX = ANCHO - 56 - qrSize, qrY = 300;
             ctx.fillStyle = '#ffffff';
             dibujarRectRedondeado(ctx, qrX - 8, qrY - 8, qrSize + 16, qrSize + 16, 10);
@@ -1530,7 +1538,7 @@
             ctx.fill();
             ctx.font = '600 18px Arial, sans-serif';
             ctx.fillStyle = '#FFFFFF';
-            ctx.fillText('Afiliado Verificado en JAC Honduras, Cauca', 86, ALTO - 40);
+            ctx.fillText('Afiliado verificado en JAC Honduras, Cauca', 86, ALTO - 40);
 
             const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
             const url = URL.createObjectURL(blob);
@@ -1545,7 +1553,7 @@
             alert('No se pudo generar el carnet. Intenta de nuevo.');
         } finally {
             btn.disabled = false;
-            btn.textContent = '⬇ Descargar Carnet';
+            btn.textContent = 'Descargar carnet';
         }
     }
 
@@ -1668,7 +1676,7 @@
             const data = await res.json();
 
             if (res.ok) {
-                alertaOk.textContent = '✅ Tu censo fue guardado correctamente.';
+                alertaOk.textContent = 'Tu censo fue guardado correctamente.';
                 alertaOk.style.display = 'block';
                 miCensoId = data.censo.id;
                 actualizarSeccionArchivosCenso();
@@ -1684,7 +1692,7 @@
             alertaError.style.display = 'block';
         } finally {
             btn.disabled = false;
-            btn.textContent = '💾 Guardar Censo';
+            btn.textContent = 'Guardar Censo';
         }
     }
 
@@ -1751,8 +1759,8 @@
                     <div class="meta">${escapeHtml(m.parentesco)} · ${escapeHtml(m.sexo)} · ${calcularEdad(m.fecha_nacimiento)} años${m.vive_aqui === false ? ' · No vive aquí actualmente' : ''}</div>
                 </div>
                 <div style="display:flex; gap:8px;">
-                    <button class="btn btn-editar btn-sm" onclick="prepararEdicionMiembro(${m.id})">✏️ Editar</button>
-                    <button class="btn btn-peligro btn-sm" onclick="eliminarMiembroHogar(${m.id})">🗑️</button>
+                    <button class="btn btn-editar btn-sm" onclick="prepararEdicionMiembro(${m.id})">Editar</button>
+                    <button class="btn btn-peligro btn-sm" onclick="eliminarMiembroHogar(${m.id})">Eliminar</button>
                 </div>
             </div>
         `).join('');
@@ -1771,7 +1779,7 @@
         });
         document.getElementById('cmViveAqui').checked = miembro.vive_aqui !== false;
 
-        document.getElementById('btnGuardarMiembro').textContent = '💾 Guardar Cambios';
+        document.getElementById('btnGuardarMiembro').textContent = 'Guardar Cambios';
         document.getElementById('btnCancelarEdicionMiembro').style.display = '';
         document.getElementById('miembrosFormWrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
@@ -1780,7 +1788,7 @@
         document.getElementById('cmEditId').value = '';
         Object.keys(CAMPOS_FORM_MIEMBRO).forEach(elId => { document.getElementById(elId).value = ''; });
         document.getElementById('cmViveAqui').checked = true;
-        document.getElementById('btnGuardarMiembro').textContent = '➕ Agregar Miembro';
+        document.getElementById('btnGuardarMiembro').textContent = 'Agregar Miembro';
         document.getElementById('btnCancelarEdicionMiembro').style.display = 'none';
         document.getElementById('alertaMiembroError').style.display = 'none';
     }
@@ -1887,16 +1895,16 @@
         contenedor.innerHTML = `
             <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:14px;">
                 ${lista.map(a => {
-                    const esImagen = /\.(jpg|jpeg|png|gif|webp)$/i.test(a.archivo_url);
+                    const esImagen = Boolean(a.es_imagen);
                     const previsualizacion = esImagen
                         ? `<img src="${escapeHtml(a.archivo_url)}" alt="${escapeHtml(a.nombre_original)}" style="width:100%; height:110px; object-fit:cover; border-radius:8px 8px 0 0;">`
-                        : `<div style="width:100%; height:110px; display:flex; align-items:center; justify-content:center; font-size:2.2rem; background:var(--bg-light); border-radius:8px 8px 0 0;">📄</div>`;
+                        : `<div style="width:100%; height:110px; display:flex; align-items:center; justify-content:center; font-size:2.2rem; background:var(--bg-light); border-radius:8px 8px 0 0;"><span style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">PDF</span></div>`;
                     return `
                         <div style="border:1px solid rgba(0,0,0,0.08); border-radius:8px; overflow:hidden; background:#fff;">
                             <a href="${escapeHtml(a.archivo_url)}" target="_blank" rel="noopener">${previsualizacion}</a>
                             <div style="padding:8px 10px;">
                                 <div style="font-size:0.78rem; color:var(--text-muted);">${escapeHtml(a.tipo)}</div>
-                                <button class="btn btn-peligro btn-sm" style="margin-top:6px; width:100%;" data-id="${a.id}" onclick="eliminarArchivoCenso(${a.id})">🗑️ Eliminar</button>
+                                <button class="btn btn-peligro btn-sm" style="margin-top:6px; width:100%;" data-id="${a.id}" onclick="eliminarArchivoCenso(${a.id})">Eliminar</button>
                             </div>
                         </div>
                     `;
@@ -1947,7 +1955,7 @@
             alertaError.style.display = 'block';
         } finally {
             btn.disabled = false;
-            btn.textContent = '⬆ Adjuntar Archivo';
+            btn.textContent = 'Adjuntar Archivo';
         }
     }
 

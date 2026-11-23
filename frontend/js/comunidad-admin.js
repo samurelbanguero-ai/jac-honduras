@@ -72,7 +72,7 @@ document.getElementById('listaPqrsAdmin')?.addEventListener('click', async (e) =
         });
         const data = await res.json();
         if (res.ok) {
-            mostrarAlertaDash('exito', '✅ Respuesta enviada al afiliado.');
+            mostrarAlertaDash('exito', 'Respuesta enviada al afiliado.');
             cargarPqrsAdmin();
         } else {
             alert(data.error || 'Error al enviar la respuesta.');
@@ -129,7 +129,7 @@ async function registrarAporte() {
         const data = await res.json();
 
         if (res.ok) {
-            alertaOk.textContent = '✅ Aporte registrado correctamente.';
+            alertaOk.textContent = 'Aporte registrado correctamente.';
             alertaOk.style.display = 'block';
             document.getElementById('apConcepto').value = '';
             document.getElementById('apValor').value = '';
@@ -201,7 +201,7 @@ async function crearEncuestaAdmin() {
         const data = await res.json();
 
         if (res.ok) {
-            alertaOk.textContent = '✅ Votación creada correctamente.';
+            alertaOk.textContent = 'Votación creada correctamente.';
             alertaOk.style.display = 'block';
             document.getElementById('enPregunta').value = '';
             document.getElementById('enOpcionA').value = '';
@@ -242,9 +242,9 @@ async function cargarEncuestasAdmin() {
                     <div class="encuesta-barra-fondo"><div class="encuesta-barra" style="width:${pctB}%;"></div></div>
                 </div>
                 <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; align-items:center;">
-                    <span class="encuesta-meta" style="margin:0;">${e.activa ? '🟢 Abierta' : '🔴 Cerrada'} · ${total} voto${total !== 1 ? 's' : ''}</span>
-                    ${e.activa ? `<button class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15);" data-accion="cerrar-encuesta" data-id="${e.id}">🔒 Cerrar Votación</button>` : ''}
-                    <button class="btn btn-peligro btn-sm" data-accion="eliminar-encuesta" data-id="${e.id}" data-pregunta="${escapeHtml(e.pregunta)}">🗑️ Eliminar</button>
+                    <span class="encuesta-meta" style="margin:0;">${e.activa ? 'Abierta' : 'Cerrada'} · ${total} voto${total !== 1 ? 's' : ''}</span>
+                    ${e.activa ? `<button class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15);" data-accion="cerrar-encuesta" data-id="${e.id}">Cerrar votación</button>` : ''}
+                    <button class="btn btn-peligro btn-sm" data-accion="eliminar-encuesta" data-id="${e.id}" data-pregunta="${escapeHtml(e.pregunta)}">Eliminar</button>
                 </div>
             </div>`;
         }).join('');
@@ -263,16 +263,16 @@ document.getElementById('listaEncuestasAdmin')?.addEventListener('click', (e) =>
                 method: 'PUT',
                 headers: { 'Authorization': `Bearer ${tokenAdmin()}` }
             });
-            mostrarAlertaDash('exito', '✅ Votación cerrada.');
+            mostrarAlertaDash('exito', 'Votación cerrada.');
             cargarEncuestasAdmin();
-        }, { titulo: '🔒 Confirmar Cierre de Votación', textoBoton: '🔒 Sí, Cerrar' });
+        }, { titulo: 'Confirmar Cierre de Votación', textoBoton: 'Sí, Cerrar' });
     } else if (eliminarBtn) {
         pedirConfirmacion(`¿Eliminar la votación "${eliminarBtn.dataset.pregunta}"? Esta acción no se puede deshacer.`, async () => {
             await fetch(`${API}/comunidad/encuestas/${eliminarBtn.dataset.id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${tokenAdmin()}` }
             });
-            mostrarAlertaDash('exito', '✅ Votación eliminada.');
+            mostrarAlertaDash('exito', 'Votación eliminada.');
             cargarEncuestasAdmin();
         });
     }
@@ -307,7 +307,7 @@ async function crearEventoAdmin() {
         const data = await res.json();
 
         if (res.ok) {
-            alertaOk.textContent = '✅ Evento programado correctamente.';
+            alertaOk.textContent = 'Evento programado correctamente.';
             alertaOk.style.display = 'block';
             document.getElementById('evTitulo').value = '';
             document.getElementById('evFecha').value = '';
@@ -338,11 +338,11 @@ async function cargarEventosAdmin() {
         contenedor.innerHTML = lista.map(e => `
             <div class="evento-item">
                 <h3>${escapeHtml(e.titulo)}</h3>
-                <div class="meta">📅 ${escapeHtml(new Date(e.fecha).toLocaleString('es-CO', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}
-                    ${e.lugar ? ' · 📍 ' + escapeHtml(e.lugar) : ''} · 🙋 ${e.total_inscritos} inscrito${e.total_inscritos !== 1 ? 's' : ''}
+                <div class="meta">${escapeHtml(new Date(e.fecha).toLocaleString('es-CO', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}
+                    ${e.lugar ? ' · ' + escapeHtml(e.lugar) : ''} · ${e.total_inscritos} inscrito${e.total_inscritos !== 1 ? 's' : ''}
                 </div>
                 ${e.descripcion ? `<p>${escapeHtml(e.descripcion)}</p>` : ''}
-                <button class="btn btn-peligro btn-sm" data-accion="eliminar-evento" data-id="${e.id}" data-titulo="${escapeHtml(e.titulo)}">🗑️ Eliminar</button>
+                <button class="btn btn-peligro btn-sm" data-accion="eliminar-evento" data-id="${e.id}" data-titulo="${escapeHtml(e.titulo)}">Eliminar</button>
             </div>
         `).join('');
     } catch (err) {
@@ -358,7 +358,7 @@ document.getElementById('listaEventosAdmin')?.addEventListener('click', (e) => {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${tokenAdmin()}` }
         });
-        mostrarAlertaDash('exito', '✅ Evento eliminado.');
+        mostrarAlertaDash('exito', 'Evento eliminado.');
         cargarEventosAdmin();
     });
 });
@@ -396,7 +396,7 @@ async function subirDocumentoAdmin() {
         const data = await res.json();
 
         if (res.ok) {
-            alertaOk.textContent = '✅ Documento subido correctamente.';
+            alertaOk.textContent = 'Documento subido correctamente.';
             alertaOk.style.display = 'block';
             document.getElementById('docNombre').value = '';
             archivoInput.value = '';
@@ -425,12 +425,12 @@ async function cargarDocumentosAdmin() {
         contenedor.innerHTML = lista.map(d => `
             <div class="documento-item">
                 <div>
-                    <div class="nombre">📄 ${escapeHtml(d.nombre)}</div>
+                    <div class="nombre">${escapeHtml(d.nombre)}</div>
                     <div class="meta">${escapeHtml(d.tipo)} · ${formatFecha(d.fecha)}</div>
                 </div>
                 <div style="display:flex; gap:8px;">
-                    <a class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15);" href="${escapeHtml(d.archivo_url)}" target="_blank" rel="noopener">👁 Ver</a>
-                    <button class="btn btn-peligro btn-sm" data-accion="eliminar-documento" data-id="${d.id}" data-nombre="${escapeHtml(d.nombre)}">🗑️</button>
+                    <a class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15);" href="${escapeHtml(d.archivo_url)}" target="_blank" rel="noopener">Ver</a>
+                    <button class="btn btn-peligro btn-sm" data-accion="eliminar-documento" data-id="${d.id}" data-nombre="${escapeHtml(d.nombre)}">Eliminar</button>
                 </div>
             </div>
         `).join('');
@@ -447,7 +447,7 @@ document.getElementById('listaDocumentosAdmin')?.addEventListener('click', (e) =
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${tokenAdmin()}` }
         });
-        mostrarAlertaDash('exito', '✅ Documento eliminado.');
+        mostrarAlertaDash('exito', 'Documento eliminado.');
         cargarDocumentosAdmin();
     });
 });
@@ -479,7 +479,7 @@ async function crearAvisoAdmin() {
         const data = await res.json();
 
         if (res.ok) {
-            alertaOk.textContent = '✅ Aviso enviado a la comunidad.';
+            alertaOk.textContent = 'Aviso enviado a la comunidad.';
             alertaOk.style.display = 'block';
             document.getElementById('avTitulo').value = '';
             document.getElementById('avMensaje').value = '';
@@ -512,7 +512,7 @@ async function cargarAvisosAdmin() {
                     <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:4px;">${escapeHtml(a.mensaje)}</p>
                     <span style="font-size:0.78rem; color:var(--text-light);">${formatFecha(a.fecha)}</span>
                 </div>
-                <button class="btn btn-peligro btn-sm" data-accion="eliminar-aviso" data-id="${a.id}" data-titulo="${escapeHtml(a.titulo)}">🗑️</button>
+                <button class="btn btn-peligro btn-sm" data-accion="eliminar-aviso" data-id="${a.id}" data-titulo="${escapeHtml(a.titulo)}">Eliminar</button>
             </div>
         `).join('');
     } catch (err) {
@@ -528,7 +528,7 @@ document.getElementById('listaAvisosAdmin')?.addEventListener('click', (e) => {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${tokenAdmin()}` }
         });
-        mostrarAlertaDash('exito', '✅ Aviso eliminado.');
+        mostrarAlertaDash('exito', 'Aviso eliminado.');
         cargarAvisosAdmin();
     });
 });

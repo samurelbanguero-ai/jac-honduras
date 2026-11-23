@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva contraseña — JAC Honduras, Cauca</title>
+    <meta name="theme-color" content="#0a4325">
+    <meta name="robots" content="noindex">
+    <meta name="referrer" content="no-referrer">
+    <link rel="icon" href="/img/logo.png">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="auth-page">
+
+<div class="auth-shell">
+    <aside class="auth-aside contorno">
+        <a href="/" class="marca"><img src="/img/logo.png" alt="">JAC Honduras</a>
+        <div class="texto">
+            <h2>Crea tu contraseña nueva.</h2>
+            <p>Usa una que recuerdes y que no uses en otros sitios. Debe tener al menos 8 caracteres, con letras y números.</p>
+        </div>
+        <small>Corregimiento de Honduras, Cauca</small>
+    </aside>
+
+    <main class="auth-main">
+        <div class="auth-form animate-fade">
+            <div id="cargando" class="cargando"><div class="spinner"></div>Verificando el enlace…</div>
+
+            <div id="vistaInvalido" style="display:none;">
+                <h1>El enlace ya no sirve</h1>
+                <p class="intro">Puede que haya vencido (dura 30 minutos) o que ya se haya usado. Pide uno nuevo.</p>
+                <a href="/recuperar" class="btn btn-primary btn-full">Pedir un enlace nuevo</a>
+            </div>
+
+            <div id="vistaFormulario" style="display:none;">
+                <h1 id="saludo">Nueva contraseña</h1>
+                <p class="intro">Escríbela dos veces para confirmar.</p>
+
+                <div class="alert alert-error" id="alertaError" role="alert" style="display:none;"></div>
+
+                <form id="formRestablecer" novalidate>
+                    <div class="form-group">
+                        <label for="contrasena">Contraseña nueva</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="contrasena" autocomplete="new-password" minlength="8" maxlength="72" aria-describedby="ayudaClave" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('contrasena', this)">Mostrar</button>
+                        </div>
+                        <small id="ayudaClave" style="color:var(--text-light); font-size:0.84rem;">Mínimo 8 caracteres, con letras y números.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmar">Repite la contraseña</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="confirmar" autocomplete="new-password" minlength="8" maxlength="72" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('confirmar', this)">Mostrar</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full" id="btnGuardar">Guardar contraseña</button>
+                </form>
+            </div>
+
+            <div id="vistaListo" style="display:none;">
+                <h1>Contraseña cambiada</h1>
+                <p class="intro">Ya puedes ingresar con tu cédula y la contraseña nueva.</p>
+                <a href="/login" class="btn btn-primary btn-full">Ingresar</a>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const esOculta = input.type === 'password';
+        input.type = esOculta ? 'text' : 'password';
+        btn.textContent = esOculta ? 'Ocultar' : 'Mostrar';
+    }
+
+    // El código viene después de "#" para que nunca llegue a los registros del servidor.
+    const token = window.location.hash.slice(1);
+    history.replaceState(null, '', '/restablecer');
+
+    function mostrar(id) {
+        ['cargando', 'vistaInvalido', 'vistaFormulario', 'vistaListo']
+            .forEach(v => document.getElementById(v).style.display = v === id ? 'block' : 'none');
+    }
+
+    async function validar() {
+        if (!/^[a-f0-9]{64}$/.test(token)) return mostrar('vistaInvalido');
+        try {
+            const res = await fetch('/api/restablecer/validar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token })
+            });
+            const data = await res.json();
+            if (!res.ok || !data.valido) return mostrar('vistaInvalido');
+            if (data.nombre) document.getElementById('saludo').textContent = `Hola, ${data.nombre}`;
+            mostrar('vistaFormulario');
+            document.getElementById('contrasena').focus();
+        } catch (err) {
+            mostrar('vistaInvalido');
+        }
+    }
+
+    document.getElementById('formRestablecer').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnGuardar');
+        const error = document.getElementById('alertaError');
+        error.style.display = 'none';
+
+        const contrasena = document.getElementById('contrasena').value;
+        const confirmar = document.getElementById('confirmar').value;
+        let problema = null;
+        if (contrasena.length < 8 || !/[A-Za-zÁÉÍÓÚáéíóúÑñ]/.test(contrasena) || !/\d/.test(contrasena)) {
+            problema = 'La contraseña debe tener al menos 8 caracteres, con letras y números.';
+        } else if (contrasena !== confirmar) {
+            problema = 'Las dos contraseñas no coinciden.';
+        }
+        if (problema) {
+            error.textContent = problema;
+            error.style.display = 'block';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Guardando…';
+        try {
+            const res = await fetch('/api/restablecer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token, contrasena })
+            });
+            const data = await res.json();
+            if (res.ok) return mostrar('vistaListo');
+            if (res.status === 410) return mostrar('vistaInvalido');
+            error.textContent = data.error || 'No se pudo cambiar la contraseña.';
+            error.style.display = 'block';
+        } catch (err) {
+            error.textContent = 'No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.';
+            error.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Guardar contraseña';
+        }
+    });
+
+    validar();
+</script>
+</body>
+</html>

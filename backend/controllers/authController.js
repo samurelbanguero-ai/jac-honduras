@@ -5,6 +5,7 @@
 const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { esCredencialPublica } = require('../config/seguridad');
 
 const esHashBcryptValido = (hash) =>
     typeof hash === 'string' && /^\$2[aby]\$/.test(hash);
@@ -24,6 +25,9 @@ const login = async (req, res) => {
                 ? await bcrypt.compare(contrasena, admin.contrasena)
                 : false;
             if (valido) {
+                if (esCredencialPublica({ tipo: 'admin', identificador: identificador, contrasena })) {
+                    return res.status(403).json({ error: 'Esta cuenta usa una contraseña de prueba y fue bloqueada por seguridad. Contacta a la Junta.' });
+                }
                 const token = jwt.sign(
                     { id: admin.id, usuario: admin.usuario, rol: 'admin' },
                     process.env.JWT_SECRET,
@@ -45,6 +49,9 @@ const login = async (req, res) => {
                 ? await bcrypt.compare(contrasena, afiliado.contrasena)
                 : false;
             if (valido) {
+                if (esCredencialPublica({ tipo: 'afiliado', identificador: identificador, contrasena })) {
+                    return res.status(403).json({ error: 'Esta cuenta usa una contraseña de prueba y fue bloqueada por seguridad. Contacta a la Junta.' });
+                }
                 const token = jwt.sign(
                     { id: afiliado.id, rol: 'afiliado', cedula: afiliado.cedula },
                     process.env.JWT_SECRET,

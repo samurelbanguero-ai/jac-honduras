@@ -4,10 +4,13 @@ const API = window.location.origin + '/api';
 let todosAfiliados = [];
 
 function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str ?? '';
-    return div.innerHTML;
-}
+        return String(str ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
 
 // ── Al cargar: verificar sesión ──────────────────────────
 // El login vive en /login (formulario único); si no hay sesión de admin
@@ -74,7 +77,7 @@ async function cargarAfiliados() {
         renderizarTabla(data);
 
     } catch (err) {
-        contenedor.innerHTML = `<div class="cargando">❌ Error al conectar con el servidor.</div>`;
+        contenedor.innerHTML = `<div class="cargando">Error al conectar con el servidor.</div>`;
     }
 }
 
@@ -91,7 +94,7 @@ function renderizarTabla(lista) {
     const contenedor = document.getElementById('contenidoTabla');
 
     if (lista.length === 0) {
-        contenedor.innerHTML = `<div class="cargando">📋 No hay afiliados registrados aún.</div>`;
+        contenedor.innerHTML = `<div class="cargando">No hay afiliados registrados aún.</div>`;
         return;
     }
 
@@ -106,9 +109,9 @@ function renderizarTabla(lista) {
             <td>${formatFecha(a.fecha_afiliacion)}</td>
             <td>
                 <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                    <button class="btn btn-editar btn-sm" data-accion="editar" data-id="${a.id}">✏️ Editar</button>
-                    <button class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15);" data-accion="resetear" data-id="${a.id}" data-nombre="${escapeHtml(`${a.nombres} ${a.apellidos}`)}">🔑 Resetear</button>
-                    <button class="btn btn-peligro btn-sm" data-accion="eliminar" data-id="${a.id}" data-nombre="${escapeHtml(`${a.nombres} ${a.apellidos}`)}">🗑️</button>
+                    <button class="btn btn-editar btn-sm" data-accion="editar" data-id="${a.id}">Editar</button>
+                    <button class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15);" data-accion="resetear" data-id="${a.id}" data-nombre="${escapeHtml(`${a.nombres} ${a.apellidos}`)}">Resetear</button>
+                    <button class="btn btn-peligro btn-sm" data-accion="eliminar" data-id="${a.id}" data-nombre="${escapeHtml(`${a.nombres} ${a.apellidos}`)}">Eliminar</button>
                 </div>
             </td>
         </tr>
@@ -119,7 +122,7 @@ function renderizarTabla(lista) {
             <table>
                 <thead>
                     <tr>
-                        <th>Nombre Completo</th>
+                        <th>Nombre completo</th>
                         <th>Cédula</th>
                         <th>Género</th>
                         <th>Etnia</th>
@@ -153,7 +156,7 @@ function togglePassword(inputId, btn) {
     const input = document.getElementById(inputId);
     const esOculta = input.type === 'password';
     input.type = esOculta ? 'text' : 'password';
-    btn.textContent = esOculta ? '🙈' : '👁';
+    btn.textContent = esOculta ? 'Ocultar' : 'Mostrar';
 }
 
 function abrirModalResetPass(id, nombre) {
@@ -180,8 +183,8 @@ async function confirmarResetearContrasena() {
     const nueva = document.getElementById('resetPassNueva').value;
     const alerta = document.getElementById('alertaResetPass');
 
-    if (nueva.length < 6) {
-        alerta.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+    if (nueva.length < 8) {
+        alerta.textContent = 'La contraseña debe tener al menos 8 caracteres, con letras y números.';
         alerta.style.display = 'block';
         return;
     }
@@ -204,7 +207,7 @@ async function confirmarResetearContrasena() {
 
         if (res.ok) {
             cerrarModalResetPass();
-            mostrarAlertaDash('exito', `✅ Contraseña de "${nombre}" reestablecida correctamente.`);
+            mostrarAlertaDash('exito', `Contraseña de "${nombre}" reestablecida correctamente.`);
         } else {
             alerta.textContent = json.error || 'Error al reestablecer la contraseña.';
             alerta.style.display = 'block';
@@ -233,7 +236,7 @@ function filtrarTabla() {
 let _confirmCallback = null;
 
 function pedirConfirmacion(mensaje, callback, opciones) {
-    const { titulo = '⚠️ Confirmar Eliminación', textoBoton = '🗑️ Sí, Eliminar' } = opciones || {};
+    const { titulo = 'Confirmar Eliminación', textoBoton = 'Sí, Eliminar' } = opciones || {};
     document.getElementById('tituloConfirmar').textContent = titulo;
     document.getElementById('btnConfirmarEliminar').textContent = textoBoton;
     document.getElementById('msgConfirmar').textContent = mensaje;
@@ -272,7 +275,7 @@ function eliminarAfiliado(id, nombre) {
             if (!res.ok) {
                 mostrarAlertaDash('error', json.error || 'Error al eliminar.');
             } else {
-                mostrarAlertaDash('exito', `✅ "${nombre}" fue eliminado correctamente.`);
+                mostrarAlertaDash('exito', `"${nombre}" fue eliminado correctamente.`);
                 cargarAfiliados();
             }
         } catch (err) {
@@ -349,7 +352,7 @@ async function guardarEdicion() {
             alert(json.error || 'Error al actualizar.');
         } else {
             cerrarModalEditar();
-            mostrarAlertaDash('exito', '✅ Afiliado actualizado correctamente.');
+            mostrarAlertaDash('exito', 'Afiliado actualizado correctamente.');
             cargarAfiliados();
         }
     } catch (err) {
@@ -372,8 +375,15 @@ function mostrarAlertaDash(tipo, msg) {
     setTimeout(() => el.style.display = 'none', 4000);
 }
 // ── REGISTRAR DESDE EL PANEL ADMIN ───────────────────────
-function usarCedulaComoContrasena() {
-    document.getElementById('aContrasena').value = document.getElementById('aCedula').value.trim();
+// Genera una contraseña temporal (letras y números) para entregarle al afiliado.
+function generarContrasenaTemporal() {
+    const letras = 'abcdefghjkmnpqrstuvwxyz';
+    const numeros = '23456789';
+    const azar = (n) => crypto.getRandomValues(new Uint32Array(1))[0] % n;
+    let clave = '';
+    for (let i = 0; i < 6; i++) clave += letras[azar(letras.length)];
+    for (let i = 0; i < 4; i++) clave += numeros[azar(numeros.length)];
+    document.getElementById('aContrasena').value = clave;
 }
 
 async function registrarDesdeAdmin() {
@@ -400,8 +410,8 @@ async function registrarDesdeAdmin() {
         return;
     }
 
-    if (datos.contrasena.length < 6) {
-        document.getElementById('msgFormAdmin').textContent = 'La contraseña debe tener al menos 6 caracteres.';
+    if (datos.contrasena.length < 8) {
+        document.getElementById('msgFormAdmin').textContent = 'La contraseña debe tener al menos 8 caracteres, con letras y números.';
         document.getElementById('alertaFormAdmin').style.display = 'flex';
         document.getElementById('alertaFormAdminOk').style.display = 'none';
         return;
@@ -430,7 +440,7 @@ async function registrarDesdeAdmin() {
                 else el.value = '';
             });
             document.getElementById('alertaFormAdmin').style.display = 'none';
-            document.getElementById('msgFormAdminOk').textContent = `✅ ${datos.nombres} ${datos.apellidos} registrado correctamente.`;
+            document.getElementById('msgFormAdminOk').textContent = `${datos.nombres} ${datos.apellidos} registrado correctamente.`;
             document.getElementById('alertaFormAdminOk').style.display = 'flex';
             setTimeout(() => document.getElementById('alertaFormAdminOk').style.display = 'none', 4000);
             cargarAfiliados(); // Actualiza la tabla automáticamente
@@ -487,11 +497,11 @@ async function publicarNoticia() {
         if (res.ok) {
             let mensajeNotificacion = '';
             if (data.notificacion?.enviado) {
-                mensajeNotificacion = ` 📧 Se notificó por correo a ${data.notificacion.destinatarios} afiliado${data.notificacion.destinatarios !== 1 ? 's' : ''}.`;
+                mensajeNotificacion = ` Se notificó por correo a ${data.notificacion.destinatarios} afiliado${data.notificacion.destinatarios !== 1 ? 's' : ''}.`;
             } else if (data.notificacion?.motivo === 'smtp_no_configurado') {
                 mensajeNotificacion = ' (Correo no configurado: revisa SMTP_* en backend/.env si quieres notificar por email.)';
             }
-            alertaOk.textContent = '✅ Noticia publicada exitosamente.' + mensajeNotificacion;
+            alertaOk.textContent = 'Noticia publicada exitosamente.' + mensajeNotificacion;
             alertaOk.style.display = 'block';
             document.getElementById('nTitulo').value = '';
             document.getElementById('nImagen').value = '';
@@ -538,7 +548,7 @@ async function cargarNoticiasAdmin() {
                     </h3>
                     <span style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(new Date(n.fecha_publicacion).toLocaleDateString('es-CO'))}</span>
                 </div>
-                <button class="btn btn-peligro btn-sm" data-accion="eliminar-noticia" data-id="${n.id}" data-titulo="${escapeHtml(n.titulo)}">🗑️ Eliminar</button>
+                <button class="btn btn-peligro btn-sm" data-accion="eliminar-noticia" data-id="${n.id}" data-titulo="${escapeHtml(n.titulo)}">Eliminar</button>
             </div>
         `).join('');
 
@@ -568,7 +578,7 @@ function eliminarNoticiaAdmin(id, titulo) {
 
             if (res.ok) {
                 alerta.className = 'alert alert-success';
-                alerta.textContent = '✅ Noticia eliminada exitosamente.';
+                alerta.textContent = 'Noticia eliminada exitosamente.';
                 alerta.style.display = 'block';
                 setTimeout(() => alerta.style.display = 'none', 3000);
                 cargarNoticiasAdmin();

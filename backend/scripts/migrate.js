@@ -16,7 +16,19 @@ const archivos = [
     'database_migracion_censo.sql',
     'database_migracion_censo_vivienda.sql',
     'database_migracion_censo_hogar.sql',
+    'database_migracion_recuperacion.sql',
 ];
+
+// Migraciones idempotentes (CREATE ... IF NOT EXISTS) que se aplican en cada
+// arranque, para que una base existente reciba las tablas nuevas sin borrar nada.
+const MIGRACIONES_IDEMPOTENTES = ['database_migracion_recuperacion.sql'];
+
+async function aplicarMigracionesIdempotentes(pool) {
+    const raiz = path.join(__dirname, '../../');
+    for (const archivo of MIGRACIONES_IDEMPOTENTES) {
+        await pool.query(fs.readFileSync(path.join(raiz, archivo), 'utf8'));
+    }
+}
 
 async function aplicarEsquema(pool) {
     const raiz = path.join(__dirname, '../../');
@@ -29,18 +41,45 @@ async function aplicarEsquema(pool) {
     console.log('Esquema aplicado correctamente.');
 }
 
-module.exports = { aplicarEsquema };
+// Al arrancar: si la base está vacía (no existe la tabla admin), aplica el
+// esquema completo. Si ya hay tablas NO hace nada, porque los scripts SQL
+// borran las tablas antes de crearlas. Así Render (sin consola en el plan
+// gratuito) queda listo en el primer despliegue.
+async function aplicarEsquemaSiFalta(pool) {
+    const { rows } = await pool.query("SELECT to_regclass('public.admin') IS NOT NULL AS existe");
+    if (rows[0].existe) return false;
+    console.log('Base de datos vacía: aplicando el esquema inicial...');
+    await aplicarEsquema(pool);
+    return true;
+}
+
+// Mueve a uploads/privado los adjuntos del censo subidos antes de existir esa
+// carpeta (guardados como /uploads/...), para que dejen de ser públicos.
+async function migrarAdjuntosCensoLegados(pool) {
+    const { rutaDesdeUrl, PRIVADO_DIR, nombreAleatorio } = require('../utils/archivos');
+    const { rows } = await pool.query("SELECT id, archivo_url FROM censo_archivos WHERE archivo_url LIKE '/uploads/%'");
+    let movidos = 0;
+    for (const fila of rows) {
+        const origen = rutaDesdeUrl(fila.archivo_url);
+        const nombre = nombreAleatorio(path.extname(fila.archivo_url).toLowerCase().replace(/[^.a-z0-9]/g, '') || '.bin');
+        const destino = path.join(PRIVADO_DIR, nombre);
+        try {
+            if (origen && fs.existsSync(origen)) await fs.promises.rename(origen, destino);
+            await pool.query('UPDATE censo_archivos SET archivo_url = $1 WHERE id = $2', ['/privado/' + nombre, fila.id]);
+            movidos++;
+        } catch (err) {
+            console.warn(`No se pudo mover el adjunto ${fila.id}:`, err.message);
+        }
+    }
+    if (movidos) console.log(`Adjuntos del censo protegidos: ${movidos} movidos a uploads/privado.`);
+}
+
+module.exports = { aplicarEsquema, aplicarEsquemaSiFalta, aplicarMigracionesIdempotentes, migrarAdjuntosCensoLegados };
 
 if (require.main === module) {
     const { Pool } = require('pg');
-    const pool = new Pool({
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT,
-        database: process.env.DB_NAME,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-    });
+    const { opcionesConexion } = require('../config/conexion');
+    const pool = new Pool(opcionesConexion());
     aplicarEsquema(pool)
         .then(() => pool.end())
         .catch(err => {

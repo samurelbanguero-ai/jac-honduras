@@ -5,6 +5,14 @@
 // - Solo el admin puede listar, filtrar, ver el detalle de cualquiera, editar,
 //   eliminar y marcar la revisión.
 const pool = require('../config/db');
+const { borrarArchivo, enlaceFirmadoCenso, verificarFirmaCenso, servirArchivoPrivado, esImagen } = require('../utils/archivos');
+
+// Los adjuntos nunca se exponen con su ruta real: solo con un enlace firmado y temporal.
+const conEnlaceFirmado = (archivo) => ({
+    ...archivo,
+    es_imagen: esImagen(archivo.archivo_url),
+    archivo_url: enlaceFirmadoCenso(archivo.id),
+});
 
 const CAMPOS_CENSO = [
     // Datos personales del titular
@@ -76,6 +84,7 @@ const obtenerMiCenso = async (req, res) => {
         const result = await pool.query('SELECT * FROM censos WHERE afiliado_id = $1', [req.admin.id]);
         res.json({ censo: result.rows[0] || null });
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al obtener el censo:', err);
         res.status(500).json({ error: 'Error al obtener tu censo.' });
     }
@@ -103,6 +112,7 @@ const guardarMiCenso = async (req, res) => {
         );
         res.json({ mensaje: 'Tu censo fue guardado correctamente.', censo: result.rows[0] });
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al guardar el censo:', err);
         res.status(500).json({ error: 'Error al guardar tu censo.' });
     }
@@ -164,6 +174,7 @@ const listarCensos = async (req, res) => {
         );
         res.json(result.rows);
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al listar censos:', err);
         res.status(500).json({ error: 'Error al obtener el listado de censos.' });
     }
@@ -264,6 +275,7 @@ const obtenerEstadisticas = async (req, res) => {
             total_con_discapacidad: conDiscapacidad.rows[0].total
         });
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al obtener estadísticas del censo:', err);
         res.status(500).json({ error: 'Error al obtener las estadísticas.' });
     }
@@ -283,6 +295,7 @@ const obtenerCensoPorId = async (req, res) => {
         }
         res.json(result.rows[0]);
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al obtener el censo:', err);
         res.status(500).json({ error: 'Error al obtener el censo.' });
     }
@@ -311,6 +324,7 @@ const actualizarCenso = async (req, res) => {
         }
         res.json({ mensaje: 'Censo actualizado correctamente.', censo: result.rows[0] });
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al actualizar el censo:', err);
         res.status(500).json({ error: 'Error al actualizar el censo.' });
     }
@@ -319,12 +333,15 @@ const actualizarCenso = async (req, res) => {
 // DELETE /censo/:id (admin)
 const eliminarCenso = async (req, res) => {
     try {
+        const archivos = await pool.query('SELECT archivo_url FROM censo_archivos WHERE censo_id = $1', [req.params.id]);
         const result = await pool.query('DELETE FROM censos WHERE id = $1 RETURNING id', [req.params.id]);
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Censo no encontrado.' });
         }
+        archivos.rows.forEach(a => borrarArchivo(a.archivo_url));
         res.json({ mensaje: 'Censo eliminado correctamente.' });
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al eliminar el censo:', err);
         res.status(500).json({ error: 'Error al eliminar el censo.' });
     }
@@ -348,6 +365,7 @@ const marcarRevisionCenso = async (req, res) => {
         }
         res.json({ mensaje: `Censo marcado como "${estado}".`, censo: result.rows[0] });
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al actualizar la revisión del censo:', err);
         res.status(500).json({ error: 'Error al actualizar la revisión del censo.' });
     }
@@ -397,6 +415,7 @@ const listarMisMiembrosHogar = async (req, res) => {
         );
         res.json(result.rows);
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al listar miembros del hogar:', err);
         res.status(500).json({ error: 'Error al obtener los miembros de tu hogar.' });
     }
@@ -425,6 +444,7 @@ const agregarMiMiembroHogar = async (req, res) => {
         );
         res.status(201).json({ mensaje: 'Miembro del hogar agregado correctamente.', miembro: result.rows[0] });
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al agregar miembro del hogar:', err);
         res.status(500).json({ error: 'Error al agregar el miembro del hogar.' });
     }
@@ -453,6 +473,7 @@ const actualizarMiMiembroHogar = async (req, res) => {
         }
         res.json({ mensaje: 'Miembro actualizado correctamente.', miembro: result.rows[0] });
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al actualizar miembro del hogar:', err);
         res.status(500).json({ error: 'Error al actualizar el miembro del hogar.' });
     }
@@ -472,6 +493,7 @@ const eliminarMiMiembroHogar = async (req, res) => {
         }
         res.json({ mensaje: 'Miembro eliminado correctamente.' });
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al eliminar miembro del hogar:', err);
         res.status(500).json({ error: 'Error al eliminar el miembro del hogar.' });
     }
@@ -486,6 +508,7 @@ const listarMiembrosHogarAdmin = async (req, res) => {
         );
         res.json(result.rows);
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al listar miembros del hogar:', err);
         res.status(500).json({ error: 'Error al obtener los miembros del hogar.' });
     }
@@ -500,6 +523,7 @@ const eliminarMiembroHogarAdmin = async (req, res) => {
         }
         res.json({ mensaje: 'Miembro eliminado correctamente.' });
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al eliminar miembro del hogar:', err);
         res.status(500).json({ error: 'Error al eliminar el miembro del hogar.' });
     }
@@ -521,8 +545,9 @@ const listarMisArchivosCenso = async (req, res) => {
              FROM censo_archivos WHERE censo_id = $1 ORDER BY created_at DESC`,
             [censo.rows[0].id]
         );
-        res.json(result.rows);
+        res.json(result.rows.map(conEnlaceFirmado));
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al listar archivos del censo:', err);
         res.status(500).json({ error: 'Error al obtener tus archivos.' });
     }
@@ -533,22 +558,25 @@ const subirMiArchivoCenso = async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No se recibió ningún archivo.' });
     }
+    const archivo_url = req.file.url;
     try {
         const censo = await pool.query('SELECT id FROM censos WHERE afiliado_id = $1', [req.admin.id]);
         if (censo.rows.length === 0) {
+            borrarArchivo(archivo_url);
             return res.status(400).json({ error: 'Primero debes guardar tu censo antes de adjuntar archivos.' });
         }
 
         const tipo = TIPOS_ARCHIVO_VALIDOS.includes(req.body.tipo) ? req.body.tipo : 'Otro';
-        const archivo_url = '/uploads/' + req.file.filename;
+        const nombreOriginal = String(req.file.originalname || 'archivo').replace(/[\u0000-\u001f<>"'`]/g, '').slice(0, 200);
 
         const result = await pool.query(
             `INSERT INTO censo_archivos (censo_id, nombre_original, archivo_url, tipo)
              VALUES ($1, $2, $3, $4) RETURNING *`,
-            [censo.rows[0].id, req.file.originalname, archivo_url, tipo]
+            [censo.rows[0].id, nombreOriginal, archivo_url, tipo]
         );
-        res.status(201).json({ mensaje: 'Archivo adjuntado correctamente.', archivo: result.rows[0] });
+        res.status(201).json({ mensaje: 'Archivo adjuntado correctamente.', archivo: conEnlaceFirmado(result.rows[0]) });
     } catch (err) {
+        borrarArchivo(archivo_url);
         console.error('Error al subir archivo del censo:', err);
         res.status(500).json({ error: 'Error al subir el archivo.' });
     }
@@ -560,14 +588,16 @@ const eliminarMiArchivoCenso = async (req, res) => {
         const result = await pool.query(
             `DELETE FROM censo_archivos ca USING censos c
              WHERE ca.id = $1 AND ca.censo_id = c.id AND c.afiliado_id = $2
-             RETURNING ca.id`,
+             RETURNING ca.id, ca.archivo_url`,
             [req.params.id, req.admin.id]
         );
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Archivo no encontrado.' });
         }
+        borrarArchivo(result.rows[0].archivo_url);
         res.json({ mensaje: 'Archivo eliminado correctamente.' });
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al eliminar archivo del censo:', err);
         res.status(500).json({ error: 'Error al eliminar el archivo.' });
     }
@@ -581,8 +611,9 @@ const listarArchivosCensoAdmin = async (req, res) => {
              FROM censo_archivos WHERE censo_id = $1 ORDER BY created_at DESC`,
             [req.params.id]
         );
-        res.json(result.rows);
+        res.json(result.rows.map(conEnlaceFirmado));
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al listar archivos del censo:', err);
         res.status(500).json({ error: 'Error al obtener los archivos.' });
     }
@@ -591,18 +622,38 @@ const listarArchivosCensoAdmin = async (req, res) => {
 // DELETE /censo/archivos/:id (admin) — moderación: puede eliminar cualquier archivo
 const eliminarArchivoCensoAdmin = async (req, res) => {
     try {
-        const result = await pool.query('DELETE FROM censo_archivos WHERE id = $1 RETURNING id', [req.params.id]);
+        const result = await pool.query('DELETE FROM censo_archivos WHERE id = $1 RETURNING id, archivo_url', [req.params.id]);
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Archivo no encontrado.' });
         }
+        borrarArchivo(result.rows[0].archivo_url);
         res.json({ mensaje: 'Archivo eliminado correctamente.' });
     } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
         console.error('Error al eliminar archivo:', err);
         res.status(500).json({ error: 'Error al eliminar el archivo.' });
     }
 };
 
+// GET /censo/archivos/:id/ver?exp=&sig= — sirve un adjunto si el enlace firmado es válido
+const verArchivoCenso = async (req, res) => {
+    const { id } = req.params;
+    if (!verificarFirmaCenso(id, req.query.exp, req.query.sig)) {
+        return res.status(403).json({ error: 'El enlace expiró o no es válido. Vuelve a abrir el censo.' });
+    }
+    try {
+        const { rows } = await pool.query('SELECT archivo_url FROM censo_archivos WHERE id = $1', [id]);
+        if (!rows[0]) return res.status(404).json({ error: 'Archivo no encontrado.' });
+        await servirArchivoPrivado(rows[0].archivo_url, res);
+    } catch (err) {
+        if (err.code === '22001') return res.status(400).json({ error: 'Uno de los campos supera la longitud permitida.' });
+        console.error('Error al servir archivo del censo:', err);
+        res.status(500).json({ error: 'Error al obtener el archivo.' });
+    }
+};
+
 module.exports = {
+    verArchivoCenso,
     obtenerMiCenso,
     guardarMiCenso,
     listarCensos,

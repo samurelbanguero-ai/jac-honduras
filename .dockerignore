@@ -1,0 +1,17 @@
+# Contexto de construcción de la imagen de producción (Dockerfile raíz).
+# Nunca deben entrar secretos, dependencias de Windows ni archivos subidos.
+**/node_modules
+**/.env
+**/.env.*
+!**/.env.example
+backend/uploads/*
+!backend/uploads/.gitkeep
+**/*.log
+.git
+.github
+.vscode
+.idea
+docker
+docker-compose.yml
+database_datos_demo.sql
+README.md

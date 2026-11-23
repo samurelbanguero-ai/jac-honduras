@@ -1,8 +1,10 @@
-databases:
-  - name: jac-honduras-db
-    databaseName: jac_honduras
-    user: jac_honduras
-
+# Despliegue gratuito: Render (aplicación) + Neon (PostgreSQL) + Cloudinary (archivos).
+#
+# - La base de datos NO se crea en Render: la base gratuita de Render se borra
+#   a los 30 días. Se usa Neon, que no vence (pega su cadena en DATABASE_URL).
+# - Los archivos subidos van a Cloudinary, porque el disco gratuito de Render se
+#   borra en cada redespliegue o reinicio.
+# - Al primer arranque con la base vacía, el servidor crea las tablas solo.
 services:
   - type: web
     name: jac-honduras
@@ -10,33 +12,24 @@ services:
     dockerfilePath: ./Dockerfile
     dockerContext: .
     plan: free
+    healthCheckPath: /api/ping
     envVars:
-      - key: DB_HOST
-        fromDatabase:
-          name: jac-honduras-db
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: jac-honduras-db
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: jac-honduras-db
-          property: database
-      - key: DB_USER
-        fromDatabase:
-          name: jac-honduras-db
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: jac-honduras-db
-          property: password
-      - key: DB_SSL
-        value: "true"
+      - key: NODE_ENV
+        value: production
+      # Cadena de conexión de Neon (Dashboard > Connect), con ?sslmode=require
+      - key: DATABASE_URL
+        sync: false
+      # Cloudinary (Dashboard > API Keys): cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+      - key: CLOUDINARY_URL
+        sync: false
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_EXPIRES
         value: "1h"
+      # Contraseña del administrador (mín. 12 caracteres). Al arrancar crea el
+      # usuario "admin" o reemplaza la contraseña por defecto admin123.
+      - key: ADMIN_PASSWORD
+        sync: false
       - key: SITE_URL
         value: https://jac-honduras.onrender.com
       - key: SMTP_HOST

@@ -3,45 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JAC Honduras — Iniciar Sesión</title>
+    <title>Ingresar — JAC Honduras, Cauca</title>
+    <meta name="theme-color" content="#0a4325">
+    <link rel="icon" href="../img/logo.png">
     <link rel="stylesheet" href="../css/style.css">
-    <style>
-        body { background: linear-gradient(135deg, var(--bg-light) 0%, #d1e7dd 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px;}
-        .login-card { max-width: 450px; width: 100%; margin: auto; padding: 40px; }
-        .login-header { text-align: center; margin-bottom: 24px; }
-    </style>
 </head>
-<body>
+<body class="auth-page">
 
-<div class="card login-card animate-fade">
-    <div class="login-header">
-        <a href="/"><img src="../img/logo.png" class="logo" style="width:64px; height:64px; margin-bottom:12px;" alt="Logo JAC"></a>
-        <h1 style="font-family: var(--font-serif); color: var(--primary-dark); font-size:1.8rem;">Iniciar Sesión</h1>
-        <p style="color: var(--text-muted); font-size:0.95rem;">Junta de Acción Comunal Honduras</p>
-    </div>
-
-    <div class="alert alert-error" id="alertaError" style="display:none; text-align:center;"></div>
-
-    <form id="formLogin" onsubmit="iniciarSesion(event)">
-        <div class="form-group">
-            <label>Usuario</label>
-            <input type="text" id="identificador" placeholder="Cédula o usuario">
+<div class="auth-shell">
+    <aside class="auth-aside contorno">
+        <a href="/" class="marca"><img src="../img/logo.png" alt="">JAC Honduras</a>
+        <div class="texto">
+            <h2>Tu cuenta en la Junta de Acción Comunal.</h2>
+            <p>Desde aquí ves tu carnet, los avisos para afiliados, las votaciones abiertas y el censo de tu hogar.</p>
         </div>
-        <div class="form-group">
-            <label>Contraseña</label>
-            <div class="password-wrapper">
-                <input type="password" id="contrasenaInput" placeholder="••••••••">
-                <button type="button" class="password-toggle" onclick="togglePassword('contrasenaInput', this)">👁</button>
-            </div>
-        </div>
+        <small>Corregimiento de Honduras, Cauca</small>
+    </aside>
 
-        <button type="submit" class="btn btn-primary btn-full" style="margin-top: 24px;" id="btnLogin">
-            Ingresar
-        </button>
-        <button type="button" class="btn btn-secondary btn-full" style="margin-top: 12px; color: var(--text-main);" onclick="window.location.href='/'">
-            ⬅ Retroceder al Inicio
-        </button>
-    </form>
+    <main class="auth-main">
+        <div class="auth-form animate-fade">
+            <h1>Ingresar</h1>
+            <p class="intro">Los afiliados entran con su número de cédula.</p>
+
+            <div class="alert alert-error" id="alertaError" role="alert" style="display:none;"></div>
+
+            <form id="formLogin" onsubmit="iniciarSesion(event)" novalidate>
+                <div class="form-group">
+                    <label for="identificador">Cédula o usuario</label>
+                    <input type="text" id="identificador" autocomplete="username" inputmode="text" autocapitalize="off" spellcheck="false" required>
+                </div>
+                <div class="form-group">
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px;">
+                        <label for="contrasenaInput">Contraseña</label>
+                        <a href="/recuperar" style="font-size:0.88rem; font-weight:600;">¿Olvidaste tu contraseña?</a>
+                    </div>
+                    <div class="password-wrapper">
+                        <input type="password" id="contrasenaInput" autocomplete="current-password" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('contrasenaInput', this)" aria-label="Mostrar contraseña">Mostrar</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full" style="margin-top: 8px;" id="btnLogin">Ingresar</button>
+            </form>
+
+            <p class="pie">¿Aún no estás afiliado? <a href="/registro">Afíliate aquí</a>.</p>
+            <p class="pie"><a href="/">Volver a la página principal</a></p>
+        </div>
+    </main>
 </div>
 
 <script>
@@ -49,7 +57,8 @@
         const input = document.getElementById(inputId);
         const esOculta = input.type === 'password';
         input.type = esOculta ? 'text' : 'password';
-        btn.textContent = esOculta ? '🙈' : '👁';
+        btn.textContent = esOculta ? 'Ocultar' : 'Mostrar';
+        btn.setAttribute('aria-label', esOculta ? 'Ocultar contraseña' : 'Mostrar contraseña');
     }
 
     async function iniciarSesion(e) {
@@ -61,17 +70,18 @@
         const identificador = document.getElementById('identificador').value.trim();
         const contrasena = document.getElementById('contrasenaInput').value;
         if (!identificador || !contrasena) {
-            alerta.textContent = 'Ingresa tu usuario y contraseña.';
-            alerta.style.display = 'block'; return;
+            alerta.textContent = 'Escribe tu cédula (o usuario) y tu contraseña.';
+            alerta.style.display = 'block';
+            return;
         }
 
         try {
-            btn.textContent = 'Verificando...';
+            btn.textContent = 'Verificando…';
             btn.disabled = true;
 
-            const res = await fetch(window.location.origin + '/api/login', {
+            const res = await fetch('/api/login', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ identificador, contrasena })
             });
             const data = await res.json();
@@ -86,12 +96,12 @@
                     localStorage.setItem('user', JSON.stringify(data.afiliado));
                     window.location.href = '/usuario';
                 }
-            } else {
-                alerta.textContent = data.error || 'Credenciales inválidas.';
-                alerta.style.display = 'block';
+                return;
             }
+            alerta.textContent = data.error || 'La cédula o la contraseña no coinciden.';
+            alerta.style.display = 'block';
         } catch (err) {
-            alerta.textContent = 'Error de conexión con el servidor.';
+            alerta.textContent = 'No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.';
             alerta.style.display = 'block';
         } finally {
             btn.textContent = 'Ingresar';
@@ -99,6 +109,5 @@
         }
     }
 </script>
-
 </body>
 </html>

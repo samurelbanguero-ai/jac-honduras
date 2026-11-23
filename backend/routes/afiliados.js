@@ -2,19 +2,14 @@
 const express = require('express');
 const router = express.Router();
 const {
-    listarAfiliados,
-    obtenerAfiliado,
-    crearAfiliado,
-    actualizarAfiliado,
-    eliminarAfiliado,
-    loginAfiliado,
-    verificarPublico,
-    perfilPropio,
-    actualizarPerfilPropio,
-    cambiarContrasenaPropia,
-    resetearContrasena
+    listarAfiliados, obtenerAfiliado, crearAfiliado, actualizarAfiliado, eliminarAfiliado,
+    loginAfiliado, verificarPublico, perfilPropio, actualizarPerfilPropio,
+    cambiarContrasenaPropia, resetearContrasena, qrPropio
 } = require('../controllers/afiliadosController');
 const { verificarToken, verificarAdmin, verificarAfiliado } = require('../middleware/auth');
+const { validarId } = require('../middleware/validar');
+
+router.param('id', validarId);
 
 // Registro público (cualquier persona puede afiliarse)
 router.post('/', crearAfiliado);
@@ -27,6 +22,7 @@ router.get('/verificar/:cedula', verificarPublico);
 
 // Perfil propio del afiliado (debe ir antes de "/:id" para no chocar con la ruta genérica)
 router.get('/perfil', verificarToken, verificarAfiliado, perfilPropio);
+router.get('/perfil/qr', verificarToken, verificarAfiliado, qrPropio);
 router.put('/perfil', verificarToken, verificarAfiliado, actualizarPerfilPropio);
 router.put('/perfil/contrasena', verificarToken, verificarAfiliado, cambiarContrasenaPropia);
 

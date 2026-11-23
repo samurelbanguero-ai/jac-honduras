@@ -1,26 +1,15 @@
 // config/db.js - Conexión a PostgreSQL
 const { Pool } = require('pg');
-require('dotenv').config();
+const { opcionesConexion } = require('./conexion');
 
-const pool = new Pool({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    // Render (y la mayoría de Postgres administrados) exigen SSL con certificado
-    // autofirmado; en local (DB_SSL sin definir) se conecta sin SSL como siempre.
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-});
+const pool = new Pool(opcionesConexion());
+
+// Un error en una conexión ociosa (p. ej. Neon se apagó) no debe tumbar el servidor.
+pool.on('error', (err) => console.warn('Conexión a PostgreSQL cerrada:', err.message));
 
 // Verificar conexión al iniciar
-pool.connect((err, client, release) => {
-    if (err) {
-        console.error('❌ Error conectando a PostgreSQL:', err.message);
-    } else {
-        console.log('✅ Conectado a PostgreSQL - Base de datos:', process.env.DB_NAME);
-        release();
-    }
-});
+pool.query('SELECT 1')
+    .then(() => console.log('✅ Conectado a PostgreSQL'))
+    .catch((err) => console.error('❌ Error conectando a PostgreSQL:', err.message));
 
 module.exports = pool;

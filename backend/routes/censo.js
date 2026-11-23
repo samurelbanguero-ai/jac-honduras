@@ -1,86 +1,43 @@
 // routes/censo.js
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
-const {
-    obtenerMiCenso,
-    guardarMiCenso,
-    listarCensos,
-    obtenerEstadisticas,
-    obtenerCensoPorId,
-    actualizarCenso,
-    eliminarCenso,
-    marcarRevisionCenso,
-    listarMisMiembrosHogar,
-    agregarMiMiembroHogar,
-    actualizarMiMiembroHogar,
-    eliminarMiMiembroHogar,
-    listarMiembrosHogarAdmin,
-    eliminarMiembroHogarAdmin,
-    listarMisArchivosCenso,
-    subirMiArchivoCenso,
-    eliminarMiArchivoCenso,
-    listarArchivosCensoAdmin,
-    eliminarArchivoCensoAdmin
-} = require('../controllers/censoController');
+const c = require('../controllers/censoController');
 const { verificarToken, verificarAdmin, verificarAfiliado } = require('../middleware/auth');
+const { validarId } = require('../middleware/validar');
+const { subirAdjuntoCenso } = require('./subidas');
 
-// ── Multer: archivos adjuntos del censo (fotos de la vivienda o documentos) ──
-const uploadsDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir);
-}
-
-const EXTENSIONES_ARCHIVO_CENSO = {
-    'image/jpeg': '.jpg', 'image/png': '.png', 'image/gif': '.gif', 'image/webp': '.webp',
-    'application/pdf': '.pdf'
-};
-const storageArchivoCenso = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'uploads/'),
-    filename: (req, file, cb) => {
-        const ext = EXTENSIONES_ARCHIVO_CENSO[file.mimetype] || path.extname(file.originalname);
-        cb(null, Date.now() + '-' + Math.round(Math.random() * 1e9) + ext);
-    }
-});
-const uploadArchivoCenso = multer({
-    storage: storageArchivoCenso,
-    limits: { fileSize: 8 * 1024 * 1024 }, // 8 MB
-    fileFilter: (req, file, cb) => {
-        if (EXTENSIONES_ARCHIVO_CENSO[file.mimetype]) return cb(null, true);
-        const err = new Error('Solo se permiten imágenes (JPG, PNG, GIF, WEBP) o archivos PDF.');
-        err.status = 400;
-        cb(err);
-    }
-});
+router.param('id', validarId);
 
 // ── Afiliado: solo su propio censo ───────────────────────────
-router.get('/mio', verificarToken, verificarAfiliado, obtenerMiCenso);
-router.post('/mio', verificarToken, verificarAfiliado, guardarMiCenso);
+router.get('/mio', verificarToken, verificarAfiliado, c.obtenerMiCenso);
+router.post('/mio', verificarToken, verificarAfiliado, c.guardarMiCenso);
 
 // ── Afiliado: miembros de SU hogar ───────────────────────────
-router.get('/mio/miembros', verificarToken, verificarAfiliado, listarMisMiembrosHogar);
-router.post('/mio/miembros', verificarToken, verificarAfiliado, agregarMiMiembroHogar);
-router.put('/mio/miembros/:id', verificarToken, verificarAfiliado, actualizarMiMiembroHogar);
-router.delete('/mio/miembros/:id', verificarToken, verificarAfiliado, eliminarMiMiembroHogar);
+router.get('/mio/miembros', verificarToken, verificarAfiliado, c.listarMisMiembrosHogar);
+router.post('/mio/miembros', verificarToken, verificarAfiliado, c.agregarMiMiembroHogar);
+router.put('/mio/miembros/:id', verificarToken, verificarAfiliado, c.actualizarMiMiembroHogar);
+router.delete('/mio/miembros/:id', verificarToken, verificarAfiliado, c.eliminarMiMiembroHogar);
 
 // ── Afiliado: archivos adjuntos de SU censo ──────────────────
-router.get('/mio/archivos', verificarToken, verificarAfiliado, listarMisArchivosCenso);
-router.post('/mio/archivos', verificarToken, verificarAfiliado, uploadArchivoCenso.single('archivo'), subirMiArchivoCenso);
-router.delete('/mio/archivos/:id', verificarToken, verificarAfiliado, eliminarMiArchivoCenso);
+router.get('/mio/archivos', verificarToken, verificarAfiliado, c.listarMisArchivosCenso);
+router.post('/mio/archivos', verificarToken, verificarAfiliado, ...subirAdjuntoCenso('archivo'), c.subirMiArchivoCenso);
+router.delete('/mio/archivos/:id', verificarToken, verificarAfiliado, c.eliminarMiArchivoCenso);
+
+// ── Ver un adjunto: enlace firmado y temporal (lo usan <img> y <a>, que no
+//    pueden enviar el token en la cabecera Authorization) ─────
+router.get('/archivos/:id/ver', c.verArchivoCenso);
 
 // ── Admin: listado, estadísticas y gestión completa ──────────
 // (rutas fijas antes de "/:id" para que no sean capturadas como un id)
-router.get('/estadisticas', verificarToken, verificarAdmin, obtenerEstadisticas);
-router.delete('/archivos/:id', verificarToken, verificarAdmin, eliminarArchivoCensoAdmin);
-router.delete('/miembros/:id', verificarToken, verificarAdmin, eliminarMiembroHogarAdmin);
-router.get('/', verificarToken, verificarAdmin, listarCensos);
-router.get('/:id/archivos', verificarToken, verificarAdmin, listarArchivosCensoAdmin);
-router.get('/:id/miembros', verificarToken, verificarAdmin, listarMiembrosHogarAdmin);
-router.put('/:id/revision', verificarToken, verificarAdmin, marcarRevisionCenso);
-router.get('/:id', verificarToken, verificarAdmin, obtenerCensoPorId);
-router.put('/:id', verificarToken, verificarAdmin, actualizarCenso);
-router.delete('/:id', verificarToken, verificarAdmin, eliminarCenso);
+router.get('/estadisticas', verificarToken, verificarAdmin, c.obtenerEstadisticas);
+router.delete('/archivos/:id', verificarToken, verificarAdmin, c.eliminarArchivoCensoAdmin);
+router.delete('/miembros/:id', verificarToken, verificarAdmin, c.eliminarMiembroHogarAdmin);
+router.get('/', verificarToken, verificarAdmin, c.listarCensos);
+router.get('/:id/archivos', verificarToken, verificarAdmin, c.listarArchivosCensoAdmin);
+router.get('/:id/miembros', verificarToken, verificarAdmin, c.listarMiembrosHogarAdmin);
+router.put('/:id/revision', verificarToken, verificarAdmin, c.marcarRevisionCenso);
+router.get('/:id', verificarToken, verificarAdmin, c.obtenerCensoPorId);
+router.put('/:id', verificarToken, verificarAdmin, c.actualizarCenso);
+router.delete('/:id', verificarToken, verificarAdmin, c.eliminarCenso);
 
 module.exports = router;

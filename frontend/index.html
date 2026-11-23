@@ -3,147 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JAC Honduras — Junta de Acción Comunal</title>
-    <!-- Google Fonts incrustados en CSS -->
+    <title>JAC Honduras, Cauca — Junta de Acción Comunal</title>
+    <meta name="description" content="Junta de Acción Comunal del corregimiento de Honduras, Cauca. Noticias de la comunidad, afiliación en línea y carnet digital.">
+    <meta name="theme-color" content="#0a4325">
+    <link rel="icon" href="img/logo.png">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<!-- ── Navbar ───────────────────────────────────────────── -->
-<nav class="navbar" id="navbar">
+<nav class="navbar" id="navbar" aria-label="Principal">
     <a href="/" class="navbar-brand">
-        <img src="img/logo.png" class="logo" alt="Logo JAC Honduras">
+        <img src="img/logo.png" class="logo" alt="">
         <div class="navbar-titulo">
             JAC Honduras
-            <span>Junta de Acción Comunal · Cauca</span>
+            <span>Junta de Acción Comunal, Cauca</span>
         </div>
     </a>
-    <button class="nav-toggle" id="navToggle" aria-label="Abrir menú">
-        <span></span>
-        <span></span>
-        <span></span>
+    <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navbarLinks">
+        <span></span><span></span><span></span>
     </button>
     <div class="navbar-links" id="navbarLinks">
-        <a href="/" class="active">Inicio</a>
+        <a href="#noticias">Noticias</a>
         <a href="/registro">Afiliarse</a>
-        <a href="/login">Iniciar Sesión</a>
+        <a href="/login" class="nav-cta">Ingresar</a>
     </div>
 </nav>
 
-<!-- ── Hero ─────────────────────────────────────────────── -->
-<section class="hero animate-fade">
-    <div class="hero-content">
-        <div class="hero-badge delay-1 animate-fade">Corregimiento de Honduras · Cauca</div>
-        <h1 class="delay-2 animate-fade">Unidos por el <span>Progreso</span> de nuestra Comunidad.</h1>
-        <p class="delay-3 animate-fade">Mantente informado sobre las últimas noticias, proyectos y eventos de la Junta de Acción Comunal. Únete a nosotros y participa activamente.</p>
-        <div class="hero-actions delay-3 animate-fade">
-            <a href="#noticias" class="btn btn-primary">Ver Noticias</a>
-            <a href="/registro" class="btn btn-secondary">Quiero Afiliarme</a>
+<main>
+    <section class="hero">
+        <div class="hero-content animate-fade">
+            <p class="hero-badge">Corregimiento de Honduras, Cauca</p>
+            <h1>La junta de la comunidad, ahora también desde el celular.</h1>
+            <p>Consulta los avisos de la Junta, afíliate sin hacer filas y lleva tu carnet de afiliado en el teléfono. Desde tu cuenta también puedes votar, enviar peticiones y actualizar el censo de tu hogar.</p>
+            <div class="hero-actions">
+                <a href="/registro" class="btn btn-primary">Afiliarme a la Junta</a>
+                <a href="/login" class="btn btn-secondary">Ya estoy afiliado</a>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- ── Noticias (News Feed) ──────────────────────────────── -->
-<section class="section" id="noticias">
-    <div class="section-header animate-fade">
-        <h2 class="section-title">Actualidad de la Comunidad</h2>
-        <p class="section-subtitle">Conoce los últimos avances, anuncios y proyectos que se desarrollan en el Corregimiento de Honduras.</p>
-    </div>
+    <section class="servicios" aria-label="Qué puedes hacer">
+        <div class="servicio">
+            <h3>Afiliación en línea</h3>
+            <p>Diligencia tus datos una sola vez. Quedas inscrito en el libro de afiliados de la Junta.</p>
+            <a href="/registro">Llenar el formulario</a>
+        </div>
+        <div class="servicio">
+            <h3>Carnet digital con QR</h3>
+            <p>Muestra tu carnet en asambleas y convites. Cualquiera puede verificarlo escaneando el código.</p>
+            <a href="/login">Ver mi carnet</a>
+        </div>
+        <div class="servicio">
+            <h3>Participación</h3>
+            <p>Vota en las consultas de la Junta, inscríbete como voluntario y radica peticiones, quejas o sugerencias.</p>
+            <a href="/login">Entrar a mi cuenta</a>
+        </div>
+    </section>
 
-    <!-- Contenedor dinámico de noticias -->
-    <div class="news-grid" id="contenedorNoticias">
-        <!-- Skeleton Screen Loaders -->
-        <div class="skeleton-card">
-            <div class="skeleton-img"></div>
-            <div class="skeleton-text title"></div>
-            <div class="skeleton-text"></div>
-            <div class="skeleton-text half"></div>
+    <section class="section" id="noticias">
+        <div class="section-header">
+            <h2 class="section-title">Noticias de la comunidad</h2>
+            <p class="section-subtitle">Anuncios, obras y convocatorias publicados por la Junta.</p>
         </div>
-        <div class="skeleton-card">
-            <div class="skeleton-img"></div>
-            <div class="skeleton-text title"></div>
-            <div class="skeleton-text"></div>
-            <div class="skeleton-text half"></div>
+
+        <div class="news-grid" id="contenedorNoticias" aria-live="polite">
+            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text title"></div><div class="skeleton-text"></div><div class="skeleton-text half"></div></div>
+            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text title"></div><div class="skeleton-text"></div><div class="skeleton-text half"></div></div>
+            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text title"></div><div class="skeleton-text"></div><div class="skeleton-text half"></div></div>
         </div>
-        <div class="skeleton-card">
-            <div class="skeleton-img"></div>
-            <div class="skeleton-text title"></div>
-            <div class="skeleton-text"></div>
-            <div class="skeleton-text half"></div>
-        </div>
-    </div>
-</section>
+    </section>
+</main>
 
 <footer>
-    <strong>JAC Honduras, Cauca</strong> &nbsp;·&nbsp; <a class="plataforma" href="/login">Plataforma Comunitaria</a> &nbsp;·&nbsp; 2026
+    <div class="pie-contenido">
+        <span><strong>Junta de Acción Comunal de Honduras</strong>, Cauca</span>
+        <span><a href="/registro">Afiliarse</a> &nbsp; <a href="/login">Ingresar</a> &nbsp; &copy; <span id="anio">2026</span></span>
+    </div>
 </footer>
 
 <script>
-    // Navbar scroll effect
-    window.addEventListener('scroll', () => {
-        const nav = document.getElementById('navbar');
-        if (window.scrollY > 50) nav.classList.add('scrolled');
-        else nav.classList.remove('scrolled');
-    });
+    document.getElementById('anio').textContent = new Date().getFullYear();
 
-    // Mobile menu toggle
+    window.addEventListener('scroll', () => {
+        document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 8);
+    }, { passive: true });
+
     const navToggle = document.getElementById('navToggle');
     const navbarLinks = document.getElementById('navbarLinks');
-    if (navToggle && navbarLinks) {
-        navToggle.addEventListener('click', () => {
-            navToggle.classList.toggle('active');
-            navbarLinks.classList.toggle('active');
-        });
-    }
+    navToggle.addEventListener('click', () => {
+        const abierto = navbarLinks.classList.toggle('active');
+        navToggle.classList.toggle('active', abierto);
+        navToggle.setAttribute('aria-expanded', String(abierto));
+    });
+    navbarLinks.addEventListener('click', (e) => {
+        if (e.target.tagName === 'A') {
+            navbarLinks.classList.remove('active');
+            navToggle.classList.remove('active');
+            navToggle.setAttribute('aria-expanded', 'false');
+        }
+    });
 
     function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str ?? '';
-        return div.innerHTML;
+        return String(str ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
-    // Fetch Noticias
+    function resumen(texto, max) {
+        const limpio = String(texto ?? '').replace(/\s+/g, ' ').trim();
+        if (limpio.length <= max) return limpio;
+        return limpio.slice(0, limpio.lastIndexOf(' ', max) > 0 ? limpio.lastIndexOf(' ', max) : max) + '…';
+    }
+
     async function cargarNoticias() {
+        const contenedor = document.getElementById('contenedorNoticias');
         try {
-            const res = await fetch(window.location.origin + '/api/noticias');
+            const res = await fetch('/api/noticias');
+            if (!res.ok) throw new Error('HTTP ' + res.status);
             const noticias = await res.json();
-            const contenedor = document.getElementById('contenedorNoticias');
-            
-            contenedor.innerHTML = ''; // Limpiar loader
 
             if (noticias.length === 0) {
-                contenedor.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">Aún no hay noticias publicadas.</p>';
+                contenedor.innerHTML = '<p class="vacio">Todavía no hay noticias publicadas. Los avisos de la Junta aparecerán aquí.</p>';
                 return;
             }
 
-            noticias.forEach(n => {
-                let img = 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&q=80';
-                if (n.imagen_url) {
-                    img = n.imagen_url.startsWith('/') ? window.location.origin + n.imagen_url : n.imagen_url;
-                }
+            contenedor.innerHTML = noticias.map((n, i) => {
                 const fecha = new Date(n.fecha_publicacion).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
-                
-                const card = document.createElement('div');
-                card.className = 'news-card animate-fade';
-                card.innerHTML = `
-                    <div class="news-img-container">
-                        <img src="${escapeHtml(img)}" class="news-img" alt="${escapeHtml(n.titulo)}">
-                    </div>
-                    <div class="news-content">
-                        <div class="news-meta">${escapeHtml(fecha)}</div>
-                        <h3 class="news-title">${escapeHtml(n.titulo)}</h3>
-                        <p class="news-text">${escapeHtml(n.contenido.substring(0, 150))}...</p>
-                    </div>
-                `;
-                contenedor.appendChild(card);
-            });
+                const imagen = n.imagen_url
+                    ? `<img src="${escapeHtml(n.imagen_url)}" class="news-img" alt="" loading="${i === 0 ? 'eager' : 'lazy'}">`
+                    : `<div class="news-placeholder">JAC Honduras</div>`;
+                return `
+                    <article class="news-card${i === 0 ? ' destacada' : ''}">
+                        <div class="news-img-container">${imagen}</div>
+                        <div class="news-content">
+                            <p class="news-meta"><time datetime="${escapeHtml(n.fecha_publicacion)}">${escapeHtml(fecha)}</time></p>
+                            <h3 class="news-title">${escapeHtml(n.titulo)}</h3>
+                            <p class="news-text">${escapeHtml(resumen(n.contenido, i === 0 ? 320 : 160))}</p>
+                        </div>
+                    </article>`;
+            }).join('');
         } catch (error) {
-            document.getElementById('contenedorNoticias').innerHTML = '<p style="text-align:center; grid-column: 1/-1; color:red;">Error al cargar las noticias.</p>';
+            contenedor.innerHTML = '<p class="vacio">No se pudieron cargar las noticias. Revisa tu conexión y recarga la página.</p>';
             console.error(error);
         }
     }
 
-    // Inicializar
     cargarNoticias();
 </script>
 </body>

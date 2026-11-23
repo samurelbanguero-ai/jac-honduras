@@ -1,5 +1,6 @@
 // controllers/comunidadController.js
 const pool = require('../config/db');
+const { borrarArchivo } = require('../utils/archivos');
 
 // ════════════════════════════════════════════════════════════
 // PERFIL — Foto de perfil
@@ -10,12 +11,18 @@ const subirFotoPerfil = async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No se recibió ninguna imagen.' });
     }
-    const foto_url = '/uploads/' + req.file.filename;
+    const foto_url = req.file.url;
     try {
+        const anterior = await pool.query('SELECT foto_url FROM afiliados WHERE id = $1', [req.admin.id]);
         const result = await pool.query(
             'UPDATE afiliados SET foto_url = $1 WHERE id = $2 RETURNING id, foto_url',
             [foto_url, req.admin.id]
         );
+        if (result.rows.length === 0) {
+            borrarArchivo(foto_url);
+            return res.status(404).json({ error: 'Afiliado no encontrado.' });
+        }
+        if (anterior.rows[0]) borrarArchivo(anterior.rows[0].foto_url);
         res.json({ mensaje: 'Foto de perfil actualizada correctamente.', foto_url: result.rows[0].foto_url });
     } catch (err) {
         console.error('Error al subir foto de perfil:', err);
@@ -461,10 +468,11 @@ const subirDocumento = async (req, res) => {
         return res.status(400).json({ error: 'No se recibió ningún archivo.' });
     }
     const { nombre, tipo } = req.body;
+    const archivo_url = req.file.url;
     if (!nombre) {
+        borrarArchivo(archivo_url);
         return res.status(400).json({ error: 'El nombre del documento es obligatorio.' });
     }
-    const archivo_url = '/uploads/' + req.file.filename;
     try {
         const result = await pool.query(
             `INSERT INTO documentos (nombre, archivo_url, tipo, subido_por)
@@ -482,10 +490,11 @@ const subirDocumento = async (req, res) => {
 const eliminarDocumento = async (req, res) => {
     const { id } = req.params;
     try {
-        const result = await pool.query('DELETE FROM documentos WHERE id = $1 RETURNING id', [id]);
+        const result = await pool.query('DELETE FROM documentos WHERE id = $1 RETURNING id, archivo_url', [id]);
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Documento no encontrado.' });
         }
+        borrarArchivo(result.rows[0].archivo_url);
         res.json({ mensaje: 'Documento eliminado correctamente.' });
     } catch (err) {
         console.error('Error al eliminar documento:', err);

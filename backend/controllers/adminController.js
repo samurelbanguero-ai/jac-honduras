@@ -2,7 +2,7 @@
 const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const { esCredencialPublica } = require('../config/seguridad');
 
 const esHashBcryptValido = (hash) =>
     typeof hash === 'string' && /^\$2[aby]\$/.test(hash);
@@ -28,6 +28,10 @@ const login = async (req, res) => {
 
         if (!valido) {
             return res.status(401).json({ error: 'Credenciales incorrectas.' });
+        }
+
+        if (esCredencialPublica({ tipo: 'admin', identificador: usuario, contrasena })) {
+            return res.status(403).json({ error: 'La contraseña por defecto está bloqueada. Define ADMIN_PASSWORD en el servidor.' });
         }
 
         const token = jwt.sign(

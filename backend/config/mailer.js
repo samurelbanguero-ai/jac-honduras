@@ -43,13 +43,13 @@ async function notificarNuevaNoticia(noticia) {
             return { enviado: false, motivo: 'sin_destinatarios' };
         }
 
-        const url = `${process.env.SITE_URL || 'http://localhost:3000'}/`;
+        const url = encodeURI(`${(process.env.SITE_URL || 'http://localhost:3000').replace(/\/$/, '')}/`);
 
         await t.sendMail({
             from: process.env.SMTP_FROM || process.env.SMTP_USER,
             to: process.env.SMTP_USER, // remitente en "Para", destinatarios reales en BCC
             bcc: correos,
-            subject: `📢 JAC Honduras, Cauca — ${noticia.titulo}`,
+            subject: `JAC Honduras, Cauca — ${String(noticia.titulo).replace(/[\r\n]+/g, ' ')}`,
             text: `${noticia.titulo}\n\n${noticia.contenido}\n\nVer más: ${url}`,
             html: `
                 <div style="font-family: Arial, sans-serif; max-width:560px; margin:0 auto;">
@@ -73,7 +73,46 @@ function escaparHtml(str) {
     return String(str ?? '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
-module.exports = { notificarNuevaNoticia };
+// Correo con el enlace para crear una contraseña nueva.
+// Sin SMTP configurado: en desarrollo se muestra el enlace en la consola para
+// poder probar; en producción solo se registra un aviso (el enlace nunca se imprime).
+async function enviarCorreoRecuperacion({ correo, nombre, enlace, minutos }) {
+    const t = obtenerTransporter();
+    if (!t) {
+        if (process.env.NODE_ENV !== 'production') {
+            console.log(`\n[DESARROLLO] Enlace de recuperación para ${correo}:\n${enlace}\n`);
+        } else {
+            console.warn('⚠️  SMTP no configurado: no se pudo enviar el correo de recuperación de contraseña.');
+        }
+        return false;
+    }
+    try {
+        await t.sendMail({
+            from: process.env.SMTP_FROM || process.env.SMTP_USER,
+            to: correo,
+            subject: 'JAC Honduras, Cauca — Crea una contraseña nueva',
+            text: `Hola ${nombre}:\n\nRecibimos una solicitud para cambiar la contraseña de tu cuenta en la Junta de Acción Comunal de Honduras.\n\nAbre este enlace para crear una nueva (vence en ${minutos} minutos y sirve una sola vez):\n${enlace}\n\nSi no fuiste tú, ignora este correo: tu contraseña actual sigue funcionando.`,
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width:560px; margin:0 auto; color:#16241c;">
+                    <h2 style="color:#0a4325; margin-bottom:8px;">Crea una contraseña nueva</h2>
+                    <p>Hola ${escaparHtml(nombre)}:</p>
+                    <p>Recibimos una solicitud para cambiar la contraseña de tu cuenta en la Junta de Acción Comunal de Honduras.</p>
+                    <p style="margin:24px 0;"><a href="${escaparHtml(enlace)}" style="background:#0a4325; color:#ffffff; padding:12px 20px; border-radius:6px; text-decoration:none; font-weight:bold;">Crear contraseña nueva</a></p>
+                    <p style="color:#4a5a50; font-size:0.9rem;">El enlace vence en ${minutos} minutos y sirve una sola vez. Si no fuiste tú, ignora este correo: tu contraseña actual sigue funcionando.</p>
+                    <hr style="border:none; border-top:1px solid #dde3dd; margin:24px 0;">
+                    <p style="color:#78867d; font-size:0.8rem;">Junta de Acción Comunal de Honduras, Cauca</p>
+                </div>`,
+        });
+        return true;
+    } catch (err) {
+        console.error('Error al enviar el correo de recuperación:', err.message);
+        return false;
+    }
+}
+
+module.exports = { notificarNuevaNoticia, enviarCorreoRecuperacion };
