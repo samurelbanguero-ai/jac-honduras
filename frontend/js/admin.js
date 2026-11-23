@@ -594,3 +594,36 @@ function eliminarNoticiaAdmin(id, titulo) {
         }
     });
 }
+
+// Descarga un archivo protegido (Excel/PDF): se pide con el token y se guarda en el equipo.
+async function descargarArchivo(ruta, nombrePorDefecto, boton) {
+    const textoOriginal = boton ? boton.textContent : '';
+    if (boton) { boton.disabled = true; boton.textContent = 'Generando…'; }
+    try {
+        const res = await fetch(ruta, { headers: { 'Authorization': `Bearer ${localStorage.getItem('jac_token')}` } });
+        if (res.status === 401 || res.status === 403) {
+            alert('Tu sesión expiró. Vuelve a iniciar sesión.');
+            window.location.href = '/login';
+            return;
+        }
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            alert(data.error || 'No se pudo generar el archivo.');
+            return;
+        }
+        const disposicion = res.headers.get('Content-Disposition') || '';
+        const nombre = (disposicion.match(/filename="([^"]+)"/) || [])[1] || nombrePorDefecto;
+        const url = URL.createObjectURL(await res.blob());
+        const enlace = document.createElement('a');
+        enlace.href = url;
+        enlace.download = nombre;
+        document.body.appendChild(enlace);
+        enlace.click();
+        enlace.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+    } catch (err) {
+        alert('No hay conexión con el servidor. Inténtalo de nuevo.');
+    } finally {
+        if (boton) { boton.disabled = false; boton.textContent = textoOriginal; }
+    }
+}

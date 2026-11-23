@@ -5,6 +5,7 @@
 // - Solo el admin puede listar, filtrar, ver el detalle de cualquiera, editar,
 //   eliminar y marcar la revisión.
 const pool = require('../config/db');
+const { excelCenso, fichaCensoPdf, nombreArchivo } = require('../utils/exportes');
 const { borrarArchivo, enlaceFirmadoCenso, verificarFirmaCenso, servirArchivoPrivado, esImagen } = require('../utils/archivos');
 
 // Los adjuntos nunca se exponen con su ruta real: solo con un enlace firmado y temporal.
@@ -123,8 +124,13 @@ const guardarMiCenso = async (req, res) => {
 // ════════════════════════════════════════════════════════════
 
 // GET /censo (admin) — columnas limitadas: el detalle sensible solo se expone al abrir uno individual
-const listarCensos = async (req, res) => {
-    const { nombre, documento, ciudad, sexo, ocupacion, fecha_desde, fecha_hasta, estado_revision } = req.query;
+// Filtros del listado (se reutilizan en la descarga en Excel)
+function construirFiltrosCenso(query) {
+    const texto = (v) => (typeof v === 'string' ? v.trim().slice(0, 100) : '');
+    const nombre = texto(query.nombre), documento = texto(query.documento), ciudad = texto(query.ciudad),
+        sexo = texto(query.sexo), ocupacion = texto(query.ocupacion), estado_revision = texto(query.estado_revision);
+    const fecha = (v) => (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '');
+    const fecha_desde = fecha(query.fecha_desde), fecha_hasta = fecha(query.fecha_hasta);
     const condiciones = [];
     const valores = [];
 
@@ -161,7 +167,12 @@ const listarCensos = async (req, res) => {
         condiciones.push(`estado_revision = $${valores.length}`);
     }
 
-    const where = condiciones.length ? `WHERE ${condiciones.join(' AND ')}` : '';
+    return { where: condiciones.length ? `WHERE ${condiciones.join(' AND ')}` : '', valores };
+}
+
+const listarCensos = async (req, res) => {
+    const { where, valores } = construirFiltrosCenso(req.query);
+
 
     try {
         const result = await pool.query(
@@ -652,7 +663,58 @@ const verArchivoCenso = async (req, res) => {
     }
 };
 
+// GET /censo/exportar (admin) — Excel con hogares, miembros y resumen (respeta los filtros)
+const exportarCensos = async (req, res) => {
+    const { where, valores } = construirFiltrosCenso(req.query);
+    try {
+        const hogares = await pool.query(
+            `SELECT c.*, a.cedula AS afiliado_cedula FROM censos c
+             JOIN afiliados a ON a.id = c.afiliado_id
+             ${where.replace(/\b(nombres|apellidos|numero_documento|ciudad_municipio|sexo|ocupacion|created_at|estado_revision)\b/g, 'c.$1')}
+             ORDER BY c.id`, valores);
+        const ids = hogares.rows.map(h => h.id);
+        const miembros = ids.length ? await pool.query(
+            `SELECT m.*, c.nombres || ' ' || c.apellidos AS titular FROM censo_miembros_hogar m
+             JOIN censos c ON c.id = m.censo_id WHERE m.censo_id = ANY($1::int[])
+             ORDER BY m.censo_id, m.created_at`, [ids]) : { rows: [] };
+
+        const filtros = Object.entries(req.query).filter(([, v]) => typeof v === 'string' && v.trim())
+            .map(([k, v]) => `${k.replace('_', ' ')}: ${v}`).join(', ');
+        const buffer = await excelCenso({ hogares: hogares.rows, miembros: miembros.rows, filtros });
+        console.log(`Exportación del censo (${hogares.rows.length} hogares) por el administrador ${req.admin.id}`);
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo('censo-jac-honduras', 'xlsx')}"`);
+        res.setHeader('Cache-Control', 'no-store');
+        res.send(Buffer.from(buffer));
+    } catch (err) {
+        console.error('Error al exportar el censo:', err);
+        res.status(500).json({ error: 'No se pudo generar el archivo del censo.' });
+    }
+};
+
+// GET /censo/:id/ficha (admin) — ficha del hogar en PDF
+const fichaCenso = async (req, res) => {
+    try {
+        const { rows } = await pool.query('SELECT * FROM censos WHERE id = $1', [req.params.id]);
+        if (!rows[0]) return res.status(404).json({ error: 'Censo no encontrado.' });
+        const miembros = await pool.query(
+            'SELECT * FROM censo_miembros_hogar WHERE censo_id = $1 ORDER BY created_at', [req.params.id]);
+        const adjuntos = await pool.query('SELECT COUNT(*)::int AS total FROM censo_archivos WHERE censo_id = $1', [req.params.id]);
+        const pdf = await fichaCensoPdf({ censo: rows[0], miembros: miembros.rows, totalAdjuntos: adjuntos.rows[0].total });
+        const base = `ficha-censo-${rows[0].id}-${String(rows[0].numero_documento || '').replace(/[^0-9A-Za-z]/g, '')}`;
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${base}.pdf"`);
+        res.setHeader('Cache-Control', 'no-store');
+        res.send(pdf);
+    } catch (err) {
+        console.error('Error al generar la ficha del censo:', err);
+        res.status(500).json({ error: 'No se pudo generar la ficha.' });
+    }
+};
+
 module.exports = {
+    exportarCensos,
+    fichaCenso,
     verArchivoCenso,
     obtenerMiCenso,
     guardarMiCenso,

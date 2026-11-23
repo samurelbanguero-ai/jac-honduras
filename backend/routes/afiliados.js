@@ -4,7 +4,7 @@ const router = express.Router();
 const {
     listarAfiliados, obtenerAfiliado, crearAfiliado, actualizarAfiliado, eliminarAfiliado,
     loginAfiliado, verificarPublico, perfilPropio, actualizarPerfilPropio,
-    cambiarContrasenaPropia, resetearContrasena, qrPropio
+    cambiarContrasenaPropia, resetearContrasena, qrPropio, exportarAfiliados
 } = require('../controllers/afiliadosController');
 const { verificarToken, verificarAdmin, verificarAfiliado } = require('../middleware/auth');
 const { validarId } = require('../middleware/validar');
@@ -28,6 +28,7 @@ router.put('/perfil/contrasena', verificarToken, verificarAfiliado, cambiarContr
 
 // Rutas protegidas (solo admin autenticado)
 router.get('/', verificarToken, verificarAdmin, listarAfiliados);
+router.get('/exportar', verificarToken, verificarAdmin, exportarAfiliados);
 router.get('/:id', verificarToken, verificarAdmin, obtenerAfiliado);
 router.put('/:id', verificarToken, verificarAdmin, actualizarAfiliado);
 router.put('/:id/contrasena', verificarToken, verificarAdmin, resetearContrasena);

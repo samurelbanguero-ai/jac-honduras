@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const QRCode = require('qrcode');
 const { esCredencialPublica } = require('../config/seguridad');
 const { borrarArchivo } = require('../utils/archivos');
+const { excelAfiliados, nombreArchivo } = require('../utils/exportes');
 
 const GENEROS = ['Masculino', 'Femenino', 'No binario', 'Otro', 'Prefiero no decir'];
 const RE_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -381,7 +382,28 @@ const qrPropio = async (req, res) => {
     }
 };
 
+// GET /afiliados/exportar (admin) — lista de afiliados en Excel
+const exportarAfiliados = async (req, res) => {
+    try {
+        const { rows } = await pool.query(
+            `SELECT a.nombres, a.apellidos, a.cedula, a.fecha_expedicion, a.genero, a.etnia, a.discapacidad,
+                    a.telefono, a.correo, a.fecha_afiliacion,
+                    EXISTS (SELECT 1 FROM censos c WHERE c.afiliado_id = a.id) AS tiene_censo
+             FROM afiliados a ORDER BY a.apellidos, a.nombres`);
+        const buffer = await excelAfiliados(rows);
+        console.log(`Exportación de afiliados (${rows.length}) por el administrador ${req.admin.id}`);
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo('afiliados-jac-honduras', 'xlsx')}"`);
+        res.setHeader('Cache-Control', 'no-store');
+        res.send(Buffer.from(buffer));
+    } catch (err) {
+        console.error('Error al exportar afiliados:', err);
+        res.status(500).json({ error: 'No se pudo generar el archivo de afiliados.' });
+    }
+};
+
 module.exports = {
+    exportarAfiliados,
     validarContrasena,
     qrPropio,
     listarAfiliados,

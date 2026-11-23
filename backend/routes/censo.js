@@ -30,6 +30,8 @@ router.get('/archivos/:id/ver', c.verArchivoCenso);
 // ── Admin: listado, estadísticas y gestión completa ──────────
 // (rutas fijas antes de "/:id" para que no sean capturadas como un id)
 router.get('/estadisticas', verificarToken, verificarAdmin, c.obtenerEstadisticas);
+router.get('/exportar', verificarToken, verificarAdmin, c.exportarCensos);
+router.get('/:id/ficha', verificarToken, verificarAdmin, c.fichaCenso);
 router.delete('/archivos/:id', verificarToken, verificarAdmin, c.eliminarArchivoCensoAdmin);
 router.delete('/miembros/:id', verificarToken, verificarAdmin, c.eliminarMiembroHogarAdmin);
 router.get('/', verificarToken, verificarAdmin, c.listarCensos);

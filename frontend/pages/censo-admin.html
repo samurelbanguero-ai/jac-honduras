@@ -189,6 +189,7 @@
         </div>
         <div style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
             <button class="btn btn-primary" onclick="cargarCensos()">Filtrar</button>
+            <button class="btn btn-secondary" onclick="descargarArchivo('/api/censo/exportar?' + filtrosActuales(), 'censo-jac-honduras.xlsx', this)" title="Descarga los hogares que coinciden con los filtros">Descargar Excel</button>
             <button class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15);" onclick="limpiarFiltros()">✕ Limpiar filtros</button>
         </div>
 
@@ -528,7 +529,8 @@
 
         <div style="display:flex; gap:12px; margin-top:20px; justify-content:space-between; flex-wrap:wrap;">
             <button class="btn btn-peligro" id="btnEliminarCensoModal">Eliminar censo</button>
-            <div style="display:flex; gap:12px;">
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <button class="btn btn-secondary" onclick="descargarArchivo('/api/censo/' + document.getElementById('mcId').value + '/ficha', 'ficha-censo.pdf', this)">Descargar ficha (PDF)</button>
                 <button class="btn btn-sm" style="background:var(--bg-light); color:var(--primary-dark); border:1px solid rgba(13,92,53,0.15);" onclick="cerrarModalCenso()">Cancelar</button>
                 <button class="btn btn-primary" onclick="guardarCensoModal()">Guardar cambios</button>
             </div>

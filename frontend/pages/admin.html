@@ -446,7 +446,8 @@
             <!-- Buscador -->
             <div class="buscador-wrap" style="margin-top: 16px;">
                 <input type="text" id="buscador" placeholder="Buscar por nombre, cédula o correo..." oninput="filtrarTabla()">
-                <button class="btn btn-primary" onclick="cargarAfiliados()">↻ Actualizar</button>
+                <button class="btn btn-secondary" onclick="cargarAfiliados()">↻ Actualizar</button>
+                <button class="btn btn-primary" onclick="descargarArchivo('/api/afiliados/exportar', 'afiliados-jac-honduras.xlsx', this)">Descargar Excel</button>
             </div>
 
             <!-- Alerta de feedback -->
