@@ -740,7 +740,10 @@
                         </label>
                     </div>
 
-                    <button class="btn btn-primary" style="margin-top:16px;" id="btnGuardarCenso" onclick="guardarCenso()">Guardar censo</button>
+                    <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:16px;">
+                        <button class="btn btn-primary" id="btnGuardarCenso" onclick="guardarCenso()">Guardar censo</button>
+                        <span id="estadoCenso" style="color:var(--text-muted); font-size:0.9rem;" aria-live="polite"></span>
+                    </div>
                 </div>
             </div>
 
@@ -765,6 +768,16 @@
             });
         }
     });
+
+    // Aviso flotante: se ve aunque el formulario sea largo y el mensaje de arriba quede fuera de la pantalla.
+    let toastTimer = null;
+    function mostrarToast(mensaje, tipo = 'ok') {
+        const el = document.getElementById('toast');
+        el.textContent = mensaje;
+        el.className = `toast visible toast-${tipo}`;
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.remove('visible'), tipo === 'ok' ? 4000 : 6000);
+    }
 
     function escapeHtml(str) {
         return String(str ?? '')
@@ -932,6 +945,7 @@
                 document.getElementById('cTelefono').textContent = usuarioActual.telefono || 'No registrado';
                 alertaOk.textContent = 'Datos actualizados correctamente.';
                 alertaOk.style.display = 'block';
+                mostrarToast(alertaOk.textContent);
             } else {
                 alertaError.textContent = data.error || 'Error al actualizar los datos.';
                 alertaError.style.display = 'block';
@@ -997,6 +1011,7 @@
             if (res.ok) {
                 alertaOk.textContent = 'Contraseña actualizada correctamente.';
                 alertaOk.style.display = 'block';
+                mostrarToast(alertaOk.textContent);
                 document.getElementById('passActual').value = '';
                 document.getElementById('passNueva').value = '';
                 document.getElementById('passConfirmar').value = '';
@@ -1655,11 +1670,13 @@
         if (!datos.nombres || !datos.apellidos || !datos.numero_documento || !datos.fecha_nacimiento || !datos.sexo || !datos.ciudad_municipio) {
             alertaError.textContent = 'Completa los campos obligatorios: nombres, apellidos, documento, fecha de nacimiento, sexo y ciudad/municipio.';
             alertaError.style.display = 'block';
+            mostrarToast(alertaError.textContent, 'error');
             return;
         }
         if (!datos.autorizacion) {
             alertaError.textContent = 'Debes autorizar el uso de esta información para guardar el censo.';
             alertaError.style.display = 'block';
+            mostrarToast(alertaError.textContent, 'error');
             return;
         }
 
@@ -1678,21 +1695,26 @@
             if (res.ok) {
                 alertaOk.textContent = 'Tu censo fue guardado correctamente.';
                 alertaOk.style.display = 'block';
+                mostrarToast('Censo guardado correctamente.');
+                const hora = new Date().toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' });
+                document.getElementById('estadoCenso').textContent = `Guardado a las ${hora}`;
                 miCensoId = data.censo.id;
                 actualizarSeccionArchivosCenso();
                 actualizarSeccionMiembrosHogar();
                 cargarArchivosCenso();
                 cargarMiembrosHogar();
             } else {
-                alertaError.textContent = data.error || 'Error al guardar tu censo.';
+                alertaError.textContent = data.error || 'No se pudo guardar tu censo.';
                 alertaError.style.display = 'block';
+                mostrarToast(alertaError.textContent, 'error');
             }
         } catch (err) {
-            alertaError.textContent = 'Error de conexión con el servidor.';
+            alertaError.textContent = 'No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.';
             alertaError.style.display = 'block';
+            mostrarToast(alertaError.textContent, 'error');
         } finally {
             btn.disabled = false;
-            btn.textContent = 'Guardar Censo';
+            btn.textContent = 'Guardar censo';
         }
     }
 
@@ -1987,5 +2009,6 @@
 
     cargarDatos();
 </script>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

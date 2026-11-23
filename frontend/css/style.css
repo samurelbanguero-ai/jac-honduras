@@ -776,6 +776,22 @@ footer a:hover { color: #fff; text-decoration: underline; }
 :root[data-theme="dark"] .navbar-titulo { color: #e6ece8; }
 :root[data-theme="dark"] .nav-toggle span { background: #e6ece8; }
 
+/* Aviso flotante (confirmaciones y errores al guardar) */
+.toast {
+    position: fixed; left: 50%; bottom: 24px; z-index: 3000;
+    max-width: min(92vw, 440px);
+    padding: 12px 18px;
+    border-radius: var(--radius-md);
+    background: var(--primary-dark); color: #fff;
+    font-weight: 600; font-size: 0.95rem;
+    box-shadow: 0 10px 30px rgba(5, 35, 19, 0.3);
+    transform: translate(-50%, 16px); opacity: 0; visibility: hidden;
+    transition: opacity 180ms ease-out, transform 180ms ease-out, visibility 180ms;
+}
+.toast.visible { transform: translate(-50%, 0); opacity: 1; visibility: visible; }
+.toast-ok { background: var(--primary); border-left: 4px solid var(--accent); }
+.toast-error { background: #7f1d16; border-left: 4px solid #f1c0ba; }
+
 /* ============================================================
    UTILIDADES
    ============================================================ */
