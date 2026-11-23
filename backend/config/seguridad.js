@@ -25,35 +25,44 @@ function verificarConfiguracion() {
     if (!process.env.JWT_EXPIRES) process.env.JWT_EXPIRES = '1h';
 }
 
-// Si se define ADMIN_PASSWORD (p. ej. en Render), se usa para reemplazar la
-// contraseña por defecto del administrador. Así se puede corregir producción
-// sin acceso a una consola.
+// ADMIN_PASSWORD (p. ej. en Render) es la contraseña del administrador: al
+// arrancar, si el usuario no existe se crea, y si su contraseña es distinta se
+// reemplaza por esta. Así se administra la clave desde el panel del hosting,
+// sin necesitar consola ni acceso a la base de datos.
 async function asegurarAdministrador(pool) {
-    const usuario = process.env.ADMIN_USUARIO || 'admin';
-    const nueva = process.env.ADMIN_PASSWORD;
+    const usuario = (process.env.ADMIN_USUARIO || 'admin').trim();
+    // Se quitan espacios o saltos de línea pegados por error al inicio o al final.
+    const nueva = (process.env.ADMIN_PASSWORD || '').trim();
 
     try {
         const { rows } = await pool.query('SELECT id, contrasena FROM admin WHERE usuario = $1', [usuario]);
         const admin = rows[0];
-        const tieneDefecto = admin && await bcrypt.compare(CONTRASENA_ADMIN_POR_DEFECTO, admin.contrasena);
 
         if (nueva) {
             if (nueva.length < 12) {
-                console.warn('⚠️  ADMIN_PASSWORD debe tener al menos 12 caracteres; no se aplicó.');
-            } else if (!admin) {
+                console.warn(`⚠️  ADMIN_PASSWORD tiene ${nueva.length} caracteres; se necesitan al menos 12. No se aplicó.`);
+                return;
+            }
+            if (!admin) {
                 const hash = await bcrypt.hash(nueva, 12);
                 await pool.query('INSERT INTO admin (usuario, contrasena, nombre) VALUES ($1, $2, $3)',
                     [usuario, hash, 'Administrador JAC']);
-                console.log(`✅ Administrador "${usuario}" creado desde ADMIN_PASSWORD.`);
-            } else if (tieneDefecto) {
-                const hash = await bcrypt.hash(nueva, 12);
-                await pool.query('UPDATE admin SET contrasena = $1 WHERE id = $2', [hash, admin.id]);
-                console.log(`✅ Se reemplazó la contraseña por defecto de "${usuario}" con ADMIN_PASSWORD.`);
+                console.log(`✅ Administrador "${usuario}" creado con ADMIN_PASSWORD.`);
+                return;
             }
+            if (await bcrypt.compare(nueva, admin.contrasena)) {
+                console.log(`✅ El administrador "${usuario}" ya usa la contraseña de ADMIN_PASSWORD.`);
+                return;
+            }
+            const hash = await bcrypt.hash(nueva, 12);
+            await pool.query('UPDATE admin SET contrasena = $1 WHERE id = $2', [hash, admin.id]);
+            console.log(`✅ Contraseña del administrador "${usuario}" actualizada con ADMIN_PASSWORD.`);
             return;
         }
 
-        if (tieneDefecto) {
+        if (!admin) {
+            console.warn(`⚠️  No existe el administrador "${usuario}". Define ADMIN_PASSWORD para crearlo.`);
+        } else if (await bcrypt.compare(CONTRASENA_ADMIN_POR_DEFECTO, admin.contrasena)) {
             console.warn(ES_PRODUCCION
                 ? `🚫 El administrador "${usuario}" tiene la contraseña por defecto. Su inicio de sesión está BLOQUEADO hasta que definas ADMIN_PASSWORD.`
                 : `⚠️  El administrador "${usuario}" usa la contraseña por defecto (solo aceptable en desarrollo).`);
