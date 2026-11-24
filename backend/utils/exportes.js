@@ -57,7 +57,7 @@ const COLUMNAS_AFILIADO = [
     ['nombres', 'Nombres', 22], ['apellidos', 'Apellidos', 22], ['cedula', 'Cédula', 14],
     ['fecha_expedicion', 'Fecha de expedición', 14], ['genero', 'Género', 14], ['etnia', 'Grupo étnico', 16],
     ['discapacidad', 'Discapacidad', 16], ['telefono', 'Teléfono', 15], ['correo', 'Correo', 28],
-    ['fecha_afiliacion', 'Fecha de afiliación', 14], ['tiene_censo', 'Censo diligenciado', 12],
+    ['fecha_afiliacion', 'Fecha de afiliación', 14], ['estado', 'Estado', 12], ['tiene_censo', 'Censo diligenciado', 12],
 ];
 
 // ── Utilidades ─────────────────────────────────────────────

@@ -56,6 +56,9 @@
 
             <!-- ═══ TAB: CARNET ═══ -->
             <div class="tab-panel active" id="panel-carnet">
+                <!-- Estado de la solicitud (solo mientras no esté aprobada) -->
+                <div class="card estado-solicitud" id="estadoSolicitud" style="display:none;" role="status"></div>
+
                 <div class="carnet-card animate-fade">
                     <div class="carnet-top">
                         <img src="../img/logo.png" class="carnet-logo" alt="Logo JAC">
@@ -859,6 +862,66 @@
             avatar.innerHTML = `<img src="${escapeHtml(usuarioActual.foto_url)}" alt="Foto de perfil">`;
         } else {
             avatar.innerHTML = `<span>${escapeHtml(usuarioActual.nombres.charAt(0) + usuarioActual.apellidos.charAt(0))}</span>`;
+        }
+    }
+
+    // ── Estado de la solicitud de afiliación ─────────────────
+    // Mientras la Junta no apruebe la solicitud, no se muestra el carnet ni las
+    // secciones internas de la comunidad (el servidor también las bloquea).
+    function aplicarEstadoAfiliacion(afiliado) {
+        const estado = afiliado.estado || 'aprobado';
+        const aprobado = estado === 'aprobado';
+        const caja = document.getElementById('estadoSolicitud');
+
+        document.querySelector('#panel-carnet .carnet-card').style.display = aprobado ? '' : 'none';
+        document.getElementById('btnDescargarCarnet').style.display = aprobado ? '' : 'none';
+        document.querySelectorAll('.side-tab-btn').forEach(b => {
+            if (b.dataset.tab !== 'carnet') b.style.display = aprobado ? '' : 'none';
+        });
+        const tabCarnet = document.querySelector('.side-tab-btn[data-tab="carnet"]');
+        if (tabCarnet) tabCarnet.lastChild.textContent = aprobado ? 'Mi carnet' : 'Mi solicitud';
+
+        if (aprobado) {
+            caja.style.display = 'none';
+            return;
+        }
+        const fecha = afiliado.solicitado_en
+            ? new Date(afiliado.solicitado_en).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
+            : null;
+        if (estado === 'rechazado') {
+            caja.className = 'card estado-solicitud rechazada';
+            caja.innerHTML = `
+                <h2>Tu solicitud no fue aprobada</h2>
+                <p>La Junta revisó tu solicitud de afiliación y por ahora no fue aprobada.</p>
+                ${afiliado.motivo_rechazo ? `<p><strong>Motivo:</strong> ${escapeHtml(afiliado.motivo_rechazo)}</p>` : ''}
+                <p>Si quieres corregir algún dato o tienes dudas, acércate a la Junta.</p>`;
+        } else {
+            caja.className = 'card estado-solicitud pendiente';
+            caja.innerHTML = `
+                <h2>Tu solicitud está en revisión</h2>
+                <p>Recibimos tu solicitud de afiliación${fecha ? ` el ${escapeHtml(fecha)}` : ''}. La Junta Directiva revisa cada solicitud antes de expedir el carnet.</p>
+                <p>${afiliado.correo
+                    ? `Cuando sea aprobada te avisaremos a <strong>${escapeHtml(afiliado.correo)}</strong> y aquí aparecerá tu carnet digital.`
+                    : 'Cuando sea aprobada, aquí aparecerá tu carnet digital. Registra tu correo abajo para recibir el aviso.'}</p>`;
+        }
+        caja.style.display = 'block';
+    }
+
+    async function revisarEstadoAfiliacion() {
+        if (!usuarioActual) return;
+        aplicarEstadoAfiliacion(usuarioActual);
+        try {
+            const res = await fetch(`${API}/afiliados/perfil`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            if (!res.ok) return;
+            const perfil = await res.json();
+            usuarioActual = { ...usuarioActual, ...perfil };
+            localStorage.setItem('user', JSON.stringify(usuarioActual));
+            aplicarEstadoAfiliacion(usuarioActual);
+            if (perfil.estado === 'aprobado') renderizarCarnetQr();
+        } catch (err) {
+            // sin conexión: se mantiene lo último conocido
         }
     }
 
@@ -2008,6 +2071,7 @@
     }
 
     cargarDatos();
+    revisarEstadoAfiliacion();
 </script>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>

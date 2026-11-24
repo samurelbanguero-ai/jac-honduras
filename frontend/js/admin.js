@@ -23,6 +23,7 @@ window.addEventListener('load', () => {
     }
     mostrarDashboard();
     cargarAfiliados();
+    cargarSolicitudes('pendiente');
     cargarNoticiasAdmin();
 
     // Mobile menu toggle
@@ -107,6 +108,11 @@ function renderizarTabla(lista) {
             <td>${escapeHtml(a.telefono) || '—'}</td>
             <td>${escapeHtml(a.correo) || '—'}</td>
             <td>${formatFecha(a.fecha_afiliacion)}</td>
+            <td>${a.estado === 'aprobado' || !a.estado
+                ? '<span class="badge badge-verde">Aprobado</span>'
+                : a.estado === 'pendiente'
+                    ? '<span class="badge estado-Pendiente">Pendiente</span>'
+                    : '<span class="badge" style="background:#fbefee; color:#7f1d16;">Rechazado</span>'}</td>
             <td>
                 <div style="display:flex; gap:6px; flex-wrap:wrap;">
                     <button class="btn btn-editar btn-sm" data-accion="editar" data-id="${a.id}">Editar</button>
@@ -129,6 +135,7 @@ function renderizarTabla(lista) {
                         <th>Teléfono</th>
                         <th>Correo</th>
                         <th>Afiliación</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -373,6 +380,14 @@ function mostrarAlertaDash(tipo, msg) {
     el.className = `alert alert-${tipo === 'exito' ? 'success' : 'error'}`;
     el.style.display = 'flex';
     setTimeout(() => el.style.display = 'none', 4000);
+    // Aviso flotante: el mensaje de arriba puede quedar fuera de la pantalla
+    const toast = document.getElementById('toast');
+    if (toast) {
+        toast.textContent = msg;
+        toast.className = `toast visible toast-${tipo === 'exito' ? 'ok' : 'error'}`;
+        clearTimeout(mostrarAlertaDash.timer);
+        mostrarAlertaDash.timer = setTimeout(() => toast.classList.remove('visible'), 5000);
+    }
 }
 // ── REGISTRAR DESDE EL PANEL ADMIN ───────────────────────
 // Genera una contraseña temporal (letras y números) para entregarle al afiliado.
@@ -420,7 +435,8 @@ async function registrarDesdeAdmin() {
     try {
         const res = await fetch(`${API}/afiliados`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            // Con el token del administrador, el afiliado queda aprobado de una vez.
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('jac_token')}` },
             body: JSON.stringify(datos)
         });
 
@@ -626,4 +642,98 @@ async function descargarArchivo(ruta, nombrePorDefecto, boton) {
     } finally {
         if (boton) { boton.disabled = false; boton.textContent = textoOriginal; }
     }
+}
+
+// ── Solicitudes de afiliación ─────────────────────────────
+let estadoSolicitudesVisible = 'pendiente';
+
+async function cargarSolicitudes(estado = 'pendiente') {
+    estadoSolicitudesVisible = estado;
+    document.getElementById('btnVerPendientes').className = `btn btn-sm ${estado === 'pendiente' ? 'btn-editar' : 'btn-secondary'}`;
+    document.getElementById('btnVerRechazadas').className = `btn btn-sm ${estado === 'rechazado' ? 'btn-editar' : 'btn-secondary'}`;
+    const cont = document.getElementById('listaSolicitudes');
+    try {
+        const res = await fetch(`${API}/afiliados/solicitudes?estado=${estado}`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('jac_token')}` }
+        });
+        if (res.status === 401 || res.status === 403) { cerrarSesion(); return; }
+        const lista = await res.json();
+        if (estado === 'pendiente') {
+            const contador = document.getElementById('contadorSolicitudes');
+            contador.textContent = lista.length;
+            contador.style.display = lista.length ? 'inline-block' : 'none';
+        }
+        if (!lista.length) {
+            cont.innerHTML = `<p style="color:var(--text-muted); padding:8px 0;">${estado === 'pendiente'
+                ? 'No hay solicitudes pendientes.'
+                : 'No hay solicitudes rechazadas.'}</p>`;
+            return;
+        }
+        cont.innerHTML = lista.map(a => `
+            <div class="solicitud-item" data-id="${a.id}">
+                <h3>${escapeHtml(a.nombres)} ${escapeHtml(a.apellidos)}</h3>
+                <div class="meta">Solicitó el ${escapeHtml(formatFecha(a.solicitado_en || a.created_at))}${a.revisado_en && estado === 'rechazado' ? ` · Rechazada el ${escapeHtml(formatFecha(a.revisado_en))}` : ''}</div>
+                <div class="solicitud-datos">
+                    <span>Cédula: <strong>${escapeHtml(a.cedula)}</strong></span>
+                    <span>Expedición: <strong>${escapeHtml(formatFecha(a.fecha_expedicion))}</strong></span>
+                    <span>Género: <strong>${escapeHtml(a.genero)}</strong></span>
+                    <span>Teléfono: <strong>${escapeHtml(a.telefono || 'No registrado')}</strong></span>
+                    <span>Correo: <strong>${escapeHtml(a.correo || 'No registrado')}</strong></span>
+                    ${a.motivo_rechazo ? `<span style="grid-column:1/-1;">Motivo del rechazo: <strong>${escapeHtml(a.motivo_rechazo)}</strong></span>` : ''}
+                </div>
+                <div class="solicitud-acciones">
+                    <button class="btn btn-primary btn-sm" onclick="aprobarSolicitud(${a.id}, this)">Aprobar afiliación</button>
+                    ${estado === 'pendiente' ? `<button class="btn btn-peligro btn-sm" onclick="mostrarRechazo(${a.id})">Rechazar</button>` : ''}
+                </div>
+                <div class="rechazo-form" id="rechazo-${a.id}" style="display:none; margin-top:10px;">
+                    <label for="motivo-${a.id}" style="font-size:0.85rem;">Motivo del rechazo (se le envía al solicitante)</label>
+                    <textarea id="motivo-${a.id}" maxlength="500" style="min-height:70px; margin:6px 0 8px;" placeholder="Ej: La cédula no corresponde a un residente de la vereda."></textarea>
+                    <button class="btn btn-peligro btn-sm" onclick="rechazarSolicitud(${a.id}, this)">Confirmar rechazo</button>
+                </div>
+            </div>`).join('');
+    } catch (err) {
+        cont.innerHTML = '<p style="color:#a8261d;">No se pudieron cargar las solicitudes. Revisa tu conexión.</p>';
+    }
+}
+
+function mostrarRechazo(id) {
+    const form = document.getElementById(`rechazo-${id}`);
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    if (form.style.display === 'block') document.getElementById(`motivo-${id}`).focus();
+}
+
+async function revisarSolicitud(id, accion, cuerpo, boton) {
+    boton.disabled = true;
+    const texto = boton.textContent;
+    boton.textContent = 'Guardando…';
+    try {
+        const res = await fetch(`${API}/afiliados/${id}/${accion}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('jac_token')}` },
+            body: JSON.stringify(cuerpo || {})
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            mostrarAlertaDash('error', data.error || 'No se pudo guardar la decisión.');
+            return;
+        }
+        mostrarAlertaDash('exito', data.mensaje);
+        cargarSolicitudes(estadoSolicitudesVisible);
+        if (estadoSolicitudesVisible !== 'pendiente') cargarSolicitudes('pendiente');
+        cargarAfiliados();
+    } catch (err) {
+        mostrarAlertaDash('error', 'No hay conexión con el servidor.');
+    } finally {
+        boton.disabled = false;
+        boton.textContent = texto;
+    }
+}
+
+function aprobarSolicitud(id, boton) {
+    revisarSolicitud(id, 'aprobar', null, boton);
+}
+
+function rechazarSolicitud(id, boton) {
+    const motivo = document.getElementById(`motivo-${id}`).value.trim();
+    revisarSolicitud(id, 'rechazar', { motivo }, boton);
 }

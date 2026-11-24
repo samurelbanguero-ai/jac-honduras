@@ -2,26 +2,26 @@
 const express = require('express');
 const router = express.Router();
 const c = require('../controllers/censoController');
-const { verificarToken, verificarAdmin, verificarAfiliado } = require('../middleware/auth');
+const { verificarToken, verificarAdmin, verificarAfiliado, soloAprobados } = require('../middleware/auth');
 const { validarId } = require('../middleware/validar');
 const { subirAdjuntoCenso } = require('./subidas');
 
 router.param('id', validarId);
 
 // ── Afiliado: solo su propio censo ───────────────────────────
-router.get('/mio', verificarToken, verificarAfiliado, c.obtenerMiCenso);
-router.post('/mio', verificarToken, verificarAfiliado, c.guardarMiCenso);
+router.get('/mio', verificarToken, verificarAfiliado, soloAprobados, c.obtenerMiCenso);
+router.post('/mio', verificarToken, verificarAfiliado, soloAprobados, c.guardarMiCenso);
 
 // ── Afiliado: miembros de SU hogar ───────────────────────────
-router.get('/mio/miembros', verificarToken, verificarAfiliado, c.listarMisMiembrosHogar);
-router.post('/mio/miembros', verificarToken, verificarAfiliado, c.agregarMiMiembroHogar);
-router.put('/mio/miembros/:id', verificarToken, verificarAfiliado, c.actualizarMiMiembroHogar);
-router.delete('/mio/miembros/:id', verificarToken, verificarAfiliado, c.eliminarMiMiembroHogar);
+router.get('/mio/miembros', verificarToken, verificarAfiliado, soloAprobados, c.listarMisMiembrosHogar);
+router.post('/mio/miembros', verificarToken, verificarAfiliado, soloAprobados, c.agregarMiMiembroHogar);
+router.put('/mio/miembros/:id', verificarToken, verificarAfiliado, soloAprobados, c.actualizarMiMiembroHogar);
+router.delete('/mio/miembros/:id', verificarToken, verificarAfiliado, soloAprobados, c.eliminarMiMiembroHogar);
 
 // ── Afiliado: archivos adjuntos de SU censo ──────────────────
-router.get('/mio/archivos', verificarToken, verificarAfiliado, c.listarMisArchivosCenso);
-router.post('/mio/archivos', verificarToken, verificarAfiliado, ...subirAdjuntoCenso('archivo'), c.subirMiArchivoCenso);
-router.delete('/mio/archivos/:id', verificarToken, verificarAfiliado, c.eliminarMiArchivoCenso);
+router.get('/mio/archivos', verificarToken, verificarAfiliado, soloAprobados, c.listarMisArchivosCenso);
+router.post('/mio/archivos', verificarToken, verificarAfiliado, soloAprobados, ...subirAdjuntoCenso('archivo'), c.subirMiArchivoCenso);
+router.delete('/mio/archivos/:id', verificarToken, verificarAfiliado, soloAprobados, c.eliminarMiArchivoCenso);
 
 // ── Ver un adjunto: enlace firmado y temporal (lo usan <img> y <a>, que no
 //    pueden enviar el token en la cabecera Authorization) ─────

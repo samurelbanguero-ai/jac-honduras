@@ -17,11 +17,12 @@ const archivos = [
     'database_migracion_censo_vivienda.sql',
     'database_migracion_censo_hogar.sql',
     'database_migracion_recuperacion.sql',
+    'database_migracion_aprobacion.sql',
 ];
 
 // Migraciones idempotentes (CREATE ... IF NOT EXISTS) que se aplican en cada
 // arranque, para que una base existente reciba las tablas nuevas sin borrar nada.
-const MIGRACIONES_IDEMPOTENTES = ['database_migracion_recuperacion.sql'];
+const MIGRACIONES_IDEMPOTENTES = ['database_migracion_recuperacion.sql', 'database_migracion_aprobacion.sql'];
 
 async function aplicarMigracionesIdempotentes(pool) {
     const raiz = path.join(__dirname, '../../');

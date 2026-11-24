@@ -32,6 +32,9 @@ services:
         sync: false
       - key: SITE_URL
         value: https://jac-honduras.onrender.com
+      # Correo de la Junta: recibe el aviso de cada nueva solicitud de afiliación
+      - key: JUNTA_EMAIL
+        sync: false
       - key: SMTP_HOST
         sync: false
       - key: SMTP_PORT

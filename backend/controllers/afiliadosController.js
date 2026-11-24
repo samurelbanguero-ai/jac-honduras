@@ -6,6 +6,7 @@ const QRCode = require('qrcode');
 const { esCredencialPublica } = require('../config/seguridad');
 const { borrarArchivo } = require('../utils/archivos');
 const { excelAfiliados, nombreArchivo } = require('../utils/exportes');
+const { avisarNuevaSolicitud, avisarSolicitudAprobada, avisarSolicitudRechazada } = require('../config/mailer');
 
 const GENEROS = ['Masculino', 'Femenino', 'No binario', 'Otro', 'Prefiero no decir'];
 const RE_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -49,7 +50,8 @@ const esHashBcryptValido = (hash) =>
     typeof hash === 'string' && /^\$2[aby]\$/.test(hash);
 
 const COLUMNAS_PUBLICAS = `id, nombres, apellidos, cedula, fecha_expedicion, genero, etnia,
-    discapacidad, fecha_afiliacion, telefono, correo, foto_url, created_at`;
+    discapacidad, fecha_afiliacion, telefono, correo, foto_url, created_at,
+    estado, solicitado_en, revisado_en, motivo_rechazo`;
 
 // GET /afiliados - Listar todos los afiliados
 const listarAfiliados = async (req, res) => {
@@ -98,28 +100,40 @@ const crearAfiliado = async (req, res) => {
 
     try {
         const hashedPassword = await bcrypt.hash(contrasena, 12);
+        // Registrado por el administrador desde el panel: queda aprobado de una vez.
+        // Registro público: queda como solicitud pendiente hasta que la Junta la revise.
+        const porAdmin = req.admin && req.admin.rol === 'admin';
+        const hoy = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
 
         const result = await pool.query(
             `INSERT INTO afiliados
-             (nombres, apellidos, cedula, contrasena, fecha_expedicion, genero, etnia, discapacidad, fecha_afiliacion, telefono, correo)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+             (nombres, apellidos, cedula, contrasena, fecha_expedicion, genero, etnia, discapacidad, fecha_afiliacion, telefono, correo,
+              estado, revisado_en, revisado_por)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
              RETURNING ${COLUMNAS_PUBLICAS}`,
             [nombres.trim(), apellidos.trim(), cedula, hashedPassword, fecha_expedicion, genero,
              etnia || null, discapacidad || 'Ninguna',
-             fecha_afiliacion || new Date().toISOString().split('T')[0],
-             telefono || null, correo || null]
+             (porAdmin && fecha_afiliacion) || hoy,
+             telefono || null, correo || null,
+             porAdmin ? 'aprobado' : 'pendiente', porAdmin ? new Date() : null, porAdmin ? req.admin.id : null]
         );
-        
+        const afiliado = result.rows[0];
+
+        if (porAdmin) {
+            return res.status(201).json({ mensaje: 'Afiliado registrado y aprobado.', afiliado });
+        }
+
+        avisarNuevaSolicitud(afiliado); // no se espera: el correo no debe demorar la respuesta
         const token = jwt.sign(
-            { id: result.rows[0].id, rol: 'afiliado', cedula: result.rows[0].cedula },
+            { id: afiliado.id, rol: 'afiliado', cedula: afiliado.cedula },
             process.env.JWT_SECRET,
             { expiresIn: '2h' }
         );
 
         res.status(201).json({
-            mensaje: '¡Registro exitoso! Ya te encuentras en la Junta de Acción Comunal de Honduras, Cauca.',
+            mensaje: 'Tu solicitud de afiliación fue enviada. La Junta la revisará y te avisaremos cuando sea aprobada.',
             token,
-            afiliado: result.rows[0]
+            afiliado
         });
     } catch (err) {
         if (err.code === '23505') { // Violación de unique (cédula duplicada)
@@ -310,7 +324,8 @@ const verificarPublico = async (req, res) => {
     }
     try {
         const result = await pool.query(
-            'SELECT nombres, apellidos, cedula, foto_url, fecha_afiliacion FROM afiliados WHERE cedula = $1',
+            `SELECT nombres, apellidos, cedula, foto_url, fecha_afiliacion FROM afiliados
+             WHERE cedula = $1 AND estado = 'aprobado'`,
             [cedula]
         );
         if (result.rows.length === 0) {
@@ -382,12 +397,72 @@ const qrPropio = async (req, res) => {
     }
 };
 
+// ── Solicitudes de afiliación (admin) ──────────────────────
+
+// GET /afiliados/solicitudes?estado=pendiente|rechazado
+const listarSolicitudes = async (req, res) => {
+    const estado = ['pendiente', 'rechazado'].includes(req.query.estado) ? req.query.estado : 'pendiente';
+    try {
+        const { rows } = await pool.query(
+            `SELECT ${COLUMNAS_PUBLICAS} FROM afiliados WHERE estado = $1 ORDER BY solicitado_en ASC`, [estado]);
+        res.json(rows);
+    } catch (err) {
+        console.error('Error al listar solicitudes:', err);
+        res.status(500).json({ error: 'Error al obtener las solicitudes.' });
+    }
+};
+
+// PUT /afiliados/:id/aprobar
+const aprobarSolicitud = async (req, res) => {
+    try {
+        const hoy = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
+        const { rows } = await pool.query(
+            `UPDATE afiliados
+             SET estado = 'aprobado', revisado_en = NOW(), revisado_por = $2, motivo_rechazo = NULL, fecha_afiliacion = $3
+             WHERE id = $1 AND estado <> 'aprobado'
+             RETURNING ${COLUMNAS_PUBLICAS}`,
+            [req.params.id, req.admin.id, hoy]);
+        if (!rows[0]) return res.status(404).json({ error: 'La solicitud no existe o ya estaba aprobada.' });
+        const correoEnviado = rows[0].correo ? await avisarSolicitudAprobada(rows[0]) : false;
+        res.json({
+            mensaje: `Afiliación de ${rows[0].nombres} ${rows[0].apellidos} aprobada.` +
+                (rows[0].correo ? (correoEnviado ? ' Se le avisó por correo.' : ' No se envió el correo de aviso (revisa la configuración de correo del servidor).') : ' No tiene correo registrado: avísale por otro medio.'),
+            afiliado: rows[0],
+        });
+    } catch (err) {
+        console.error('Error al aprobar solicitud:', err);
+        res.status(500).json({ error: 'No se pudo aprobar la solicitud.' });
+    }
+};
+
+// PUT /afiliados/:id/rechazar { motivo }
+const rechazarSolicitud = async (req, res) => {
+    const motivo = typeof req.body.motivo === 'string' ? req.body.motivo.trim().slice(0, 500) : '';
+    try {
+        const { rows } = await pool.query(
+            `UPDATE afiliados SET estado = 'rechazado', revisado_en = NOW(), revisado_por = $2, motivo_rechazo = $3
+             WHERE id = $1 AND estado = 'pendiente'
+             RETURNING ${COLUMNAS_PUBLICAS}`,
+            [req.params.id, req.admin.id, motivo || null]);
+        if (!rows[0]) return res.status(404).json({ error: 'La solicitud no existe o ya fue revisada.' });
+        const correoEnviado = rows[0].correo ? await avisarSolicitudRechazada(rows[0], motivo) : false;
+        res.json({
+            mensaje: `Solicitud de ${rows[0].nombres} ${rows[0].apellidos} rechazada.` +
+                (rows[0].correo ? (correoEnviado ? ' Se le avisó por correo.' : ' No se envió el correo de aviso (revisa la configuración de correo del servidor).') : ''),
+            afiliado: rows[0],
+        });
+    } catch (err) {
+        console.error('Error al rechazar solicitud:', err);
+        res.status(500).json({ error: 'No se pudo rechazar la solicitud.' });
+    }
+};
+
 // GET /afiliados/exportar (admin) — lista de afiliados en Excel
 const exportarAfiliados = async (req, res) => {
     try {
         const { rows } = await pool.query(
             `SELECT a.nombres, a.apellidos, a.cedula, a.fecha_expedicion, a.genero, a.etnia, a.discapacidad,
-                    a.telefono, a.correo, a.fecha_afiliacion,
+                    a.telefono, a.correo, a.fecha_afiliacion, INITCAP(a.estado) AS estado,
                     EXISTS (SELECT 1 FROM censos c WHERE c.afiliado_id = a.id) AS tiene_censo
              FROM afiliados a ORDER BY a.apellidos, a.nombres`);
         const buffer = await excelAfiliados(rows);
@@ -403,6 +478,9 @@ const exportarAfiliados = async (req, res) => {
 };
 
 module.exports = {
+    listarSolicitudes,
+    aprobarSolicitud,
+    rechazarSolicitud,
     exportarAfiliados,
     validarContrasena,
     qrPropio,

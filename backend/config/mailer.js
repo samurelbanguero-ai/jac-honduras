@@ -115,4 +115,89 @@ async function enviarCorreoRecuperacion({ correo, nombre, enlace, minutos }) {
     }
 }
 
-module.exports = { notificarNuevaNoticia, enviarCorreoRecuperacion };
+// ── Solicitudes de afiliación ──────────────────────────────
+const sitio = () => (process.env.SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
+
+function plantilla(titulo, parrafos, boton) {
+    const cuerpo = parrafos.map(p => `<p style="margin:0 0 12px;">${p}</p>`).join('');
+    const enlace = boton
+        ? `<p style="margin:24px 0;"><a href="${escaparHtml(boton.url)}" style="background:#0a4325; color:#ffffff; padding:12px 20px; border-radius:6px; text-decoration:none; font-weight:bold;">${escaparHtml(boton.texto)}</a></p>`
+        : '';
+    return `
+        <div style="font-family: Arial, sans-serif; max-width:560px; margin:0 auto; color:#16241c;">
+            <h2 style="color:#0a4325; margin-bottom:12px;">${escaparHtml(titulo)}</h2>
+            ${cuerpo}${enlace}
+            <hr style="border:none; border-top:1px solid #dde3dd; margin:24px 0;">
+            <p style="color:#78867d; font-size:0.8rem;">Junta de Acción Comunal de Honduras, Cauca</p>
+        </div>`;
+}
+
+async function enviarCorreo({ para, asunto, texto, html }) {
+    const t = obtenerTransporter();
+    if (!t || !para) {
+        if (!t) console.warn(`⚠️  SMTP no configurado: no se envió el correo "${asunto}".`);
+        return false;
+    }
+    try {
+        await t.sendMail({ from: process.env.SMTP_FROM || process.env.SMTP_USER, to: para, subject: asunto, text: texto, html });
+        return true;
+    } catch (err) {
+        console.error(`Error al enviar el correo "${asunto}":`, err.message);
+        return false;
+    }
+}
+
+// Aviso a la Junta: llegó una solicitud nueva.
+function avisarNuevaSolicitud(afiliado) {
+    const para = process.env.JUNTA_EMAIL || process.env.SMTP_USER;
+    const nombre = `${afiliado.nombres} ${afiliado.apellidos}`;
+    const panel = `${sitio()}/panel-jac-2024`;
+    return enviarCorreo({
+        para,
+        asunto: `Nueva solicitud de afiliación: ${nombre}`.replace(/[\r\n]+/g, ' '),
+        texto: `${nombre} (C.C. ${afiliado.cedula}) solicitó afiliarse a la Junta.\n\nRevisa y aprueba o rechaza la solicitud en el panel: ${panel}`,
+        html: plantilla('Nueva solicitud de afiliación', [
+            `<strong>${escaparHtml(nombre)}</strong> (C.C. ${escaparHtml(afiliado.cedula)}) solicitó afiliarse a la Junta.`,
+            `Teléfono: ${escaparHtml(afiliado.telefono || 'no registrado')}<br>Correo: ${escaparHtml(afiliado.correo || 'no registrado')}`,
+            'Revisa los datos en el panel y aprueba o rechaza la solicitud.',
+        ], { texto: 'Revisar solicitud', url: panel }),
+    });
+}
+
+// Aviso al solicitante: su afiliación fue aprobada.
+function avisarSolicitudAprobada(afiliado) {
+    const ingreso = `${sitio()}/login`;
+    return enviarCorreo({
+        para: afiliado.correo,
+        asunto: 'Tu afiliación a la JAC Honduras fue aprobada',
+        texto: `Hola ${afiliado.nombres}:\n\nLa Junta de Acción Comunal de Honduras aprobó tu solicitud de afiliación. Ya puedes ingresar y ver tu carnet digital: ${ingreso}`,
+        html: plantilla('Tu afiliación fue aprobada', [
+            `Hola ${escaparHtml(afiliado.nombres)}:`,
+            'La Junta de Acción Comunal de Honduras aprobó tu solicitud de afiliación. Ya haces parte de la Junta.',
+            'Ingresa con tu cédula para ver tu carnet digital, votar en las consultas y participar en los convites.',
+        ], { texto: 'Ver mi carnet', url: ingreso }),
+    });
+}
+
+// Aviso al solicitante: su afiliación no fue aprobada.
+function avisarSolicitudRechazada(afiliado, motivo) {
+    return enviarCorreo({
+        para: afiliado.correo,
+        asunto: 'Sobre tu solicitud de afiliación a la JAC Honduras',
+        texto: `Hola ${afiliado.nombres}:\n\nLa Junta revisó tu solicitud de afiliación y por ahora no fue aprobada.${motivo ? `\n\nMotivo: ${motivo}` : ''}\n\nSi tienes dudas, acércate a la Junta.`,
+        html: plantilla('Sobre tu solicitud de afiliación', [
+            `Hola ${escaparHtml(afiliado.nombres)}:`,
+            'La Junta revisó tu solicitud de afiliación y por ahora no fue aprobada.',
+            ...(motivo ? [`<strong>Motivo:</strong> ${escaparHtml(motivo)}`] : []),
+            'Si tienes dudas o quieres corregir algún dato, acércate a la Junta.',
+        ]),
+    });
+}
+
+module.exports = {
+    notificarNuevaNoticia,
+    enviarCorreoRecuperacion,
+    avisarNuevaSolicitud,
+    avisarSolicitudAprobada,
+    avisarSolicitudRechazada,
+};

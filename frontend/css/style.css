@@ -776,6 +776,22 @@ footer a:hover { color: #fff; text-decoration: underline; }
 :root[data-theme="dark"] .navbar-titulo { color: #e6ece8; }
 :root[data-theme="dark"] .nav-toggle span { background: #e6ece8; }
 
+/* Estado de la solicitud de afiliación (panel del afiliado) */
+.estado-solicitud { margin-bottom: 1.5rem; border-left: 4px solid var(--gold); }
+.estado-solicitud h2 { font-size: 1.3rem; margin-bottom: 0.5rem; }
+.estado-solicitud p { color: var(--text-muted); margin-bottom: 0.6rem; max-width: 40rem; }
+.estado-solicitud p:last-child { margin-bottom: 0; }
+.estado-solicitud.rechazada { border-left-color: #a8261d; }
+
+/* Solicitudes de afiliación (panel del administrador) */
+.solicitud-item { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.solicitud-item:last-child { border-bottom: 0; }
+.solicitud-item h3 { font-size: 1.05rem; margin-bottom: 2px; }
+.solicitud-datos { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 4px 18px; font-size: 0.9rem; color: var(--text-muted); margin: 8px 0 12px; }
+.solicitud-datos strong { color: var(--text-main); font-weight: 600; }
+.solicitud-acciones { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; }
+.contador-solicitudes { display: inline-block; min-width: 22px; padding: 0 7px; margin-left: 8px; border-radius: 999px; background: var(--gold); color: var(--primary-dark); font-family: var(--font-sans); font-size: 0.78rem; font-weight: 700; text-align: center; }
+
 /* Aviso flotante (confirmaciones y errores al guardar) */
 .toast {
     position: fixed; left: 50%; bottom: 24px; z-index: 3000;

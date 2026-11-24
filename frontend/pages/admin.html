@@ -54,6 +54,24 @@
         <div class="contenedor-wide">
         <div class="acordeon-grid">
 
+            <!-- SOLICITUDES DE AFILIACIÓN -->
+            <details class="acordeon acordeon-dorado" id="seccionSolicitudes" open style="grid-column: 1 / -1;">
+                <summary>
+                    <span class="summary-grupo">
+                        <span class="icono-seccion"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 11l2 2 4-4"/></svg></span>
+                        <span class="summary-texto">Solicitudes de afiliación <span class="contador-solicitudes" id="contadorSolicitudes" style="display:none;"></span></span>
+                    </span>
+                </summary>
+                <div>
+                    <p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:12px;">Quien se afilia desde la página queda en espera hasta que la Junta apruebe la solicitud. Al aprobarla se habilita su carnet y se le avisa por correo.</p>
+                    <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+                        <button class="btn btn-sm btn-editar" id="btnVerPendientes" onclick="cargarSolicitudes('pendiente')">Pendientes</button>
+                        <button class="btn btn-sm btn-secondary" id="btnVerRechazadas" onclick="cargarSolicitudes('rechazado')">Rechazadas</button>
+                    </div>
+                    <div id="listaSolicitudes"><div class="cargando"><div class="spinner"></div>Cargando solicitudes…</div></div>
+                </div>
+            </details>
+
             <!-- FORMULARIO: PUBLICAR NOTICIA -->
             <details class="acordeon acordeon-rosa">
                 <summary>
@@ -594,6 +612,7 @@
 <script src="../js/admin.js"></script>
 <script src="../js/comunidad-admin.js"></script>
 
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
 

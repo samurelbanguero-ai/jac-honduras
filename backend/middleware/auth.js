@@ -52,4 +52,25 @@ const identificarUsuario = (req, res, next) => {
     next();
 };
 
-module.exports = { verificarToken, verificarAdmin, verificarAfiliado, identificarUsuario };
+// Para funciones internas de la comunidad: el administrador siempre pasa; un
+// afiliado solo si su solicitud ya fue aprobada (se consulta la base en cada
+// petición, así una aprobación o un rechazo se aplican de inmediato).
+const soloAprobados = async (req, res, next) => {
+    if (req.admin && req.admin.rol === 'admin') return next();
+    if (!req.admin || req.admin.rol !== 'afiliado') {
+        return res.status(403).json({ error: 'Acceso restringido.' });
+    }
+    try {
+        const pool = require('../config/db');
+        const { rows } = await pool.query('SELECT estado FROM afiliados WHERE id = $1', [req.admin.id]);
+        if (!rows[0]) return res.status(401).json({ error: 'Tu cuenta ya no existe. Inicia sesión de nuevo.' });
+        if (rows[0].estado !== 'aprobado') {
+            return res.status(403).json({ error: 'Tu solicitud de afiliación todavía no ha sido aprobada por la Junta.', estado: rows[0].estado });
+        }
+        next();
+    } catch (err) {
+        next(err);
+    }
+};
+
+module.exports = { verificarToken, verificarAdmin, verificarAfiliado, identificarUsuario, soloAprobados };

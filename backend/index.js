@@ -99,7 +99,15 @@ const limiteGeneral = limitador(600, 15, 'Demasiadas peticiones. Intenta más ta
 app.use('/api', (req, res, next) => (req.path === '/ping' ? next() : limiteGeneral(req, res, next)));
 
 // ─── Archivos estáticos ────────────────────────────────────
-app.use(express.static(FRONTEND_DIR, { index: false, maxAge: ES_PRODUCCION ? '1h' : 0 }));
+// HTML, JS y CSS se revalidan en cada visita (con ETag, así que si no cambiaron
+// el navegador recibe un 304 liviano). Evita que, tras un despliegue, el
+// navegador combine páginas nuevas con scripts viejos guardados en caché.
+app.use(express.static(FRONTEND_DIR, {
+    index: false,
+    setHeaders: (res, ruta) => {
+        res.setHeader('Cache-Control', /\.(html|js|css)$/i.test(ruta) ? 'no-cache' : 'public, max-age=86400');
+    },
+}));
 // Chart.js se sirve desde node_modules (antes venía de un CDN sin verificación de integridad)
 const CHART_JS = path.join(path.dirname(require.resolve('chart.js')), 'chart.umd.min.js');
 app.get('/vendor/chart.umd.min.js', (req, res) => res.sendFile(CHART_JS));

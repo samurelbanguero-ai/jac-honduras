@@ -3,12 +3,21 @@ const pool = require('../config/db');
 const { notificarNuevaNoticia } = require('../config/mailer');
 const { borrarArchivo } = require('../utils/archivos');
 
+// ¿Puede ver noticias solo-afiliados? Admin, o afiliado con la afiliación aprobada.
+async function puedeVerInternas(usuario) {
+    if (!usuario) return false;
+    if (usuario.rol === 'admin') return true;
+    if (usuario.rol !== 'afiliado') return false;
+    const { rows } = await pool.query('SELECT estado FROM afiliados WHERE id = $1', [usuario.id]);
+    return rows[0]?.estado === 'aprobado';
+}
+
 // GET /noticias - Listar noticias.
 // Visitante anónimo: solo noticias públicas.
 // Afiliado o admin autenticado: públicas + solo-afiliados.
 const listarNoticias = async (req, res) => {
-    const autenticado = Boolean(req.admin);
     try {
+        const autenticado = await puedeVerInternas(req.admin);
         const result = await pool.query(
             `SELECT n.*, a.nombre as autor_nombre
              FROM noticias n
@@ -27,8 +36,8 @@ const listarNoticias = async (req, res) => {
 // GET /noticias/:id - Obtener una noticia
 const obtenerNoticia = async (req, res) => {
     const { id } = req.params;
-    const autenticado = Boolean(req.admin);
     try {
+        const autenticado = await puedeVerInternas(req.admin);
         const result = await pool.query(
             `SELECT n.*, a.nombre as autor_nombre
              FROM noticias n

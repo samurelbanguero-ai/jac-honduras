@@ -68,6 +68,16 @@ Con `NODE_ENV=production`, el servidor **bloquea** el inicio de sesión con `adm
 
 El panel de administración está en `/panel-jac-2024`; se entra desde `/login` con el usuario del administrador.
 
+## Solicitudes de afiliación
+
+Quien se afilia desde `/registro` queda como **solicitud pendiente**:
+
+1. La Junta recibe un correo (en `JUNTA_EMAIL`) y la solicitud aparece en el panel, en **Solicitudes de afiliación**.
+2. Mientras está pendiente, el solicitante puede ingresar y ver el estado de su solicitud, pero no tiene carnet ni acceso a votaciones, PQRS, convites, documentos ni censo. Su cédula tampoco aparece en la verificación pública del carnet.
+3. El administrador **aprueba** o **rechaza** (con un motivo). El solicitante recibe un correo con la decisión, y si fue aprobada, su carnet aparece en la cuenta. La fecha de afiliación es la de la aprobación.
+
+Los afiliados que registra el administrador desde el panel quedan aprobados de una vez. Los que ya existían antes de este cambio también quedan aprobados.
+
 ## Recuperación de contraseña
 
 En `/login` está el enlace **¿Olvidaste tu contraseña?**:
@@ -93,6 +103,7 @@ Quien no tenga correo registrado le pide a la Junta una contraseña temporal: el
 | `ADMIN_USUARIO`, `ADMIN_PASSWORD` | Creación o rotación del administrador al arrancar |
 | `CLOUDINARY_URL` | Guarda los archivos en Cloudinary. Vacío = disco local (`backend/uploads`) |
 | `SITE_URL` | URL pública; se usa en el QR del carnet y en los correos |
+| `JUNTA_EMAIL` | Correo de la Junta que recibe los avisos de nuevas solicitudes (por defecto, `SMTP_USER`) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | Correos de recuperación de contraseña y avisos de noticias nuevas |
 | `CORS_ORIGIN` | Solo si el frontend se sirve desde otro dominio |
 | `TRUST_PROXY` | Saltos de proxy de confianza (por defecto 1 en producción) |
@@ -121,7 +132,8 @@ Quien no tenga correo registrado le pide a la Junta una contraseña temporal: el
    - `DATABASE_URL`: la cadena de Neon.
    - `CLOUDINARY_URL`: la de Cloudinary.
    - `ADMIN_PASSWORD`: la contraseña del administrador (mínimo 12 caracteres).
-   - `SMTP_*`: necesarias para que lleguen los correos de recuperación de contraseña (y los avisos de noticias).
+   - `SMTP_*`: necesarias para los correos de recuperación de contraseña, solicitudes de afiliación y avisos de noticias.
+   - `JUNTA_EMAIL`: el correo de la Junta, donde llegan las solicitudes nuevas.
 4. Despliega. En el primer arranque el servidor crea las tablas en Neon y el usuario `admin`.
 
 ### 4. Evitar que se duerma (opcional)
